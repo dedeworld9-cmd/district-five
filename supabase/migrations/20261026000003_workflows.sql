@@ -150,7 +150,7 @@ begin
   insert into public.approval_actions (record_type, record_id, department_key, submitter_id, actor_id, actor_name, action, to_status, reason)
   values ('membership', new_id, p_department, p.id, p.id, p.display_name, 'submitted', 'pending', left(p_note, 600));
   perform public.notify(r, 'Roster request · ' || p.display_name, 'New ' || d.short_name || ' membership request.',
-                        '/roster?tab=requests', 'roster', 'normal', p_department, 'membership', new_id, 'mbreq:' || new_id)
+                        '/hub/roster?dept=' || p_department, 'roster', 'normal', p_department, 'membership', new_id, 'mbreq:' || new_id)
   from public.reviewers_for(p_department, 'high_command', p.id) r;
   perform public.write_audit(p, 'membership.requested', 'membership', new_id, null, p_department);
   return new_id;
@@ -204,7 +204,7 @@ begin
     perform public.notify(m.profile_id,
       case when p_action = 'approve' then 'Welcome to ' || upper(m.department_key) else 'Roster request denied' end,
       coalesce(p_reason, case when p_action = 'approve' then 'You are on the roster as ' || m.rank_name || '.' end),
-      '/', 'roster', 'high', m.department_key, 'membership', m.id, null);
+      '/hub/roster/' || m.id, 'roster', 'high', m.department_key, 'membership', m.id, null);
   end if;
   perform public.write_audit(p, 'membership.' || p_action, 'membership', m.id, m.ref, m.department_key, null, to_jsonb(m));
   return m;
@@ -289,7 +289,7 @@ begin
 
   if m.profile_id is not null and personnel_change then
     perform public.notify(m.profile_id, 'Your ' || upper(m.department_key) || ' membership changed',
-      coalesce(m.rank_name, '') || ' · ' || m.status::text, '/', 'roster', 'high', m.department_key, 'membership', m.id, null);
+      coalesce(m.rank_name, '') || ' · ' || m.status::text, '/hub/roster/' || m.id, 'roster', 'high', m.department_key, 'membership', m.id, null);
   end if;
   perform public.write_audit(p, 'membership.updated', 'membership', m.id, m.ref, m.department_key, to_jsonb(before_m), to_jsonb(m));
   return m;
@@ -386,7 +386,7 @@ begin
             case when was_status = 'returned' then 'resubmitted' else 'submitted' end, was_status::text, 'submitted');
     perform public.notify(r, 'Shift log to review · ' || s.snapshot_name,
       s.ref || ' · ' || round(s.duration_minutes / 60.0, 1) || 'h ' || s.activity_type,
-      '/approvals?id=' || s.id, 'approval', 'normal', s.department_key, 'shift_log', s.id, 'shiftsub:' || s.id || ':' || s.version)
+      '/hub/shifts/' || s.id, 'approval', 'normal', s.department_key, 'shift_log', s.id, 'shiftsub:' || s.id || ':' || s.version)
     from public.reviewers_for(s.department_key, s.required_tier, p.id) r;
   end if;
   perform public.write_audit(p, case when p_submit then 'shift.submitted' else 'shift.saved' end, 'shift_log', s.id, s.ref, s.department_key);
@@ -474,10 +474,10 @@ begin
     perform public.notify(s.profile_id,
       'Shift log ' || case p_action when 'approve' then 'approved' when 'deny' then 'denied' else 'returned for correction' end || ' · ' || s.ref,
       coalesce(p_reason, round(s.duration_minutes / 60.0, 1) || 'h counted toward this week.'),
-      '/shifts?id=' || s.id, 'approval', case when p_action = 'approve' then 'normal' else 'high' end,
+      '/hub/shifts/' || s.id, 'approval', case when p_action = 'approve' then 'normal' else 'high' end,
       s.department_key, 'shift_log', s.id, null);
   elsif p_action = 'escalate' then
-    perform public.notify(r, 'Escalated to DPS · ' || s.ref, coalesce(p_reason, s.snapshot_name), '/approvals?id=' || s.id,
+    perform public.notify(r, 'Escalated to DPS · ' || s.ref, coalesce(p_reason, s.snapshot_name), '/hub/shifts/' || s.id,
       'approval', 'high', s.department_key, 'shift_log', s.id, 'shiftesc:' || s.id)
     from public.reviewers_for(s.department_key, 'dps', s.profile_id) r;
   end if;

@@ -322,3 +322,23 @@ select tst.ok((select bodycam_required from public.departments where key = 'bcso
 -- audit trail
 select tst.ok((select count(*) from public.audit_log) > 15, 'audit log is being written');
 select tst.fails($$update public.audit_log set action = 'x'$$, 'P0001', 'audit log is append-only even for the owner');
+
+-- demo data
+select tst.become('bcso_head');
+set role authenticated;
+select tst.fails($$select public.admin_seed_demo()$$, 'D5403', 'sheriff: cannot load demo data');
+reset role;
+select tst.become('admin');
+set role authenticated;
+select tst.ok(public.admin_seed_demo() = 6, 'admin: loads labeled demo roster');
+select tst.fails($$select public.admin_seed_demo()$$, 'D5409', 'admin: demo data loads once');
+select tst.fails($$select public.admin_set_setting('dual_membership_mode', '"sometimes"')$$, 'D5422', 'admin: dual mode validated');
+select public.admin_set_setting('dual_membership_mode', '"per_department"');
+select tst.fails($$select public.admin_save_route('shift_log', 'bcso', 'supervisor', 'patrol')$$, 'D5422', 'admin: route must escalate');
+reset role;
+select tst.ok((select count(*) from public.memberships where is_demo and display_name not like '[DEMO]%') = 0, 'every demo row is labeled');
+select tst.become('admin');
+set role authenticated;
+select tst.ok(public.admin_clear_demo() = 6, 'admin: removes demo roster');
+reset role;
+select tst.ok(not exists (select 1 from public.announcements where is_demo), 'demo announcements removed');
