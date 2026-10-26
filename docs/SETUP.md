@@ -29,7 +29,7 @@ The hub asks Discord only for the `identify` scope: the member's Discord ID, use
 ## 3. Vercel: put the website online
 
 1. Go to [vercel.com](https://vercel.com) and sign in with GitHub.
-2. Click **Add New** → **Project** and import the `district-five-hub` repository.
+2. Click **Add New** → **Project** and import the `district-five` repository.
 3. Before deploying, open **Environment Variables** and add:
 
    | Name | Value |
@@ -38,7 +38,7 @@ The hub asks Discord only for the `identify` scope: the member's Discord ID, use
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your anon or publishable key |
 
    Do not add `NEXT_PUBLIC_D5_DEV_LOGIN`. That switch is for local testing only.
-4. Click **Deploy**. When it finishes, copy the site address, for example `https://district-five-hub.vercel.app`.
+4. Click **Deploy**. When it finishes, copy the site address, for example `https://district-five.vercel.app`.
 5. In Supabase, open **Authentication** → **URL Configuration**:
    - Set **Site URL** to your site address.
    - Under **Redirect URLs**, add `https://YOUR-SITE.vercel.app/auth/callback`.
