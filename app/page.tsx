@@ -25,6 +25,8 @@ export default async function Home() {
   const short = (k: string | null) => (k ? departments?.find((d) => d.key === k)?.short_name ?? k : 'District');
 
   const units = divisions.flatMap((g) => g.depts);
+  // In-game photos supplied by departments, shown behind their card.
+  const PHOTOS: Record<string, string> = { bcso: '/logos/bcso-photo.jpg' };
   const features = [
     ['Shift logs', 'Clock in, clock out, and send the log to your supervisor in one step.', 'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
     ['Reports & requests', 'Incidents, use of force, patient care, warrants, BOLOs, leave and training.', 'M9 12h6M9 16h6M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z'],
@@ -91,10 +93,17 @@ export default async function Home() {
               </div>
               <div className="grid gap-4 sm:grid-cols-2">
                 {g.depts.map((d) => (
-                  <div key={d.key} id={d.key} className="dept-card card relative scroll-mt-24 overflow-hidden p-7"
+                  <div key={d.key} id={d.key} className={`dept-card card relative scroll-mt-24 overflow-hidden p-7 ${PHOTOS[d.key] ? 'min-h-[200px]' : ''}`}
                     style={{ '--accent': d.accent } as React.CSSProperties}>
                     <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${d.accent}, transparent)` }} />
                     <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full opacity-[0.10] blur-3xl" style={{ background: d.accent }} />
+                    {PHOTOS[d.key] && (
+                      <>
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img src={PHOTOS[d.key]} alt="" className="absolute inset-y-0 right-0 h-full w-[70%] object-cover opacity-60" />
+                        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, var(--color-surface) 30%, rgb(13 17 24 / 0.8) 55%, rgb(13 17 24 / 0.15))' }} />
+                      </>
+                    )}
                     <div className="relative flex items-start gap-5">
                       <Emblem dept={d.key} label={d.short_name} accent={d.accent} division={d.division} size={64} />
                       <div className="min-w-0">
