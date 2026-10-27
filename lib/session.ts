@@ -23,6 +23,8 @@ export interface Session {
   tierIn: (dept: string) => Tier | null;
   canSupervise: (dept: string) => boolean;
   canManageRoster: (dept: string) => boolean;
+  /** Department heads, division command and admins run the department's own settings. */
+  canAdminister: (dept: string) => boolean;
   /** Departments whose queues/rosters this person may supervise. */
   supervised: Department[];
 }
@@ -57,6 +59,7 @@ export const getSession = cache(async (): Promise<Session | null> => {
   const tierIn = (dept: string) => active.find((m) => m.department_key === dept)?.tier ?? null;
   const canSupervise = (dept: string) => oversees(dept) || atLeast(tierIn(dept), 'supervisor');
   const canManageRoster = (dept: string) => oversees(dept) || profile.is_admin || atLeast(tierIn(dept), 'high_command');
+  const canAdminister = (dept: string) => oversees(dept) || profile.is_admin || atLeast(tierIn(dept), 'department_head');
 
   return {
     userId: user.id,
@@ -72,6 +75,7 @@ export const getSession = cache(async (): Promise<Session | null> => {
     tierIn,
     canSupervise,
     canManageRoster,
+    canAdminister,
     supervised: depts.filter((d) => d.kind === 'department' && canSupervise(d.key)),
   };
 });

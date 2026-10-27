@@ -228,7 +228,7 @@ select tst.ok((public.set_announcement_public(:'bcso_ann', true)).is_public, 'sh
 select (public.save_shift_log(null, 'bcso', date_trunc('minute', now()) - interval '12 hours', date_trunc('minute', now()) - interval '11 hours', 0,
         'administrative', '[TEST] head shift', null, null, null, null, true)).id as head_shift \gset
 select tst.ok((select required_tier from public.shift_logs where id = :'head_shift') = 'dps', 'sheriff: own log routes to DPS');
-select tst.fails($$select public.admin_update_department('bcso', 60, null, null, null, null, null)$$, 'D5403', 'sheriff: admin settings need admin');
+select tst.fails($$select public.admin_update_department('sahp', 60, null, null, null, null, null)$$, 'D5403', 'sheriff: cannot change another department''s settings');
 reset role;
 select tst.become('bcso_hc');
 set role authenticated;

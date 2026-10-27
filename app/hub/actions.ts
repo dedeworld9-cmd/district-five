@@ -242,7 +242,9 @@ export async function adminAddSelf(form: FormData) {
 
 // One roster row per line: department, name, discord id, rank, callsign, badge
 export async function adminImportRoster(form: FormData) {
-  const back = '/hub/admin?tab=import';
+  const back = safePath(str(form, 'back'), '/hub/admin?tab=import');
+  // From a department's command staff panel the department is fixed and left out of each line.
+  const fixed = str(form, 'department');
   const supabase = await createClient();
   const { data: ranks } = await supabase.from('ranks').select('id,department_key,name,abbreviation');
   const lines = (str(form, 'rows') ?? '').split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
@@ -250,7 +252,8 @@ export async function adminImportRoster(form: FormData) {
   const problems: string[] = [];
   let added = 0;
   for (const [i, line] of lines.entries()) {
-    const [dept, name, discord, rank, callsign, badge] = line.split(',').map((c) => c.trim());
+    const cols = line.split(',').map((c) => c.trim());
+    const [dept, name, discord, rank, callsign, badge] = fixed ? [fixed, ...cols] : cols;
     const r = (ranks ?? []).find((x) => x.department_key === dept?.toLowerCase() &&
       (x.name.toLowerCase() === rank?.toLowerCase() || (x.abbreviation ?? '').toLowerCase() === rank?.toLowerCase()));
     if (!r) { problems.push(`line ${i + 1}: rank "${rank}" not found in ${dept}`); continue; }

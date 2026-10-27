@@ -1,7 +1,9 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { Emblem } from '@/components/Emblem';
+import { PanelTabs } from '@/components/PanelTabs';
 import { Empty, PageHead } from '@/components/ui';
+import { panelDepts } from '@/lib/panels';
 import { hours, relative } from '@/lib/format';
 import { KIND } from '@/lib/kinds';
 import { canDecide } from '@/lib/queue';
@@ -9,7 +11,7 @@ import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { ApprovalAction, ComplianceRow, Membership, Submission, Tier } from '@/lib/types';
 
-export const metadata = { title: 'Command' };
+export const metadata = { title: 'Supervisor panel' };
 
 type Open = { id: string; department_key: string; required_tier: Tier; profile_id: string };
 
@@ -17,9 +19,8 @@ type Open = { id: string; department_key: string; required_tier: Tier; profile_i
 export default async function Command({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const s = await requireSession();
-  const depts = s.supervised;
-  if (!depts.length) redirect('/hub');
-  const dept = depts.find((d) => d.key === sp.dept) ?? depts.find((d) => d.key === s.current?.department_key) ?? depts[0];
+  const { list: depts, dept } = panelDepts(s, 'supervisor', sp.dept);
+  if (!dept) redirect('/hub');
   const supabase = await createClient();
   const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
 
@@ -64,16 +65,8 @@ export default async function Command({ searchParams }: { searchParams: Promise<
 
   return (
     <>
-      <PageHead eyebrow={`Command · ${dept.name}`} title="Command center">
-        {depts.length > 1 && (
-          <div className="flex flex-wrap gap-1">
-            {depts.map((d) => (
-              <Link key={d.key} href={`/hub/command?dept=${d.key}`}
-                className={`rounded-full px-3 py-1.5 text-[13px] ${d.key === dept.key ? 'bg-white/[0.08] text-ink' : 'text-muted hover:text-ink'}`}>{d.short_name}</Link>
-            ))}
-          </div>
-        )}
-      </PageHead>
+      <PageHead eyebrow={dept.name} title="Supervisor panel" />
+      <PanelTabs s={s} panel="supervisor" dept={dept} depts={depts} />
 
       <section className="card relative mb-4 flex items-center gap-5 overflow-hidden p-5" style={{ '--accent': dept.accent } as React.CSSProperties}>
         <div className="accent-line absolute inset-x-0 top-0" />
