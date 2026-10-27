@@ -26,7 +26,7 @@ export default async function Home() {
 
   const units = divisions.flatMap((g) => g.depts);
   // In-game photos supplied by departments, shown behind their card.
-  const PHOTOS: Record<string, string> = { bcso: '/logos/bcso-photo.jpg' };
+  const PHOTOS: Record<string, string> = { bcso: '/logos/bcso-photo.jpg', sahp: '/logos/sahp-photo.jpg' };
   const features = [
     ['Shift logs', 'Clock in, clock out, and send the log to your supervisor in one step.', 'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
     ['Reports & requests', 'Incidents, use of force, patient care, warrants, BOLOs, leave and training.', 'M9 12h6M9 16h6M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z'],
