@@ -19,7 +19,7 @@ const toLocal = (iso?: string | null) => {
   return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
 };
 
-export function SubmissionForm({ kind, depts, options, subjects, initial, lockedDepartment }: {
+export function SubmissionForm({ kind, depts, options, subjects, initial, lockedDepartment, preview }: {
   kind: string;
   depts: SubmissionDept[];
   /** Certification or subdivision names per department. */
@@ -28,6 +28,8 @@ export function SubmissionForm({ kind, depts, options, subjects, initial, locked
   subjects: Record<string, { id: string; name: string }[]>;
   initial: SubmissionInitial;
   lockedDepartment?: boolean;
+  /** Shown to command without a department membership; nothing can be saved. */
+  preview?: boolean;
 }) {
   const cfg = KIND[kind];
   const [state, action, pending] = useActionState<SubmissionFormState, FormData>(saveSubmission, {});
@@ -118,9 +120,9 @@ export function SubmissionForm({ kind, depts, options, subjects, initial, locked
       {cfg.notice && <p className="text-[13px] leading-relaxed text-muted">{cfg.notice}</p>}
 
       <div className="flex flex-wrap gap-2 border-t border-line pt-6">
-        <button className="btn-primary" disabled={pending}
+        <button className="btn-primary" disabled={pending || preview}
           onClick={() => { if (intent.current) intent.current.value = 'submit'; }}>Submit for review</button>
-        <button className="btn" disabled={pending} formNoValidate
+        <button className="btn" disabled={pending || preview} formNoValidate
           onClick={() => { if (intent.current) intent.current.value = 'draft'; }}>Save draft</button>
       </div>
     </form>

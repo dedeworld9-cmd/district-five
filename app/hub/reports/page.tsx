@@ -21,7 +21,11 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
   // Kinds the caller can file in at least one of their departments.
   const myDivisions = new Set<string>(s.active.map((m) => s.departments.find((d) => d.key === m.department_key))
     .filter((d) => d?.kind === 'department').map((d) => d!.division));
-  const available = KINDS.filter((k) => k.divisions.some((d) => myDivisions.has(d)));
+  const filing = KINDS.filter((k) => k.divisions.some((d) => myDivisions.has(d)));
+  // Division command and admins without a department membership can open every form to look at it.
+  const watched = new Set<string>(s.departments.filter((d) => d.kind === 'department' && (s.isAdmin || s.oversees(d.key))).map((d) => d.division));
+  const preview = !filing.length;
+  const available = preview ? KINDS.filter((k) => k.divisions.some((d) => watched.has(d))) : filing;
   const short = (k: string) => s.departments.find((d) => d.key === k)?.short_name ?? k;
 
   return (
@@ -30,6 +34,12 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
       <PageHead eyebrow="Paperwork" title="Reports & requests" />
       <PrintHeader title="Reports and requests" sub={s.profile.display_name} />
 
+      {preview && available.length > 0 && (
+        <p className="no-print mb-6 rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-[14px] leading-relaxed text-muted">
+          You are on a command roster only, so you can open every form to see it, but you can&apos;t file one.
+          To file reports yourself, join a department roster (BCSO, SAHP, SAFD or SAEMS) from Admin or Request to join.
+        </p>
+      )}
       <div className="grid gap-8">
         {(['report', 'request', 'office', 'training'] as const).map((g) => {
           const kinds = available.filter((k) => k.group === g);
@@ -39,7 +49,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
               <h2 className="label mb-3">{GROUP_LABEL[g]}</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {kinds.map((k) => (
-                  <Link key={k.key} href={`/hub/reports/new?kind=${k.key}`} className="card p-5 transition-colors hover:border-line-strong">
+                  <Link key={k.key} href={`/hub/reports/new?kind=${k.key}${preview ? '&preview=1' : ''}`} className="card p-5 transition-colors hover:border-line-strong">
                     <div className="text-[15px] font-medium">{k.label}</div>
                     <p className="mt-1 text-[13px] leading-relaxed text-muted">{k.blurb}</p>
                   </Link>
