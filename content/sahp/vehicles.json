@@ -1,0 +1,730 @@
+[
+ {
+  "title": "Vapid Stainer LE Cruiser",
+  "ranks": "Trooper — Commissioner",
+  "group": "PATROL OFFICER STRUCTURE",
+  "img": "/fleet/stanier.jpg",
+  "sections": [
+   {
+    "h": "Performance & bodywork",
+    "items": [
+     [
+      "Armor",
+      "100%"
+     ],
+     [
+      "Brakes",
+      "Race Brakes"
+     ],
+     [
+      "Engine",
+      "EMS Upgrade, Level 4"
+     ],
+     [
+      "Lights",
+      "Stock Lights"
+     ],
+     [
+      "Livery",
+      "LS State Trooper"
+     ]
+    ]
+   },
+   {
+    "h": "Police equipment",
+    "items": [
+     [
+      "Aerials",
+      "Tech Array 5.0"
+     ],
+     [
+      "Searchlights",
+      "Driver Raised Searchlight"
+     ],
+     [
+      "Emergency Lighting",
+      "Custom EM Lighting 2"
+     ],
+     [
+      "Pushbars",
+      "Interceptor Pushbar"
+     ]
+    ]
+   },
+   {
+    "h": "Color respray",
+    "items": [
+     [
+      "Primary Color",
+      "Metallic > Blue"
+     ],
+     [
+      "Secondary Color",
+      "Metallic > Ice White"
+     ]
+    ]
+   },
+   {
+    "h": "Final configuration",
+    "items": [
+     [
+      "Suspension",
+      "Sport Suspension"
+     ],
+     [
+      "Transmission",
+      "Race Transmission"
+     ],
+     [
+      "Turbo",
+      "Turbo Tuning"
+     ],
+     [
+      "Wheels",
+      "Stock Wheels"
+     ],
+     [
+      "Windows",
+      "Dark Smoke"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Canis Terminus Patrol",
+  "ranks": "Trooper — Commissioner",
+  "group": "PATROL OFFICER STRUCTURE",
+  "img": "/fleet/terminus.jpg",
+  "sections": [
+   {
+    "h": "Performance & bodywork",
+    "items": [
+     [
+      "Arch Covers",
+      "Painted Arches"
+     ],
+     [
+      "Armor",
+      "100%"
+     ],
+     [
+      "Brakes",
+      "Race Brakes"
+     ],
+     [
+      "Engine",
+      "EMS Upgrade, Level 4"
+     ],
+     [
+      "Lights",
+      "Stock Lights"
+     ],
+     [
+      "Livery",
+      "LS State Trooper"
+     ],
+     [
+      "Armor Plating",
+      "No Armor Plating"
+     ],
+     [
+      "Bumpers",
+      "Painted Utility Bumper"
+     ],
+     [
+      "Bodywork",
+      "None"
+     ],
+     [
+      "Doors",
+      "Stock Doors"
+     ],
+     [
+      "Exhausts",
+      "Stock Exhausts"
+     ],
+     [
+      "Grille",
+      "Stock Grille"
+     ],
+     [
+      "Hood",
+      "Stock Hood"
+     ]
+    ]
+   },
+   {
+    "h": "Police equipment",
+    "items": [
+     [
+      "Aerials",
+      "Tech Array 5.0"
+     ],
+     [
+      "Searchlights",
+      "Driver Raised Searchlight"
+     ],
+     [
+      "Emergency Lighting",
+      "Custom EM Lighting 2"
+     ],
+     [
+      "Pushbars",
+      "Apprehender Pushbar"
+     ]
+    ]
+   },
+   {
+    "h": "Color respray",
+    "items": [
+     [
+      "Primary Color",
+      "Metallic > Blue"
+     ],
+     [
+      "Secondary Color",
+      "Metallic > Ice White"
+     ]
+    ]
+   },
+   {
+    "h": "Final configuration",
+    "items": [
+     [
+      "Roof",
+      "Canted Roof, Painted"
+     ],
+     [
+      "Skirts",
+      "Slat Skirts"
+     ],
+     [
+      "Spare Wheel",
+      "Stock Spare Wheel"
+     ],
+     [
+      "Transmission",
+      "Race Transmission"
+     ],
+     [
+      "Turbo",
+      "Turbo Tuning"
+     ],
+     [
+      "Wheels",
+      "Stock Wheels"
+     ],
+     [
+      "Windows",
+      "Dark Smoke"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Bravado STX Pursuit",
+  "ranks": "Trooper — Commissioner",
+  "group": "PATROL OFFICER STRUCTURE",
+  "img": "/fleet/stx-patrol.jpg",
+  "sections": [
+   {
+    "h": "Performance & bodywork",
+    "items": [
+     [
+      "Armor",
+      "100%"
+     ],
+     [
+      "Brakes",
+      "Race Brakes"
+     ],
+     [
+      "Engine",
+      "EMS Upgrade, Level 4"
+     ],
+     [
+      "Lights",
+      "Stock Lights"
+     ],
+     [
+      "Livery",
+      "LS State Trooper"
+     ],
+     [
+      "Exhausts",
+      "Stock Exhausts"
+     ],
+     [
+      "Hood",
+      "Vent Delete Hood"
+     ],
+     [
+      "Mirrors",
+      "Stock Mirrors"
+     ],
+     [
+      "Louvers",
+      "Stock Louvers"
+     ]
+    ]
+   },
+   {
+    "h": "Police equipment",
+    "items": [
+     [
+      "Aerials",
+      "Tech Array 5.0"
+     ],
+     [
+      "Searchlights",
+      "Driver Raised Searchlight"
+     ],
+     [
+      "Emergency Lighting",
+      "Custom EM Lighting 2"
+     ],
+     [
+      "Pushbars",
+      "Interceptor Pushbar"
+     ]
+    ]
+   },
+   {
+    "h": "Color respray",
+    "items": [
+     [
+      "Primary Color",
+      "Metallic > Blue"
+     ],
+     [
+      "Secondary Color",
+      "Metallic > Ice White"
+     ]
+    ]
+   },
+   {
+    "h": "Final configuration",
+    "items": [
+     [
+      "Roll Cage",
+      "No Roll Cage"
+     ],
+     [
+      "Roof",
+      "Stock Roof"
+     ],
+     [
+      "Skirts",
+      "Stock Skirts"
+     ],
+     [
+      "Splitters",
+      "Stock Splitter"
+     ],
+     [
+      "Spoiler",
+      "Stock Spoiler"
+     ],
+     [
+      "Suspension",
+      "Sport Suspension"
+     ],
+     [
+      "Transmission",
+      "Race Transmission"
+     ],
+     [
+      "Turbo",
+      "Turbo Tuning"
+     ],
+     [
+      "Wheels",
+      "Stock Wheels"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Vapid Caracara Pursuit",
+  "ranks": "Sergeant — Commissioner",
+  "group": "PATROL OFFICER STRUCTURE",
+  "img": "/fleet/caracara.jpg",
+  "sections": [
+   {
+    "h": "Performance & bodywork",
+    "items": [
+     [
+      "Armor",
+      "100%"
+     ],
+     [
+      "Brakes",
+      "Race Brakes"
+     ],
+     [
+      "Engine",
+      "EMS Upgrade, Level 4"
+     ],
+     [
+      "Lights",
+      "Stock Lights"
+     ],
+     [
+      "Livery",
+      "LS State Trooper"
+     ],
+     [
+      "Primary Bumper",
+      "Painted Heavy Duty Bumper"
+     ],
+     [
+      "Secondary Bumper",
+      "Primary Rollpan Bumper"
+     ],
+     [
+      "Exhausts",
+      "Dual Long Rounded Exhausts"
+     ],
+     [
+      "Fenders",
+      "Stock Primary Fenders"
+     ],
+     [
+      "Grille",
+      "Vapid Large Grated Grille"
+     ],
+     [
+      "Hood",
+      "Stock Hood"
+     ]
+    ]
+   },
+   {
+    "h": "Police equipment",
+    "items": [
+     [
+      "Aerials",
+      "Tech Array 5.0"
+     ],
+     [
+      "Searchlights",
+      "Driver Raised Searchlight"
+     ],
+     [
+      "Emergency Lighting",
+      "Custom EM Lighting 2"
+     ],
+     [
+      "Pushbars",
+      "Apprehender Pushbar"
+     ]
+    ]
+   },
+   {
+    "h": "Color respray",
+    "items": [
+     [
+      "Primary Color",
+      "Metallic > Blue"
+     ],
+     [
+      "Secondary Color",
+      "Metallic > Ice White"
+     ]
+    ]
+   },
+   {
+    "h": "Final configuration",
+    "items": [
+     [
+      "Racks",
+      "Black Sport Bar"
+     ],
+     [
+      "Roof",
+      "Stock Roof"
+     ],
+     [
+      "Suspension",
+      "Race Suspension"
+     ],
+     [
+      "Transmission",
+      "Super Transmission"
+     ],
+     [
+      "Turbo",
+      "Turbo Tuning"
+     ],
+     [
+      "Wheels",
+      "Stock Wheels"
+     ],
+     [
+      "Windows",
+      "Dark Smoke"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Bravado Gauntlet Interceptor",
+  "ranks": "Lieutenant — Commissioner",
+  "group": "PATROL OFFICER STRUCTURE",
+  "img": "/fleet/gauntlet.jpg",
+  "sections": [
+   {
+    "h": "Performance & bodywork",
+    "items": [
+     [
+      "Armor",
+      "100%"
+     ],
+     [
+      "Brakes",
+      "Race Brakes"
+     ],
+     [
+      "Engine",
+      "EMS Upgrade, Level 4"
+     ],
+     [
+      "Lights",
+      "Stock Lights"
+     ],
+     [
+      "Livery",
+      "LS State Trooper"
+     ],
+     [
+      "Bumpers",
+      "Primary & Secondary Stock"
+     ],
+     [
+      "Exhausts",
+      "Tuner Exhausts"
+     ],
+     [
+      "Grille",
+      "Primary Open Grille"
+     ],
+     [
+      "Headlight Covers",
+      "Stock Headlight Covers"
+     ],
+     [
+      "Hood",
+      "Primary Vented Hood"
+     ]
+    ]
+   },
+   {
+    "h": "Police equipment",
+    "items": [
+     [
+      "Aerials",
+      "Tech Array 5.0"
+     ],
+     [
+      "Searchlights",
+      "Driver Raised Searchlight"
+     ],
+     [
+      "Emergency Lighting",
+      "Custom EM Lighting 3"
+     ],
+     [
+      "Pushbars",
+      "Interceptor Pushbar"
+     ]
+    ]
+   },
+   {
+    "h": "Color respray",
+    "items": [
+     [
+      "Primary Color",
+      "Metallic > Blue"
+     ],
+     [
+      "Secondary Color",
+      "Metallic > Ice White"
+     ]
+    ]
+   },
+   {
+    "h": "Final configuration",
+    "items": [
+     [
+      "Rear Panel",
+      "Primary Rear Panel"
+     ],
+     [
+      "Roll Cage",
+      "No Roll Cage"
+     ],
+     [
+      "Roof",
+      "Stock Roof"
+     ],
+     [
+      "Skirts",
+      "Stock Skirts"
+     ],
+     [
+      "Spoiler",
+      "Stock Spoiler"
+     ],
+     [
+      "Suspension",
+      "Sport Suspension"
+     ],
+     [
+      "Transmission",
+      "Race Transmission"
+     ],
+     [
+      "Turbo",
+      "Turbo Tuning"
+     ],
+     [
+      "Wheels",
+      "Stock Wheels"
+     ],
+     [
+      "Windows",
+      "Dark Smoke"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Bravado STX Pursuit · Stealth",
+  "ranks": "Captain and above",
+  "group": "COMMAND STRUCTURE",
+  "img": "/fleet/stx-command.jpg",
+  "sections": [
+   {
+    "h": "Performance & bodywork",
+    "items": [
+     [
+      "Armor",
+      "100%"
+     ],
+     [
+      "Brakes",
+      "Race Brakes"
+     ],
+     [
+      "Engine",
+      "EMS Upgrade, Level 4"
+     ],
+     [
+      "Lights",
+      "Stock Lights"
+     ],
+     [
+      "Livery",
+      "LS Highway Patrol (Stealth)"
+     ],
+     [
+      "Exhausts",
+      "Stock Exhausts"
+     ],
+     [
+      "Hood",
+      "Vent Delete Hood"
+     ],
+     [
+      "Mirrors",
+      "Stock Mirrors"
+     ],
+     [
+      "Louvers",
+      "Stock Louvers"
+     ]
+    ]
+   },
+   {
+    "h": "Police equipment",
+    "items": [
+     [
+      "Aerials",
+      "None"
+     ],
+     [
+      "Searchlights",
+      "Driver Raised Searchlight"
+     ],
+     [
+      "Emergency Lighting",
+      "No EM Lighting"
+     ],
+     [
+      "Pushbars",
+      "Interceptor Pushbar (optional)"
+     ]
+    ]
+   },
+   {
+    "h": "Color respray",
+    "items": [
+     [
+      "Primary Color",
+      "Metallic > Black"
+     ],
+     [
+      "Secondary Color",
+      "Metallic > Black"
+     ]
+    ]
+   },
+   {
+    "h": "Final configuration",
+    "items": [
+     [
+      "Roll Cage",
+      "No Roll Cage"
+     ],
+     [
+      "Roof",
+      "Stock Roof"
+     ],
+     [
+      "Skirts",
+      "Stock Skirts"
+     ],
+     [
+      "Splitters",
+      "Stock Splitter"
+     ],
+     [
+      "Spoiler",
+      "Stock Spoiler"
+     ],
+     [
+      "Suspension",
+      "Sport Suspension"
+     ],
+     [
+      "Transmission",
+      "Race Transmission"
+     ],
+     [
+      "Turbo",
+      "Turbo Tuning"
+     ],
+     [
+      "Wheels",
+      "Stock Wheels"
+     ]
+    ]
+   }
+  ]
+ }
+]

@@ -1,0 +1,193 @@
+[
+ {
+  "category": "Equipment & tools",
+  "name": "SAHP Medic Bag/Box",
+  "item": "Jerry Can",
+  "img": "/weapons/medic.jpg",
+  "notes": [
+   "Department roleplay item: Jerry Can represents the medic bag/box."
+  ],
+  "sections": []
+ },
+ {
+  "category": "Equipment & tools",
+  "name": "SAHP Service Flashlight",
+  "item": "Flashlight",
+  "img": "/weapons/flashlight.jpg",
+  "notes": [],
+  "sections": []
+ },
+ {
+  "category": "Equipment & tools",
+  "name": "SAHP Service Baton",
+  "item": "Night Stick",
+  "img": "/weapons/baton.jpg",
+  "notes": [],
+  "sections": []
+ },
+ {
+  "category": "Equipment & tools",
+  "name": "SAHP Hidden Knife",
+  "item": "Small Knife",
+  "img": "/weapons/knife.jpg",
+  "notes": [
+   "Carried in the left boot."
+  ],
+  "sections": []
+ },
+ {
+  "category": "Less-lethal & signaling",
+  "name": "SAHP Service Flare/Tazer",
+  "item": "Flare Gun",
+  "img": "/weapons/flare.jpg",
+  "notes": [],
+  "sections": []
+ },
+ {
+  "category": "Less-lethal & signaling",
+  "name": "SAHP Service Tazer",
+  "item": "Stun Gun",
+  "img": "/weapons/taser.jpg",
+  "notes": [],
+  "sections": [
+   {
+    "h": "Required configuration",
+    "items": [
+     "Tint: LSPD or Black Tint."
+    ]
+   }
+  ]
+ },
+ {
+  "category": "Less-lethal & signaling",
+  "name": "SAHP Beanbag Shotgun",
+  "item": "Bullpup Shotgun",
+  "img": "/weapons/beanbag.jpg",
+  "notes": [],
+  "sections": [
+   {
+    "h": "Required configuration",
+    "items": [
+     "Orange Tint.",
+     "Flashlight (mandatory).",
+     "Suppressor (mandatory).",
+     "Grip (mandatory)."
+    ]
+   }
+  ]
+ },
+ {
+  "category": "Sidearms",
+  "name": "SAHP Service Pistol",
+  "item": "Combat Pistol",
+  "img": "/weapons/pistol.jpg",
+  "notes": [],
+  "sections": [
+   {
+    "h": "Required configuration",
+    "items": [
+     "Default Clip.",
+     "Flashlight (mandatory).",
+     "Black Army Tint, or optional LSPD Tint."
+    ]
+   },
+   {
+    "h": "Not permitted",
+    "items": [
+     "Modified clips are not allowed."
+    ]
+   }
+  ]
+ },
+ {
+  "category": "Shotguns",
+  "name": "SAHP Service Shotgun/Spike Strips",
+  "item": "Pump Shotgun",
+  "img": "/weapons/pump.jpg",
+  "notes": [],
+  "sections": [
+   {
+    "h": "Authorization & activation",
+    "items": [
+     "MKII configuration is for SAHP SWAT activation."
+    ]
+   },
+   {
+    "h": "Required configuration",
+    "items": [
+     "Flashlight (mandatory).",
+     "Black Tint (mandatory)."
+    ]
+   }
+  ]
+ },
+ {
+  "category": "Rifles",
+  "name": "SAHP Service Rifle",
+  "item": "Carbine Rifle",
+  "img": "/weapons/carbine.jpg",
+  "notes": [],
+  "sections": [
+   {
+    "h": "Authorization & activation",
+    "items": [
+     "Only for rifle-certified troopers.",
+     "MKII configuration is for SAHP SWAT activation."
+    ]
+   },
+   {
+    "h": "Required configuration",
+    "items": [
+     "Default Clip.",
+     "Grip.",
+     "Flashlight.",
+     "Black Tint, or optional LSPD Tint."
+    ]
+   },
+   {
+    "h": "Optional modifications",
+    "items": [
+     "Scope."
+    ]
+   },
+   {
+    "h": "Not permitted",
+    "items": [
+     "No suppressor.",
+     "No special ammunition."
+    ]
+   }
+  ]
+ },
+ {
+  "category": "Rifles",
+  "name": "SAHP Service Rifle",
+  "item": "Service Carbine",
+  "img": "/weapons/service-carbine.jpg",
+  "notes": [],
+  "sections": [
+   {
+    "h": "Authorization & activation",
+    "items": [
+     "Only for rifle-certified troopers."
+    ]
+   },
+   {
+    "h": "Required configuration",
+    "items": [
+     "Default Clip.",
+     "Grip.",
+     "Flashlight.",
+     "Black Tint, or optional LSPD Tint."
+    ]
+   },
+   {
+    "h": "Not permitted",
+    "items": [
+     "No suppressor.",
+     "No special ammunition."
+    ]
+   }
+  ]
+ }
+]

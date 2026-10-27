@@ -1,0 +1,247 @@
+[
+ {
+  "title": "Probationary Trooper – Corporal",
+  "ranks": "Probationary Trooper — Corporal",
+  "img": "/uniforms/trooper.jpg",
+  "sections": [
+   {
+    "h": "Required uniform",
+    "items": [
+     [
+      "Shirts",
+      "Blue Tucked (72/90)"
+     ],
+     [
+      "Suit Pants",
+      "Gray Pants (68/72)"
+     ],
+     [
+      "Boots",
+      "Heavy Uniform Boots (16/116)"
+     ],
+     [
+      "Sun Hats",
+      "Black Straw Sun Hat (2/5)"
+     ],
+     [
+      "Health & Ammo > Body Armor",
+      "Equip Armor (Standard Armor)"
+     ]
+    ]
+   },
+   {
+    "h": "Optional apparel",
+    "items": [
+     [
+      "Aviator Glasses",
+      "Smoke Cop Frames (13/23)"
+     ],
+     [
+      "Watches",
+      "Any Watch"
+     ],
+     [
+      "Gear",
+      "Earpiece"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "Sergeant – Lieutenant",
+  "ranks": "Sergeant — Lieutenant",
+  "img": "/uniforms/sergeant.jpg",
+  "sections": [
+   {
+    "h": "Required uniform",
+    "items": [
+     [
+      "Office Shirts",
+      "Light Blue Office Unbuttoned (10/20)"
+     ],
+     [
+      "Suit Pants",
+      "Gray Pants (68/72)"
+     ],
+     [
+      "Boots",
+      "Heavy Uniform Boots (16/116)"
+     ],
+     [
+      "Sun Hats",
+      "Black Straw Sun Hat (2/5)"
+     ],
+     [
+      "Health & Ammo > Body Armor",
+      "Equip Armor (Standard Armor)"
+     ]
+    ]
+   },
+   {
+    "h": "Optional apparel",
+    "items": [
+     [
+      "Aviator Glasses",
+      "Smoke Cop Frames (13/23)"
+     ],
+     [
+      "Watches",
+      "Any Watch"
+     ],
+     [
+      "Gear",
+      "Earpiece"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "High Command · Formal Style",
+  "ranks": "High Command",
+  "img": "/uniforms/formal.jpg",
+  "sections": [
+   {
+    "h": "Required uniform",
+    "items": [
+     [
+      "Office Shirts",
+      "White Office Unbuttoned (20/20)"
+     ],
+     [
+      "Suit Jackets",
+      "Black Double Breasted (51/90)"
+     ],
+     [
+      "Suit Pants",
+      "Black Pants (66/71)"
+     ],
+     [
+      "Boots",
+      "Heavy Uniform Boots (16/116)"
+     ]
+    ]
+   },
+   {
+    "h": "Optional apparel",
+    "items": [
+     [
+      "Sun Hats",
+      "Black Straw Sun Hat (2/5)"
+     ],
+     [
+      "Aviator Glasses",
+      "Slate Cop Frames (21/23)"
+     ],
+     [
+      "Watches",
+      "Any Watch"
+     ],
+     [
+      "Gear",
+      "Earpiece"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "High Command · Long Sleeve Patrol",
+  "ranks": "High Command",
+  "img": "/uniforms/long-sleeve.jpg",
+  "sections": [
+   {
+    "h": "Required uniform",
+    "items": [
+     [
+      "Office Shirts",
+      "White Office Unbuttoned (20/20)"
+     ],
+     [
+      "Suit Pants",
+      "Black Pants (66/71)"
+     ],
+     [
+      "Boots",
+      "Heavy Uniform Boots (16/116)"
+     ],
+     [
+      "Health & Ammo > Body Armor",
+      "Equip Armor (Standard Armor)"
+     ]
+    ]
+   },
+   {
+    "h": "Optional apparel",
+    "items": [
+     [
+      "Sun Hats",
+      "Black Straw Sun Hat (2/5)"
+     ],
+     [
+      "Aviator Glasses",
+      "Slate Cop Frames (21/23)"
+     ],
+     [
+      "Watches",
+      "Any Watch"
+     ],
+     [
+      "Gear",
+      "Earpiece"
+     ]
+    ]
+   }
+  ]
+ },
+ {
+  "title": "High Command · Short Sleeve Patrol",
+  "ranks": "High Command",
+  "img": "/uniforms/short-sleeve.jpg",
+  "sections": [
+   {
+    "h": "Required uniform",
+    "items": [
+     [
+      "Shirts",
+      "White Tucked (69/90)"
+     ],
+     [
+      "Suit Pants",
+      "Black Pants (66/71)"
+     ],
+     [
+      "Boots",
+      "Heavy Uniform Boots (16/116)"
+     ],
+     [
+      "Health & Ammo > Body Armor",
+      "Equip Armor (Standard Armor)"
+     ]
+    ]
+   },
+   {
+    "h": "Optional apparel",
+    "items": [
+     [
+      "Sun Hats",
+      "Black Straw Sun Hat (2/5)"
+     ],
+     [
+      "Aviator Glasses",
+      "Slate Cop Frames (21/23)"
+     ],
+     [
+      "Watches",
+      "Any Watch"
+     ],
+     [
+      "Gear",
+      "Earpiece"
+     ]
+    ]
+   }
+  ]
+ }
+]

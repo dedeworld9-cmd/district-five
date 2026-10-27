@@ -5,11 +5,12 @@ import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { Membership, Policy, Rank } from '@/lib/types';
 import { acknowledgePolicy, savePolicy } from '../actions';
+import { EQUIPMENT, EQUIPMENT_LABEL, equipmentKinds } from '@/lib/equipment';
 
 export const metadata = { title: 'Resources' };
 
 const CATEGORIES: Record<string, string> = {
-  sop: 'Policies & SOPs', guide: 'Guides', training: 'Training material', agreement: 'Agreements', form: 'Forms', other: 'Other',
+  sop: 'Policies & SOPs', guide: 'Guides', reference: 'Reference', personnel: 'Personnel', training: 'Training material', agreement: 'Agreements', form: 'Forms', other: 'Other',
 };
 
 export default async function Resources({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
@@ -44,6 +45,7 @@ export default async function Resources({ searchParams }: { searchParams: Promis
   // Where the caller can add material: departments they head or oversee, and district-wide for division command.
   const manageable = s.departments.filter((d) => d.kind === 'department' && (s.tierIn(d.key) === 'department_head' || s.tierIn(d.key) === 'dps' || s.oversees(d.key)));
   const canDistrict = s.isDps;
+  const standards = s.departments.filter((d) => equipmentKinds(d.key).length && (s.active.some((m) => m.department_key === d.key) || s.oversees(d.key)));
 
   // Chain of command: active ranks top-down, with members holding each; unranked members last.
   const chain = (ranks ?? []).map((r) => ({ r, list: (members ?? []).filter((m) => m.rank_id === r.id) })).filter((g) => g.list.length);
@@ -59,6 +61,29 @@ export default async function Resources({ searchParams }: { searchParams: Promis
           <section className="rounded-xl border border-warn/30 px-5 py-4">
             <div className="text-[14px] font-medium text-warn">{pending.length === 1 ? 'One document needs' : `${pending.length} documents need`} your acknowledgment</div>
             <p className="mt-1 text-[13px] text-muted">Read each one, then confirm below.</p>
+          </section>
+        )}
+
+        {standards.length > 0 && (
+          <section>
+            <h2 className="label mb-3">Uniforms, vehicles and weapons</h2>
+            <div className="grid gap-3 sm:grid-cols-3">
+              {standards.flatMap((d) => equipmentKinds(d.key).map((k) => {
+                const first = EQUIPMENT[d.key]?.[k]?.find((x) => x.img);
+                return (
+                  <Link key={d.key + k} href={`/hub/equipment/${k}?dept=${d.key}`} className="card group relative overflow-hidden">
+                    {first?.img && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={first.img} alt="" className="h-36 w-full object-cover opacity-70 transition-opacity group-hover:opacity-100" />
+                    )}
+                    <div className="p-4">
+                      <div className="text-[15px] font-medium">{d.short_name} {EQUIPMENT_LABEL[k].toLowerCase()}</div>
+                      <div className="text-[12px] text-muted">{EQUIPMENT[d.key]?.[k]?.length} standards with pictures</div>
+                    </div>
+                  </Link>
+                );
+              }))}
+            </div>
           </section>
         )}
 

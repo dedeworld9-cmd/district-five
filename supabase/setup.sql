@@ -2715,3 +2715,18 @@ insert into public.app_settings (key, value) values
   ('site_disclaimer', '"District Five is a PlayStation 5 roleplay community. All departments, people, and records on this site are fictional and are not affiliated with any real government agency."'),
   ('wso_label', '"WSO"')
 on conflict (key) do nothing;
+
+-- SAHP department materials, as listed on the SAHP command portal's Materials page.
+insert into public.policies (title, category, department_key, summary, source_url, status, approved_at)
+select v.title, v.category, 'sahp', v.summary, v.url, 'approved', now()
+from (values
+  ('Use of Force Policy', 'sop', 'Force levels and escalation procedures', 'https://docs.google.com/document/d/1gqb_Y56hbmWCVWwUjo3u6X0m-oeNEn3f/edit'),
+  ('Bodycam Policy', 'sop', 'The official bodycam policy', 'https://docs.google.com/document/d/1NbQSP6H0X0pXeF8XE6vIc_huMub3zbxI/edit'),
+  ('Standard Operating Procedures', 'sop', 'Patrol procedures and trooper guidelines', 'https://docs.google.com/document/d/1aXA-3aDcGfv6o52-S90Ad9SKyRVIkc2qjF48kOF605U/edit'),
+  ('Statewide Penal Code', 'reference', 'Charges, jail time and fine amounts', 'https://docs.google.com/spreadsheets/d/1ZE7E9XmMfJItNvDr2VA3a09g2YwMvSwEzhYBAvcMwBE/edit'),
+  ('Medical Admissions Chart', 'reference', 'Medical times, fines and injuries', 'https://docs.google.com/spreadsheets/d/1dXyMERZkONFsHQd_Cf7qkPI6h9HgXIq5sHqIhD4VRcw/edit'),
+  ('Official Roster', 'personnel', 'The department''s source roster', 'https://docs.google.com/spreadsheets/d/1tmFe22P3-8jAneuqag1rD2KDPNoxCcPpo4R8h93MdCo/edit'),
+  ('10 Codes & Miranda Rights', 'guide', 'Radio communications and Miranda guidance', 'https://docs.google.com/document/d/1CPH7x4WRh5f5D_N0UwkRZFAFMkUTzZtm7QtWdzNRzno/edit'),
+  ('SAHP GTA V Crew', 'guide', 'Required crew for department cars and clothing. Mandatory when using a non-police vehicle.', 'https://socialclub.rockstargames.com/crew/sa_state_troopers911/hierarchy')
+) as v(title, category, summary, url)
+where not exists (select 1 from public.policies p where p.department_key = 'sahp' and p.title = v.title);
