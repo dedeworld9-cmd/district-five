@@ -13,6 +13,15 @@ function DiscordIcon({ size = 16 }: { size?: number }) {
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d={DISCORD_ICON} /></svg>;
 }
 
+// In-game photos from the TLRP training slides.
+const GALLERY = [
+  { src: '/photos/tactical-team.jpg', caption: 'Tactical operations' },
+  { src: '/photos/academy.jpg', caption: 'Academy formation' },
+  { src: '/photos/traffic-stop.jpg', caption: 'High-risk stop' },
+  { src: '/photos/skyline.jpg', caption: 'Field training' },
+  { src: '/photos/entry-team.jpg', caption: 'Building entry' },
+];
+
 function Arrow() {
   return <span aria-hidden="true">→</span>;
 }
@@ -64,7 +73,7 @@ export default async function Home() {
 
       <section id="top" className="relative flex min-h-screen min-h-[100dvh] flex-col">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={PHOTOS.sahp} alt="" className="absolute inset-0 -z-0 h-full w-full object-cover" />
+        <img src="/photos/sunset-trooper.jpg" alt="" className="absolute inset-0 -z-0 h-full w-full object-cover object-[65%_center]" />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgb(3 6 14 / 0.92) 0%, rgb(3 6 14 / 0.7) 45%, rgb(3 6 14 / 0.45) 100%)' }} />
         <div className="absolute inset-x-0 bottom-0 h-40" style={{ background: 'linear-gradient(transparent, #000)' }} />
         <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 pt-28 pb-20 sm:px-6">
@@ -139,6 +148,22 @@ export default async function Home() {
               </div>
             </div>
           )}
+        </div>
+      </section>
+
+      <section className="relative bg-black">
+        <div className="mx-auto max-w-6xl px-4 pb-8 sm:px-6">
+          <h2 className="text-[26px] font-semibold tracking-tight text-white">Life in District Five</h2>
+          <p className="mt-1.5 text-[14px] text-zinc-500">Training, patrol and tactical operations from our members.</p>
+          <div className="mt-8 grid auto-rows-[180px] grid-cols-2 gap-3 sm:auto-rows-[220px] lg:grid-cols-4">
+            {GALLERY.map((g, i) => (
+              <figure key={g.src} className={`group relative overflow-hidden rounded-2xl border border-white/8 ${i === 0 ? 'col-span-2 row-span-2' : ''}`}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={g.src} alt={g.caption} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <figcaption className="absolute inset-x-0 bottom-0 p-3 text-[12px] font-medium text-white" style={{ background: 'linear-gradient(transparent, rgb(0 0 0 / 0.75))' }}>{g.caption}</figcaption>
+              </figure>
+            ))}
+          </div>
         </div>
       </section>
 

@@ -11,6 +11,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const sp = await searchParams;
   if (await getSession()) redirect(sp.next?.startsWith('/hub') ? sp.next : '/hub');
   return (
+    <div className="relative min-h-screen">
+    {/* eslint-disable-next-line @next/next/no-img-element */}
+    <img src="/photos/tactical-team.jpg" alt="" className="fixed inset-0 -z-10 h-full w-full object-cover opacity-40" />
+    <div className="fixed inset-0 -z-10" style={{ background: 'linear-gradient(90deg, rgb(7 9 14 / 0.95) 35%, rgb(7 9 14 / 0.6))' }} />
     <main className="mx-auto flex min-h-screen max-w-md flex-col px-4">
       <div className="pt-8"><Brand /></div>
       <div className="flex flex-1 flex-col justify-center py-16">
@@ -31,5 +35,6 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
       </div>
       <Footer />
     </main>
+    </div>
   );
 }
