@@ -2848,3 +2848,18 @@ from (values
   ('SAHP GTA V Crew', 'guide', 'Required crew for department cars and clothing. Mandatory when using a non-police vehicle.', 'https://socialclub.rockstargames.com/crew/sa_state_troopers911/hierarchy')
 ) as v(title, category, summary, url)
 where not exists (select 1 from public.policies p where p.department_key = 'sahp' and p.title = v.title);
+-- BCSO department materials, from the bcso-materials threads in the LE Discord.
+insert into public.policies (title, category, department_key, summary, source_url, status, approved_at)
+select v.title, v.category, 'bcso', v.summary, v.url, 'approved', now()
+from (values
+  ('BCSO Main Roster', 'personnel', 'The department''s source roster', 'https://docs.google.com/spreadsheets/d/1_77XI5Lm5U736NIJbcIiFa9i_OesWrBP72Rfgc4BfeQ/edit?usp=sharing'),
+  ('Official Duty Log (Google Form)', 'form', 'The department''s original shift log form', 'https://forms.gle/ngGQ3z9tDrdroQMP9'),
+  ('Roster Request Form', 'form', 'Join the BCSO roster', 'https://forms.gle/fJygWxZTtGQCFGzV7'),
+  ('Probationary Roster Form', 'form', 'Roster form for probationary hires', 'https://forms.gle/qNAUfwHPvZGx3MAv9'),
+  ('Activity Requirements', 'sop', 'Activity expected of every member, by rank', 'https://discord.com/channels/1136704165842780220/1562580868826923029'),
+  ('Rank Appointment & Assignment Structure', 'personnel', 'Each rank''s assignment, duties and position caps', 'https://discord.com/channels/1136704165842780220/1562546106766856282'),
+  ('Department Formats', 'guide', 'The posting formats used in BCSO channels', 'https://discord.com/channels/1136704165842780220/1559625714599469137'),
+  ('10 Codes', 'guide', 'Radio 10 codes', 'https://discord.com/channels/1136704165842780220/1559623242967154689'),
+  ('Miranda Rights', 'guide', 'Miranda warning wording', 'https://discord.com/channels/1136704165842780220/1559623420155527211')
+) as v(title, category, summary, url)
+where not exists (select 1 from public.policies p where p.department_key = 'bcso' and p.title = v.title);

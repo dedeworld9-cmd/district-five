@@ -3,6 +3,7 @@
 import sahpUniforms from '@/content/sahp/uniforms.json';
 import sahpVehicles from '@/content/sahp/vehicles.json';
 import sahpWeapons from '@/content/sahp/weapons.json';
+import bcsoUniforms from '@/content/bcso/uniforms.json';
 
 export type SpecSection = { h: string; items: (string | [string, string])[] };
 export interface EquipmentItem { title: string; subtitle: string; group?: string; img: string | null; notes?: string[]; sections: SpecSection[] }
@@ -27,6 +28,10 @@ const norm = (base: string, list: Raw[], sub: (r: Raw) => string, group?: (r: Ra
 const titleCase = (s: string) => s.toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
 
 export const EQUIPMENT: Record<string, Partial<Record<EquipmentKind, EquipmentItem[]>>> = {
+  // From the BCSO on-duty and formal uniform structure threads in the LE Discord.
+  bcso: {
+    uniforms: norm('', bcsoUniforms as Raw[], (r) => r.ranks ?? '', (r) => r.group),
+  },
   sahp: {
     uniforms: norm(SAHP_MEDIA, sahpUniforms as Raw[], (r) => r.ranks ?? ''),
     vehicles: norm(SAHP_MEDIA, sahpVehicles as Raw[], (r) => r.ranks ?? '', (r) => r.group && titleCase(r.group)),
