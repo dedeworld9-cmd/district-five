@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { friendly } from '@/lib/errors';
+import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 
 // Every write is a call to a database function that re-checks the caller's authority.
@@ -127,7 +128,19 @@ export async function decideShift(action: string, form: FormData) {
 // ---------------------------------------------------------------- roster
 
 export async function requestMembership(form: FormData) {
-  await act(form, 'request_membership', { p_department: str(form, 'department'), p_note: str(form, 'note') },
+  const back = safePath(str(form, 'back'), '/hub');
+  const rpName = str(form, 'rp_name');
+  const experience = str(form, 'experience');
+  if (!rpName || rpName.length < 2) flash(back, 'error', 'Enter your roleplay name.');
+  if (experience !== 'Yes' && experience !== 'No') flash(back, 'error', 'Say whether you have previous experience.');
+  // The roster entry takes the profile's display name, so set the roleplay name first.
+  const me = (await requireSession()).profile;
+  if (me.display_name !== rpName) {
+    const { error } = await rpc('update_my_profile', { p_display_name: rpName, p_psn_id: me.psn_id });
+    if (error) flash(back, 'error', friendly(error));
+  }
+  const note = [`Previous experience: ${experience}`, str(form, 'note')].filter(Boolean).join('\n');
+  await act(form, 'request_membership', { p_department: str(form, 'department'), p_note: note },
     'Request sent. Command will review it.', '/hub');
 }
 

@@ -5,7 +5,10 @@ import { canDecide } from '@/lib/queue';
 import { requireSession, tzOf, type Session } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { ActivityRow, Announcement, ComplianceRow, ShiftLog, Tier } from '@/lib/types';
-import { requestMembership, setActiveDepartment, setDuty } from './actions';
+import { Emblem } from '@/components/Emblem';
+import { JoinForm } from '@/components/JoinForm';
+import { PHOTOS } from '@/lib/brand';
+import { setActiveDepartment, setDuty } from './actions';
 
 export const metadata = { title: 'Dashboard' };
 
@@ -51,35 +54,54 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   return (
     <>
       <Flash searchParams={sp} />
-      <section className="mb-10">
-        <div className="label mb-4 flex items-center gap-2"><span className="gold-dot" />{s.currentDept?.short_name} · {todayLabel(tz)}</div>
-        <h1 className="text-[34px] leading-tight font-semibold tracking-tight sm:text-[44px]">
-          {greeting(tz)}, {s.profile.display_name.split(' ')[0]}
-        </h1>
-        <p className="mt-2 text-[15px] text-muted">
-          {[s.current.rank_name, s.current.callsign, s.current.badge && `#${s.current.badge}`].filter(Boolean).join(' · ')}
-        </p>
-        <div className="mt-6 flex flex-wrap items-center gap-2">
-          {s.currentDept?.kind === 'department' && <Link href="/hub/shifts/new" className="btn-primary">Log a shift</Link>}
-          {queue > 0 && <Link href="/hub/approvals" className="btn">Review {queue} waiting</Link>}
-          {s.active.length > 1 && (
-            <form action={setActiveDepartment} className="flex gap-1 md:hidden">
-              <input type="hidden" name="back" value="/hub" />
-              {s.active.filter((m) => m.department_key !== dept).map((m) => (
-                <button key={m.id} name="department" value={m.department_key} className="btn">Switch to {deptLabel(m.department_key)}</button>
-              ))}
-            </form>
+      <section className="card relative mb-4 overflow-hidden p-6 sm:p-8">
+        {PHOTOS[dept] && (
+          <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src={PHOTOS[dept]} alt="" className="absolute inset-y-0 right-0 h-full w-full object-cover opacity-40 sm:w-[65%]" />
+            <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, var(--color-surface) 25%, rgb(13 17 24 / 0.85) 55%, rgb(13 17 24 / 0.35))' }} />
+          </>
+        )}
+        <div className="accent-line absolute inset-x-0 top-0" />
+        <div className="absolute -top-28 -left-28 h-64 w-64 rounded-full opacity-[0.12] blur-3xl" style={{ background: 'var(--accent)' }} />
+        <div className="relative flex flex-wrap items-center gap-6">
+          {s.currentDept && (
+            <Emblem dept={dept} label={s.currentDept.short_name} accent={s.currentDept.accent} division={s.currentDept.division} size={76} />
           )}
+          <div className="min-w-0 flex-1">
+            <div className="label flex items-center gap-2"><span className="gold-dot" />{s.currentDept?.name} · {todayLabel(tz)}</div>
+            <h1 className="wordmark mt-2 text-[32px] leading-tight font-semibold tracking-tight sm:text-[42px]">
+              {greeting(tz)}, {s.profile.display_name.split(' ')[0]}
+            </h1>
+            <p className="mt-1.5 flex flex-wrap items-center gap-2 text-[14px] text-muted">
+              {s.current.callsign && <span className="rounded-md border border-line-strong bg-bg/50 px-2 py-0.5 font-mono text-[12px] text-ink">{s.current.callsign}</span>}
+              {[s.current.rank_name, s.current.badge && `#${s.current.badge}`].filter(Boolean).join(' · ')}
+            </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {s.currentDept?.kind === 'department' && <Link href="/hub/shifts/new" className="btn-primary">Log a shift</Link>}
+            {s.currentDept?.kind === 'department' && <Link href="/hub/reports" className="btn bg-bg/40 backdrop-blur">File a report</Link>}
+            {queue > 0 && <Link href="/hub/approvals" className="btn bg-bg/40 backdrop-blur">Review {queue} waiting</Link>}
+            {s.active.length > 1 && (
+              <form action={setActiveDepartment} className="flex gap-1 md:hidden">
+                <input type="hidden" name="back" value="/hub" />
+                {s.active.filter((m) => m.department_key !== dept).map((m) => (
+                  <button key={m.id} name="department" value={m.department_key} className="btn">Switch to {deptLabel(m.department_key)}</button>
+                ))}
+              </form>
+            )}
+          </div>
         </div>
       </section>
 
       <section className="grid gap-3 lg:grid-cols-[1.1fr_2fr]">
         {s.currentDept?.kind === 'department' ? (
-          <div className="card flex flex-col justify-between p-6">
-            <div>
+          <div className={`card relative flex flex-col justify-between overflow-hidden p-6 ${onDuty ? 'border-ok/30' : ''}`}>
+            {onDuty && <div className="absolute -top-20 -right-20 h-44 w-44 rounded-full bg-ok/15 blur-3xl" />}
+            <div className="relative">
               <div className="label">Duty status</div>
               <div className="mt-3 flex items-center gap-2.5 text-[24px] font-semibold tracking-tight">
-                <span className={`h-2.5 w-2.5 rounded-full ${onDuty ? 'bg-ok' : 'bg-faint'}`} />
+                <span className={`h-3 w-3 rounded-full ${onDuty ? 'on-duty-ring bg-ok' : 'bg-faint'}`} />
                 {onDuty ? 'On duty' : 'Off duty'}
               </div>
               <p className="mt-1.5 text-[13px] text-muted">
@@ -88,7 +110,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                   : `Clock in when you start patrol in ${s.currentDept.short_name}.`}
               </p>
             </div>
-            <form action={setDuty} className="mt-6">
+            <form action={setDuty} className="relative mt-6">
               <input type="hidden" name="department" value={dept} />
               <input type="hidden" name="status" value={onDuty ? 'off_duty' : 'on_duty'} />
               {onDuty && s.current.duty_changed_at && <input type="hidden" name="since" value={s.current.duty_changed_at} />}
@@ -106,7 +128,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Stat gold label="This week" value={hours(approved)} sub={exempt ? 'On leave, quota paused' : `of ${hours(quota)} quota${combined && multi ? ', combined' : ''}`}>
             <div className="mt-4 h-1 overflow-hidden rounded-full bg-white/[0.06]">
-              <div className="h-full rounded-full bg-gold" style={{ width: `${pct}%` }} />
+              <div className="h-full rounded-full bg-gradient-to-r from-gold/70 to-gold shadow-[0_0_12px_rgb(207_174_90/0.6)]" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, rgb(207 174 90 / 0.6), #cfae5a)' }} />
             </div>
           </Stat>
           <Stat label="Pending review" value={hours(pending)} sub="Not yet counted" />
@@ -212,21 +234,7 @@ function NotOnRoster({ s, sp }: { s: Session; sp: Record<string, string | undefi
         </p>
       ))}
       {joinable.length > 0 && (
-        <form action={requestMembership} className="card mt-8 grid gap-4 p-6">
-          <div>
-            <div className="text-[16px] font-medium">Request to join a department</div>
-            <p className="mt-1 text-[13px] text-muted">If you are already on a roster, command can link your Discord account instead.</p>
-          </div>
-          <label className="field"><span>Department</span>
-            <select name="department" className="input" required>
-              {joinable.map((d) => <option key={d.key} value={d.key}>{d.name}</option>)}
-            </select>
-          </label>
-          <label className="field"><span>Note for command (optional)</span>
-            <textarea name="note" className="input" maxLength={600} placeholder="Character name, who recruited you, transfer details" />
-          </label>
-          <div><button className="btn-primary">Send request</button></div>
-        </form>
+        <div className="mt-8"><JoinForm joinable={joinable} preselect={sp.join} name={s.profile.display_name} back="/hub" /></div>
       )}
       {s.isAdmin && <p className="mt-8 text-[14px] text-muted">You are a technical administrator. <Link href="/hub/admin" className="text-gold">Open Admin</Link></p>}
     </div>

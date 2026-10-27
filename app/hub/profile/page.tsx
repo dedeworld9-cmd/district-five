@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { Flash, PageHead, StatusTag } from '@/components/ui';
 import { createClient } from '@/lib/supabase/server';
 import { requireSession } from '@/lib/session';
@@ -37,6 +38,7 @@ export default async function Profile({ searchParams }: { searchParams: Promise<
           </div>
         ))}
       </section>
+      <Link href="/hub/join" className="mb-8 -mt-4 inline-block text-[13px] text-gold">Join another department →</Link>
       <form action={updateProfile} className="card grid gap-4 p-6">
         <label className="field"><span>Display name (your roleplay name)</span>
           <input name="display_name" className="input" defaultValue={s.profile.display_name} required minLength={2} maxLength={60} />

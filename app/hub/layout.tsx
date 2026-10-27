@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { Brand, Footer } from '@/components/ui';
 import { AutoSubmitSelect } from '@/components/AutoSubmitSelect';
+import { Emblem } from '@/components/Emblem';
 import { NavLinks } from '@/components/NavLinks';
 import { canDecide } from '@/lib/queue';
 import { requireSession } from '@/lib/session';
@@ -24,22 +25,30 @@ export default async function HubLayout({ children }: { children: React.ReactNod
 
   const items = [
     { href: '/hub', label: 'Dashboard' },
+    ...(!member ? [{ href: '/hub/join', label: 'Join a department' }] : []),
     ...(member ? [{ href: '/hub/shifts', label: 'Shifts' }, { href: '/hub/reports', label: 'Reports' }, { href: '/hub/board', label: 'Board' }] : []),
     ...(reviewer ? [{ href: '/hub/approvals', label: 'Approvals', count: queue }] : []),
     ...(member || s.isAdmin ? [{ href: '/hub/roster', label: 'Roster' }] : []),
-    ...(member ? [{ href: '/hub/announcements', label: 'Announcements' }, { href: '/hub/resources', label: 'Resources' }] : []),
+    ...(member ? [{ href: '/hub/announcements', label: 'News' }, { href: '/hub/resources', label: 'Resources' }] : []),
     ...(s.isAdmin ? [{ href: '/hub/admin', label: 'Admin' }] : []),
   ];
   const c = s.current;
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen" style={{ '--accent': s.currentDept?.accent ?? '#cfae5a' } as React.CSSProperties}>
+      <div className="app-bg" aria-hidden="true"><div className="app-grid" /></div>
+      <div className="lightbar fixed inset-x-0 top-0 z-30 opacity-70" aria-hidden="true" />
       <header className="sticky top-0 z-20 px-3 pt-3 sm:px-6 sm:pt-4">
         <div className="mx-auto flex max-w-6xl items-center gap-3 rounded-full border border-line bg-surface/85 py-1.5 pr-1.5 pl-4 backdrop-blur-md">
-          <Brand href="/hub" />
+          <Brand />
           <div className="mx-1 hidden h-5 w-px bg-line sm:block" />
           <div className="hidden min-w-0 flex-1 md:block"><NavLinks items={items} /></div>
           <div className="flex-1 md:hidden" />
+          {c && (
+            <span className="hidden shrink-0 md:block" title={s.currentDept?.name}>
+              <Emblem dept={c.department_key} label={s.currentDept?.short_name ?? ''} accent={s.currentDept?.accent ?? '#cfae5a'} division={s.currentDept?.division ?? 'leo'} size={26} />
+            </span>
+          )}
           {s.active.length > 1 && (
             <form action={setActiveDepartment} className="hidden md:block">
               <input type="hidden" name="back" value="/hub" />
@@ -73,7 +82,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
           <NavLinks items={items} />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">{children}</main>
+      <main className="rise mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">{children}</main>
       <Footer />
     </div>
   );

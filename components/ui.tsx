@@ -40,7 +40,7 @@ export function Flash({ searchParams }: { searchParams: Record<string, string | 
   if (!ok && !error) return null;
   return (
     <div role={error ? 'alert' : 'status'} data-flash={error ? 'error' : 'ok'}
-      className={`mb-6 rounded-xl border px-4 py-3 text-[14px] ${error ? 'border-bad/30 text-bad' : 'border-ok/30 text-ok'}`}>
+      className={`rise mb-6 rounded-xl border px-4 py-3 text-[14px] ${error ? 'border-bad/30 bg-bad/[0.06] text-bad' : 'border-ok/30 bg-ok/[0.06] text-ok'}`}>
       {error ?? ok}
     </div>
   );
@@ -51,7 +51,7 @@ export function PageHead({ eyebrow, title, children }: { eyebrow?: string; title
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>
         {eyebrow && <div className="label mb-3 flex items-center gap-2"><span className="gold-dot" />{eyebrow}</div>}
-        <h1 className="text-[28px] font-semibold tracking-tight sm:text-[32px]">{title}</h1>
+        <h1 className="wordmark text-[30px] font-semibold tracking-tight sm:text-[38px]">{title}</h1>
       </div>
       {children && <div className="flex flex-wrap gap-2">{children}</div>}
     </div>
@@ -59,12 +59,20 @@ export function PageHead({ eyebrow, title, children }: { eyebrow?: string; title
 }
 
 export function Empty({ children }: { children: ReactNode }) {
-  return <div className="rounded-xl border border-dashed border-line-strong px-5 py-10 text-center text-[14px] text-muted">{children}</div>;
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-line-strong bg-white/[0.01] px-5 py-10 text-center text-[14px] text-muted">
+      <span className="grid h-9 w-9 place-items-center rounded-full border border-line-strong text-faint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><path d="M22 12h-6l-2 3h-4l-2-3H2" /><path d="M5.5 5.1 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.5-6.9A2 2 0 0 0 16.8 4H7.2a2 2 0 0 0-1.7 1.1Z" /></svg>
+      </span>
+      <div>{children}</div>
+    </div>
+  );
 }
 
 export function Stat({ label, value, sub, gold, children }: { label: string; value: ReactNode; sub?: ReactNode; gold?: boolean; children?: ReactNode }) {
   return (
-    <div className={`card p-5 ${gold ? 'border-gold/25' : ''}`}>
+    <div className={`card card-hover relative overflow-hidden p-5 ${gold ? 'border-gold/25' : ''}`}>
+      {gold && <div className="absolute -top-16 -right-16 h-32 w-32 rounded-full bg-gold/10 blur-2xl" />}
       <div className="label">{label}</div>
       <div className={`mt-3 text-[30px] font-semibold tracking-tight ${gold ? 'text-gold' : ''}`}>{value}</div>
       {sub && <div className="mt-1 text-[13px] text-muted">{sub}</div>}

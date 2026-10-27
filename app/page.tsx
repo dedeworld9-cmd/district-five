@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Emblem } from '@/components/Emblem';
+import { PHOTOS } from '@/lib/brand';
 import { Brand, Footer } from '@/components/ui';
 import { DIVISION_LABEL, relative } from '@/lib/format';
 import { getSession } from '@/lib/session';
@@ -25,8 +26,8 @@ export default async function Home() {
   const short = (k: string | null) => (k ? departments?.find((d) => d.key === k)?.short_name ?? k : 'District');
 
   const units = divisions.flatMap((g) => g.depts);
-  // In-game photos supplied by departments, shown behind their card.
-  const PHOTOS: Record<string, string> = { bcso: '/logos/bcso-photo.jpg', sahp: '/logos/sahp-photo.jpg', safd: '/logos/safd-photo.jpg' };
+  // Signed-out visitors sign in with Discord first, then land on the join form for that department.
+  const joinHref = (k: string) => (session ? `/hub/join?dept=${k}` : `/login?next=${encodeURIComponent(`/hub/join?dept=${k}`)}`);
   const features = [
     ['Shift logs', 'Clock in, clock out, and send the log to your supervisor in one step.', 'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'],
     ['Reports & requests', 'Incidents, use of force, patient care, warrants, BOLOs, leave and training.', 'M9 12h6M9 16h6M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z'],
@@ -110,6 +111,9 @@ export default async function Home() {
                         <div className="text-[11px] font-semibold tracking-[0.14em] uppercase" style={{ color: d.accent }}>{d.short_name}</div>
                         <h3 className="mt-1.5 text-[21px] leading-snug font-semibold tracking-tight">{d.name}</h3>
                         <p className="mt-2 text-[15px] leading-relaxed text-muted">{d.public_blurb ?? d.tagline}</p>
+                        <Link href={joinHref(d.key)} className="btn btn-sm mt-5 border-white/20 bg-bg/40 backdrop-blur hover:!bg-white/10">
+                          Request to join <span aria-hidden="true">→</span>
+                        </Link>
                       </div>
                     </div>
                   </div>
@@ -159,10 +163,10 @@ export default async function Home() {
             <div>
               <h2 className="text-[28px] font-semibold tracking-tight">Want to join?</h2>
               <p className="mt-2 max-w-lg text-[15px] leading-relaxed text-muted">
-                Applications and recruitment run through each department&apos;s Discord. Once you are accepted, sign in here with the same Discord account.
+                Sign in with Discord, pick a department and tell command your roleplay name. Recruitment and interviews still run through each department&apos;s Discord.
               </p>
             </div>
-            <Link href="/login" className="btn-primary !h-11 !px-6">Member sign in</Link>
+            <Link href={session ? '/hub/join' : `/login?next=${encodeURIComponent('/hub/join')}`} className="btn-primary !h-11 !px-6">Request to join</Link>
           </div>
         </section>
       </main>
