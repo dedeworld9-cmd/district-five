@@ -6,7 +6,7 @@ import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIERS, TIER_LABEL } from '@/lib/tiers';
 import type { DepartmentOption, Rank, Tier } from '@/lib/types';
-import { adminDemo, adminImportRoster, adminSaveOption, adminSaveRank, adminSaveRoute, adminSetSetting, adminUpdateDepartment } from '../actions';
+import { adminAddSelf, adminDemo, adminImportRoster, adminSaveOption, adminSaveRank, adminSaveRoute, adminSetSetting, adminUpdateDepartment } from '../actions';
 
 export const metadata = { title: 'Admin' };
 
@@ -43,6 +43,33 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
           <Link key={k} href={`/hub/admin?tab=${k}`} className={`rounded-full px-3 py-1.5 text-[13px] ${tab === k ? 'bg-white/[0.08] text-ink' : 'text-muted hover:text-ink'}`}>{l}</Link>
         ))}
       </div>
+
+      {tab === 'settings' && !s.active.length && (
+        <form action={adminAddSelf} className="card mb-8 grid max-w-3xl gap-4 border-gold/30 p-6 sm:grid-cols-[2fr_1fr_auto] sm:items-end">
+          <div className="sm:col-span-3">
+            <h2 className="text-[16px] font-medium">Put yourself on a roster</h2>
+            <p className="mt-1 text-[13px] leading-relaxed text-muted">
+              Admin access covers settings only. Shifts, reports, approvals and the board belong to roster members, so add yourself to a department.
+              A DPS command rank oversees every division and opens every page.
+            </p>
+          </div>
+          <label className="field"><span>Department and rank</span>
+            <select name="rank" className="input" required defaultValue="">
+              <option value="" disabled>Choose a rank</option>
+              {s.departments.map((d) => {
+                const list = (ranks ?? []).filter((r) => r.department_key === d.key && r.active).sort((a, b) => b.sort_order - a.sort_order);
+                return list.length ? (
+                  <optgroup key={d.key} label={d.name}>
+                    {list.map((r) => <option key={r.id} value={`${d.key}|${r.id}`}>{r.name}{r.abbreviation ? ` (${r.abbreviation})` : ''}</option>)}
+                  </optgroup>
+                ) : null;
+              })}
+            </select>
+          </label>
+          <label className="field"><span>Callsign (optional)</span><input name="callsign" className="input" maxLength={12} /></label>
+          <button className="btn-primary">Add me</button>
+        </form>
+      )}
 
       {tab === 'settings' && (
         <div className="grid gap-6">

@@ -236,7 +236,7 @@ function NotOnRoster({ s, sp }: { s: Session; sp: Record<string, string | undefi
       {joinable.length > 0 && (
         <div className="mt-8"><JoinForm joinable={joinable} preselect={sp.join} name={s.profile.display_name} back="/hub" /></div>
       )}
-      {s.isAdmin && <p className="mt-8 text-[14px] text-muted">You are a technical administrator. <Link href="/hub/admin" className="text-gold">Open Admin</Link></p>}
+      {s.isAdmin && <p className="mt-8 text-[14px] text-muted">You are an administrator. To use shifts, reports, approvals and the board, <Link href="/hub/admin" className="text-gold">put yourself on a roster from Admin</Link>.</p>}
     </div>
   );
 }

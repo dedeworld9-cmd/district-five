@@ -227,6 +227,19 @@ export async function adminDemo(intent: 'seed' | 'clear', form: FormData) {
     clear ? 'Demo data removed.' : 'Demo data loaded. Every demo row is labeled [DEMO].', '/hub/admin');
 }
 
+// An administrator puts their own account on a roster, usually at a command rank.
+export async function adminAddSelf(form: FormData) {
+  const back = '/hub/admin';
+  const s = await requireSession();
+  const [dept, rank] = (str(form, 'rank') ?? '').split('|');
+  if (!dept || !rank) flash(back, 'error', 'Choose a department and rank.');
+  if (!s.profile.discord_id) flash(back, 'error', 'Your account has no Discord ID yet. Sign out and back in with Discord.');
+  await act(form, 'admin_add_roster_member', {
+    p_department: dept, p_display_name: s.profile.display_name, p_discord_id: s.profile.discord_id, p_rank: rank,
+    p_callsign: str(form, 'callsign'), p_badge: null, p_join_date: null,
+  }, 'You are on the roster. Reload any page to see the full hub.', back);
+}
+
 // One roster row per line: department, name, discord id, rank, callsign, badge
 export async function adminImportRoster(form: FormData) {
   const back = '/hub/admin?tab=import';
