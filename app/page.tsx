@@ -49,7 +49,7 @@ export default async function Home() {
 
         <div className="mx-auto max-w-6xl px-4 pt-20 pb-24 text-center sm:px-6 sm:pt-28 sm:pb-32">
           <div className="rise inline-flex items-center gap-2 rounded-full border border-line-strong bg-surface/60 px-3.5 py-1.5 text-[12px] text-muted backdrop-blur">
-            <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-ok" />PS5 roleplay community<span className="hidden sm:inline"> · Law enforcement · Fire &amp; EMS</span>
+            <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-ok" />The Lounge Roleplay<span className="hidden sm:inline"> · Law enforcement · Fire &amp; EMS</span>
           </div>
           <h1 className="rise wordmark mx-auto mt-8 text-[56px] leading-[0.95] font-bold tracking-[-0.04em] sm:text-[104px]" style={{ animationDelay: '80ms' }}>
             District Five

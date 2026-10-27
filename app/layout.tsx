@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: { default: 'District Five Departments Hub', template: '%s · District Five' },
-  description: 'Hub for the District Five PS5 roleplay community: law enforcement (BCSO, SAHP) and Fire/EMS (SAFD, SAEMS).',
+  description: 'District Five Departments Hub for The Lounge Roleplay: law enforcement (BCSO, SAHP) and Fire/EMS (SAFD, SAEMS).',
 };
 
 export const viewport: Viewport = { themeColor: '#07090e' };

@@ -1,6 +1,6 @@
 # District Five Departments Hub
 
-Website for the District Five PS5 roleplay community. It is organised in divisions: law enforcement (the Blaine County Sheriff's Office and the San Andreas Highway Patrol, under the Department of Public Safety) and Fire/EMS (the San Andreas Fire Department and San Andreas EMS, under Fire/EMS Administration). Dispatch is planned. Each division's command oversees only its own departments. All departments, people and records are fictional.
+Website for District Five, part of The Lounge Roleplay. It is organised in divisions: law enforcement (the Blaine County Sheriff's Office and the San Andreas Highway Patrol, under the Department of Public Safety) and Fire/EMS (the San Andreas Fire Department and San Andreas EMS, under Fire/EMS Administration). Dispatch is planned. Each division's command oversees only its own departments. All departments, people and records are fictional.
 
 To put it online, follow [docs/SETUP.md](docs/SETUP.md).
 

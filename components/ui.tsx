@@ -15,7 +15,7 @@ export function Footer() {
   return (
     <footer className="mx-auto mt-24 max-w-6xl px-4 pb-10 text-[12px] leading-relaxed text-faint sm:px-6">
       <div className="border-t border-line pt-6">
-        District Five is a PlayStation 5 roleplay community. Every department, person and record here is fictional,
+        District Five is part of The Lounge Roleplay, a roleplay community. Every department, person and record here is fictional,
         and none of it is affiliated with any real government agency. Do not enter real-world personal information.
       </div>
     </footer>
