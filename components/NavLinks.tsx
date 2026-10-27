@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 const ICONS: Record<string, string> = {
   '/hub': 'M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1Z',
   '/hub/join': 'M15 19v-1a4 4 0 0 0-8 0v1M11 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6ZM19 8v6M22 11h-6',
+  '/hub/command': 'M3 3v18h18M7 15l4-4 3 3 6-6',
   '/hub/shifts': 'M12 7v5l3 2M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z',
   '/hub/reports': 'M9 12h6M9 16h6M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Z',
   '/hub/board': 'M3 12h4l3-8 4 16 3-8h4',

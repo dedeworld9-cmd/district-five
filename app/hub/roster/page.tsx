@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { Fragment } from 'react';
+import { Emblem } from '@/components/Emblem';
 import { Empty, Flash, PageHead, StatusTag } from '@/components/ui';
 import { dateOnly } from '@/lib/format';
 import { requireSession } from '@/lib/session';
@@ -30,6 +32,8 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
   const grantable = (ranks ?? []).filter((r) =>
     s.oversees(dept.key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier));
   const onDuty = roster.filter((m) => m.duty_status === 'on_duty' && m.status === 'active').length;
+  const q = (sp.q ?? '').trim().toLowerCase();
+  const shown = q ? roster.filter((m) => [m.display_name, m.callsign, m.badge, m.rank_name].some((v) => v?.toLowerCase().includes(q))) : roster;
 
   return (
     <>
@@ -53,7 +57,7 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
                   <div className="text-[15px] font-medium">{m.display_name}</div>
                   <div className="text-[12px] text-faint">{m.ref} · {dateOnly(m.created_at)}</div>
                 </div>
-                {m.request_note && <p className="mt-2 text-[14px] text-muted">{m.request_note}</p>}
+                {m.request_note && <p className="mt-2 text-[14px] whitespace-pre-line text-muted">{m.request_note}</p>}
                 {m.profile_id === s.userId ? (
                   <p className="mt-3 text-[13px] text-faint">Another commander must decide your own request.</p>
                 ) : (
@@ -80,13 +84,29 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
         </section>
       )}
 
-      {roster.length ? (
+      {roster.length > 0 && (
+        <div className="mb-4 flex flex-wrap items-center gap-3">
+          <Emblem dept={dept.key} label={dept.short_name} accent={dept.accent} division={dept.division} size={40} />
+          <form className="flex min-w-60 flex-1 gap-2">
+            <input type="hidden" name="dept" value={dept.key} />
+            <input name="q" className="input" defaultValue={sp.q ?? ''} placeholder="Search name, callsign, badge or rank" />
+            <button className="btn">Search</button>
+          </form>
+          {q && <Link href={`/hub/roster?dept=${dept.key}`} className="text-[13px] text-muted hover:text-ink">Clear</Link>}
+        </div>
+      )}
+
+      {shown.length ? (
         <div className="card overflow-x-auto">
           <table className="table">
             <thead><tr><th>Callsign</th><th>Name</th><th>Rank</th><th>Duty</th><th>Status</th></tr></thead>
             <tbody>
-              {roster.map((m) => (
-                <tr key={m.id} className="hover:bg-white/[0.02]">
+              {shown.map((m, i) => (
+                <Fragment key={m.id}>
+                {(i === 0 || shown[i - 1].rank_name !== m.rank_name) && !q && (
+                  <tr><td colSpan={5} className="!pt-5 !pb-2 text-[11px] font-semibold tracking-[0.12em] text-faint uppercase">{m.rank_name ?? 'No rank'}</td></tr>
+                )}
+                <tr className="hover:bg-white/[0.02]">
                   <td className="font-mono text-[13px] text-gold">{m.callsign ?? '—'}</td>
                   <td>
                     <Link href={`/hub/roster/${m.id}`} className="hover:text-gold">{m.display_name}</Link>
@@ -94,14 +114,15 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
                     {m.leave_until && m.leave_until >= new Date().toISOString().slice(0, 10) && <span className="tag tag-warn ml-2">LOA</span>}
                   </td>
                   <td className="text-muted">{m.rank_name}</td>
-                  <td>{m.duty_status === 'on_duty' ? <span className="tag tag-ok">On duty</span> : <span className="text-faint">Off</span>}</td>
+                  <td>{m.duty_status === 'on_duty' ? <span className="tag tag-ok"><span className="on-duty-ring h-1.5 w-1.5 rounded-full bg-ok" />On duty</span> : <span className="text-faint">Off</span>}</td>
                   <td>{m.status !== 'active' ? <StatusTag status={m.status} /> : <span className="text-faint">Active</span>}</td>
                 </tr>
+                </Fragment>
               ))}
             </tbody>
           </table>
         </div>
-      ) : <Empty>No one on this roster yet.</Empty>}
+      ) : <Empty>{q ? 'Nobody matches that search.' : 'No one on this roster yet.'}</Empty>}
       <p className="mt-4 text-[12px] text-faint">Members on leave are marked LOA. Please do not contact them about activity.</p>
     </>
   );

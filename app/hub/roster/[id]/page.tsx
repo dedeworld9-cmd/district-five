@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { TrainingRecord } from '@/components/TrainingRecord';
 import { Flash, PageHead, StatusTag } from '@/components/ui';
-import { dateOnly } from '@/lib/format';
+import { ACTIVITY_LABEL, dateOnly, duration, hours } from '@/lib/format';
+import { KIND } from '@/lib/kinds';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIER_LABEL, atLeast, tierRank } from '@/lib/tiers';
-import type { MemberCertification, Membership, PersonnelRecord, Rank } from '@/lib/types';
+import type { MemberCertification, Membership, PersonnelRecord, Rank, ShiftLog, Submission } from '@/lib/types';
 import { updateMembership } from '../../actions';
 
 export const metadata = { title: 'Member' };
@@ -26,6 +27,18 @@ export default async function Member({ params, searchParams }: {
     supabase.from('member_certifications').select('*').eq('membership_id', id).is('revoked_at', null).order('name').returns<MemberCertification[]>(),
   ]);
   const dept = s.departments.find((d) => d.key === m.department_key);
+  // Activity is visible to the member and to supervisors of the department (row security agrees).
+  const seeActivity = !!m.profile_id && (m.profile_id === s.userId || s.canSupervise(m.department_key));
+  const since = new Date(Date.now() - 28 * 864e5).toISOString();
+  const [{ data: logs }, { data: filed }] = seeActivity ? await Promise.all([
+    supabase.from('shift_logs').select('id,ref,started_at,duration_minutes,status,activity_type').eq('membership_id', m.id).neq('status', 'draft')
+      .order('started_at', { ascending: false }).limit(40).returns<Pick<ShiftLog, 'id' | 'ref' | 'started_at' | 'duration_minutes' | 'status' | 'activity_type'>[]>(),
+    supabase.from('submissions').select('id,ref,title,kind,status,created_at').eq('membership_id', m.id).neq('status', 'draft')
+      .order('created_at', { ascending: false }).limit(8).returns<Pick<Submission, 'id' | 'ref' | 'title' | 'kind' | 'status' | 'created_at'>[]>(),
+  ]) : [{ data: null }, { data: null }];
+  const recentLogs = (logs ?? []).filter((l) => l.started_at >= since);
+  const approved28 = recentLogs.filter((l) => l.status === 'approved').reduce((n, l) => n + l.duration_minutes, 0);
+  const pending28 = recentLogs.filter((l) => ['submitted', 'under_review'].includes(l.status)).reduce((n, l) => n + l.duration_minutes, 0);
   const manage = s.canManageRoster(m.department_key) && (m.profile_id !== s.userId || s.isAdmin) && !['pending', 'denied'].includes(m.status);
   const myTier = s.tierIn(m.department_key);
   const grantable = (ranks ?? []).filter((r) => r.id === m.rank_id ||
@@ -47,6 +60,30 @@ export default async function Member({ params, searchParams }: {
         <div><dt className="label">Leave</dt><dd className="mt-1">{m.leave_until ? `Until ${dateOnly(m.leave_until)}` : 'None'}</dd></div>
         {!m.profile_id && <div className="sm:col-span-3 text-[13px] text-faint">Not linked to an account yet. It links when this member first signs in with Discord.</div>}
       </dl>
+
+      {seeActivity && (
+        <section className="mt-6 grid gap-3 sm:grid-cols-3">
+          <div className="card p-5"><div className="label">Approved · 28 days</div><div className="mt-2 text-[26px] font-semibold text-gold">{hours(approved28)}</div><div className="text-[12px] text-muted">{recentLogs.length} shift logs</div></div>
+          <div className="card p-5"><div className="label">Pending review</div><div className="mt-2 text-[26px] font-semibold">{hours(pending28)}</div><div className="text-[12px] text-muted">Not yet counted</div></div>
+          <div className="card p-5"><div className="label">Reports filed</div><div className="mt-2 text-[26px] font-semibold">{(filed ?? []).length}{(filed ?? []).length === 8 ? '+' : ''}</div><div className="text-[12px] text-muted">Reports and requests</div></div>
+          {(logs?.length || filed?.length) ? (
+            <div className="card divide-y divide-line sm:col-span-3">
+              {(logs ?? []).slice(0, 5).map((l) => (
+                <Link key={l.id} href={`/hub/shifts/${l.id}`} className="flex items-center justify-between gap-3 px-4 py-3 text-[14px] hover:bg-white/[0.02]">
+                  <span>{ACTIVITY_LABEL[l.activity_type] ?? l.activity_type} · {duration(l.duration_minutes)} <span className="text-[12px] text-faint">· {dateOnly(l.started_at)}</span></span>
+                  <StatusTag status={l.status} />
+                </Link>
+              ))}
+              {(filed ?? []).slice(0, 5).map((r) => (
+                <Link key={r.id} href={`/hub/reports/${r.id}`} className="flex items-center justify-between gap-3 px-4 py-3 text-[14px] hover:bg-white/[0.02]">
+                  <span>{r.title} <span className="text-[12px] text-faint">· {KIND[r.kind]?.label ?? r.kind}</span></span>
+                  <StatusTag status={r.status} />
+                </Link>
+              ))}
+            </div>
+          ) : null}
+        </section>
+      )}
 
       <TrainingRecord certs={certs ?? []} subdivisions={m.subdivisions ?? []} back={back}
         canRevoke={s.canManageRoster(m.department_key) && m.profile_id !== s.userId} />
