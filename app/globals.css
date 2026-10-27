@@ -109,3 +109,47 @@
   .table th { text-align: left; font-weight: 500; font-size: 12px; color: var(--color-faint); padding: 0 14px 10px; }
   .table td { padding: 12px 14px; border-top: 1px solid var(--color-line); vertical-align: top; }
 }
+
+/* Landing page: night-shift backdrop with a slow red/blue light bar. */
+@layer components {
+  .hero-grid {
+    background-image:
+      linear-gradient(rgb(255 255 255 / 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(255 255 255 / 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 35%, #000 30%, transparent 75%);
+  }
+  .glow { position: absolute; border-radius: 999px; filter: blur(90px); opacity: 0.35; }
+  .glow-red { background: #e5484d; animation: lightbar 3.2s ease-in-out infinite; }
+  .glow-blue { background: #3e7bfa; animation: lightbar 3.2s ease-in-out infinite 1.6s; }
+  .lightbar {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #e5484d 30%, #f4f6fa 50%, #3e7bfa 70%, transparent);
+    background-size: 200% 100%;
+    animation: sweep 6s linear infinite;
+  }
+  .wordmark {
+    background: linear-gradient(180deg, #fff 30%, rgb(238 241 246 / 0.55));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .dept-card { transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease; }
+  .dept-card:hover {
+    transform: translateY(-3px);
+    border-color: color-mix(in srgb, var(--accent) 45%, transparent);
+    box-shadow: 0 18px 50px -20px color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+  .rise { animation: rise 700ms cubic-bezier(.2,.7,.2,1) both; }
+  .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+}
+
+@keyframes lightbar { 0%, 100% { opacity: 0.12; } 50% { opacity: 0.42; } }
+@keyframes sweep { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgb(76 191 138 / 0.6); } 50% { box-shadow: 0 0 0 6px rgb(76 191 138 / 0); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .glow-red, .glow-blue, .lightbar, .rise, .pulse-dot { animation: none; }
+  .dept-card:hover { transform: none; }
+}
