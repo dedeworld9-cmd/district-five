@@ -5,12 +5,12 @@ import { dateTime } from '@/lib/format';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIERS, TIER_LABEL } from '@/lib/tiers';
-import type { Rank, Tier } from '@/lib/types';
-import { adminDemo, adminImportRoster, adminSaveRank, adminSaveRoute, adminSetSetting, adminUpdateDepartment } from '../actions';
+import type { DepartmentOption, Rank, Tier } from '@/lib/types';
+import { adminDemo, adminImportRoster, adminSaveOption, adminSaveRank, adminSaveRoute, adminSetSetting, adminUpdateDepartment } from '../actions';
 
 export const metadata = { title: 'Admin' };
 
-const TABS = [['settings', 'Settings'], ['ranks', 'Ranks'], ['routing', 'Review routing'], ['import', 'Roster import'], ['audit', 'Audit log']] as const;
+const TABS = [['settings', 'Settings'], ['ranks', 'Ranks'], ['options', 'Certifications'], ['routing', 'Review routing'], ['import', 'Roster import'], ['audit', 'Audit log']] as const;
 const DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 const ZONES = ['America/New_York', 'America/Chicago', 'America/Denver', 'America/Los_Angeles', 'Europe/London', 'UTC'];
 
@@ -23,12 +23,13 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
   if (!s.isAdmin) redirect('/hub');
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : 'settings';
   const supabase = await createClient();
-  const [{ data: ranks }, { data: routes }, { data: settings }, { data: audit }, { count: demoCount }] = await Promise.all([
+  const [{ data: ranks }, { data: routes }, { data: settings }, { data: audit }, { count: demoCount }, { data: options }] = await Promise.all([
     supabase.from('ranks').select('*').order('department_key').order('sort_order').returns<Rank[]>(),
     supabase.from('approval_routes').select('*').eq('record_type', 'shift_log').returns<Route[]>(),
     supabase.from('app_settings').select('*').returns<{ key: string; value: unknown }[]>(),
     tab === 'audit' ? supabase.from('audit_log').select('*').order('created_at', { ascending: false }).limit(100).returns<Audit[]>() : Promise.resolve({ data: [] as Audit[] }),
     supabase.from('memberships').select('id', { count: 'exact', head: true }).eq('is_demo', true),
+    supabase.from('department_options').select('*').order('department_key').order('kind').order('sort_order').order('name').returns<DepartmentOption[]>(),
   ]);
   const setting = (k: string) => settings?.find((x) => x.key === k)?.value;
   const departments = s.departments.filter((d) => d.kind === 'department');
@@ -132,6 +133,52 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
                   <select name="tier" className="input !h-8" defaultValue="patrol" aria-label="Tier">
                     {TIERS.map((t) => <option key={t} value={t}>{TIER_LABEL[t]}</option>)}
                   </select>
+                  <button className="btn btn-sm">Add</button>
+                </form>
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
+
+      {tab === 'options' && (
+        <div className="grid gap-8">
+          <p className="max-w-2xl text-[14px] text-muted">
+            What members can request on the Reports page. Approving a certification request adds it to the member&apos;s training record;
+            approving a subdivision request adds the subdivision to their roster entry. Closed options stay on records but cannot be requested.
+          </p>
+          {departments.map((d) => (
+            <section key={d.key}>
+              <h2 className="label mb-3">{d.name}</h2>
+              <div className="card divide-y divide-line">
+                {(options ?? []).filter((o) => o.department_key === d.key).map((o) => (
+                  <form key={o.id} action={adminSaveOption} className="grid items-center gap-2 px-4 py-3 sm:grid-cols-[3rem_7rem_2fr_1.4fr_auto_auto_auto]">
+                    <input type="hidden" name="id" value={o.id} /><input type="hidden" name="department" value={d.key} />
+                    <input type="hidden" name="kind" value={o.kind} />
+                    <input name="sort_order" type="number" className="input !h-8" defaultValue={o.sort_order} aria-label="Order" />
+                    <span className="text-[12px] text-faint">{o.kind === 'certification' ? 'Certification' : 'Subdivision'}</span>
+                    <input name="name" className="input !h-8" defaultValue={o.name} aria-label="Name" />
+                    <select name="min_tier" className="input !h-8" defaultValue={o.min_tier} aria-label="Lowest tier that may request">
+                      {TIERS.map((t) => <option key={t} value={t}>From {TIER_LABEL[t].toLowerCase()}</option>)}
+                    </select>
+                    <label className="flex items-center gap-1.5 text-[12px] text-muted"><input type="checkbox" name="is_open" defaultChecked={o.is_open} /> Open</label>
+                    <select name="active" className="input !h-8" defaultValue={o.active ? 'on' : 'off'} aria-label="Listed">
+                      <option value="on">Listed</option><option value="off">Hidden</option>
+                    </select>
+                    <button className="btn btn-sm">Save</button>
+                  </form>
+                ))}
+                <form action={adminSaveOption} className="grid items-center gap-2 px-4 py-3 sm:grid-cols-[3rem_7rem_2fr_1.4fr_auto_auto]">
+                  <input type="hidden" name="department" value={d.key} />
+                  <input name="sort_order" type="number" className="input !h-8" placeholder="#" aria-label="Order" />
+                  <select name="kind" className="input !h-8" defaultValue="certification" aria-label="Kind">
+                    <option value="certification">Certification</option><option value="subdivision">Subdivision</option>
+                  </select>
+                  <input name="name" className="input !h-8" placeholder="New option" required aria-label="Name" />
+                  <select name="min_tier" className="input !h-8" defaultValue="probationary" aria-label="Lowest tier that may request">
+                    {TIERS.map((t) => <option key={t} value={t}>From {TIER_LABEL[t].toLowerCase()}</option>)}
+                  </select>
+                  <label className="flex items-center gap-1.5 text-[12px] text-muted"><input type="checkbox" name="is_open" defaultChecked /> Open</label>
                   <button className="btn btn-sm">Add</button>
                 </form>
               </div>

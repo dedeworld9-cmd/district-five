@@ -5,7 +5,7 @@
 insert into public.departments (key, name, short_name, kind, division, oversees, tagline, accent, sort_order, bodycam_required) values
   ('bcso', 'Blaine County Sheriff''s Office', 'BCSO', 'department', 'leo', '{}', 'Serving Blaine County', '#c9a227', 1, false),
   ('sahp', 'San Andreas Highway Patrol', 'SAHP', 'department', 'leo', '{}', 'State highways and interstates', '#8fa8c8', 2, false),
-  ('dps', 'Department of Public Safety', 'DPS', 'oversight', 'leo', '{leo}', 'Law enforcement command', '#d8dde6', 0, false),
+  ('dps', 'Department of Public Safety', 'DPS', 'oversight', 'leo', '{leo,fire_ems,dispatch}', 'District Five command', '#d8dde6', 0, false),
   ('safd', 'San Andreas Fire Department', 'SAFD', 'department', 'fire_ems', '{}', 'Fire and rescue', '#c8553d', 3, false),
   ('saems', 'San Andreas Emergency Medical Services', 'SAEMS', 'department', 'fire_ems', '{}', 'Emergency medical care', '#6fa8c9', 4, false),
   ('fems', 'Fire/EMS Administration', 'Fire/EMS Admin', 'oversight', 'fire_ems', '{fire_ems}', 'SAFD and SAEMS command', '#d8dde6', 0, false)
@@ -43,12 +43,25 @@ insert into public.ranks (department_key, name, abbreviation, tier, sort_order) 
   ('sahp', 'Assistant Commissioner F.O.', '1A', 'department_head', 130),
   ('sahp', 'Deputy Commissioner', '1A', 'department_head', 140),
   ('sahp', 'Commissioner', '1A', 'department_head', 150),
-  ('dps', 'DPS Officer', null, 'dps', 10),
-  ('dps', 'DPS Captain', null, 'dps', 20),
-  ('dps', 'Assistant Commissioner', null, 'dps', 30),
-  ('dps', 'Deputy Commissioner', 'E-02', 'dps', 40),
-  ('dps', 'Commissioner', 'E-01', 'dps', 50)
+  ('dps', 'Officer of Fire/EMS Operations', 'E-06', 'dps', 10),
+  ('dps', 'Officer of LEO Operations', 'E-05', 'dps', 20),
+  ('dps', 'Captain of DPS', 'E-04', 'dps', 30),
+  ('dps', 'Assistant Commissioner of DPS', 'E-03', 'dps', 40),
+  ('dps', 'Deputy Commissioner of DPS', 'E-02', 'dps', 50),
+  ('dps', 'Commissioner of DPS', 'E-01', 'dps', 60)
 on conflict (department_key, name) do nothing;
+
+-- Certifications and subdivisions named on the SAHP portal and in the BCSO and Fire/EMS Discord servers.
+insert into public.department_options (department_key, kind, name, sort_order) values
+  ('sahp', 'certification', 'High speed', 10), ('sahp', 'certification', 'SQAS', 20), ('sahp', 'certification', 'K9', 30),
+  ('sahp', 'certification', 'First Aid', 40), ('sahp', 'certification', 'Rifle', 50), ('sahp', 'certification', 'EVOC', 60),
+  ('sahp', 'certification', 'Motor Bike', 70), ('sahp', 'certification', 'Marine', 80), ('sahp', 'certification', 'Air 1', 90),
+  ('sahp', 'subdivision', 'SWAT', 10), ('sahp', 'subdivision', 'CID', 20),
+  ('bcso', 'certification', 'Firearm / Rifle', 10), ('bcso', 'certification', 'EVOC', 20), ('bcso', 'certification', 'First Aid', 30),
+  ('bcso', 'certification', 'HSU', 40), ('bcso', 'certification', 'Air', 50), ('bcso', 'certification', 'FTO', 60),
+  ('bcso', 'subdivision', 'K-9', 10), ('bcso', 'subdivision', 'Air & Coastal', 20), ('bcso', 'subdivision', 'Investigations', 30),
+  ('safd', 'certification', 'EVOC', 10), ('saems', 'certification', 'EVOC', 10)
+on conflict (department_key, kind, name) do nothing;
 
 -- District-wide review routing (department rows override these).
 insert into public.approval_routes (record_type, department_key, submitter_tier, required_tier) values

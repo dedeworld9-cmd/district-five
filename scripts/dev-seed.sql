@@ -13,7 +13,7 @@ declare
     ['dual_member',      'Sam Whitaker',    'sahp', 'Senior Trooper',              'active',    '4A-31', '4431'],
     ['bcso_supervisor',  'Morgan Hale',     'bcso', 'Sergeant',                    'active',    '1S-03', '2103'],
     ['bcso_head',        'Riley Thornton',  'bcso', 'Sheriff',                     'active',    '1-ADAM', '1001'],
-    ['dps_command',      'Casey Hathaway',  'dps',  'Deputy Commissioner',         'active',    'E-02',  null],
+    ['dps_command',      'Casey Hathaway',  'dps',  'Deputy Commissioner of DPS',  'active',    'E-02',  null],
     ['suspended_member', 'Drew Kessler',    'bcso', 'Deputy Sheriff Second Class', 'suspended', '1D-40', '2040'],
     ['safd_member',      'Quinn Alvarez',   'safd', '[DEV] Firefighter',           'active',    'E-12',  '3012'],
     ['safd_supervisor',  'Parker Nash',     'safd', '[DEV] Lieutenant',            'active',    'L-3',   '3003'],

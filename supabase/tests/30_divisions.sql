@@ -1,6 +1,6 @@
--- Division boundaries: Fire/EMS Administration commands SAFD and SAEMS, DPS commands BCSO and
--- SAHP, and neither reads or decides the other division's records. Runs after 10_personas.sql
--- on the same database and reuses its tst helpers and people.
+-- Division boundaries: Fire/EMS Administration commands SAFD and SAEMS only; DPS commands
+-- every division; members of one division never read another division's records. Runs after
+-- 10_personas.sql on the same database and reuses its tst helpers and people.
 
 -- ------------------------------------------------------------ fixtures
 -- Test-only ranks; the real Fire/EMS ladders are entered by an administrator.
@@ -56,19 +56,15 @@ select tst.ok(exists (select 1 from public.notifications where profile_id = tst.
 select tst.ok(not exists (select 1 from public.notifications where profile_id = tst.id('dps_user') and related_id = :'ff_shift'),
               'DPS is not notified of SAFD shifts');
 
--- ------------------------------------------------ the other division cannot see it
+-- ------------------------------------------------ DPS commands every division
 select tst.become('dps_user');
 set role authenticated;
-select tst.ok(not exists (select 1 from public.shift_logs where id = :'ff_shift'), 'DPS: cannot see SAFD shift logs');
-select tst.ok(not exists (select 1 from public.memberships where department_key = 'safd' and status = 'pending'), 'DPS: no SAFD roster-manager view');
-select tst.fails(format('select public.decide_shift_log(%L, %L)', :'ff_shift', 'approve'), 'D5403', 'DPS: cannot decide SAFD shift logs');
-select tst.fails(format('select public.update_membership(%L, null, %L, null, null, null, false, null, null, null, null, %L)',
-                 :'safd_ff_m', 'X-1', 'test'), 'D5403', 'DPS: cannot change the SAFD roster');
-select tst.fails($$select public.save_announcement(null, '[TEST] SAFD notice', 'x', 'department', 'safd', null, null, false, true)$$,
-                 'D5403', 'DPS: cannot post SAFD announcements');
-select tst.ok(not public.can_view_personnel('safd'), 'DPS: no SAFD personnel records');
-select tst.ok(public.can_view_personnel('bcso'), 'DPS: still reads BCSO personnel records');
+select tst.ok(exists (select 1 from public.shift_logs where id = :'ff_shift'), 'DPS: sees SAFD shift logs');
+select tst.ok(public.can_decide('safd', 'supervisor') and public.can_manage_roster('saems'), 'DPS: can decide and manage Fire/EMS');
+select tst.ok(public.can_view_personnel('safd') and public.can_view_personnel('bcso'), 'DPS: reads personnel in every division when granted');
 reset role;
+
+-- ------------------------------------------------ other members cannot see it
 
 select tst.become('bcso_sup');
 set role authenticated;
@@ -104,8 +100,8 @@ select tst.ok((select required_tier from public.shift_logs where id = :'chief_sh
 reset role;
 select tst.ok(exists (select 1 from public.notifications where profile_id = tst.id('fems_cmd') and related_id = :'chief_shift'),
               'Fire/EMS command is notified of the chief''s shift');
-select tst.ok(not exists (select 1 from public.notifications where profile_id = tst.id('dps_user') and related_id = :'chief_shift'),
-              'DPS is not notified of the chief''s shift');
+select tst.ok(exists (select 1 from public.notifications where profile_id = tst.id('dps_user') and related_id = :'chief_shift'),
+              'DPS is also notified of the chief''s shift');
 
 select tst.become('safd_lt');
 set role authenticated;
@@ -113,9 +109,9 @@ select tst.fails(format('select public.decide_shift_log(%L, %L)', :'chief_shift'
 select tst.ok((public.decide_shift_log(:'ff_shift', 'approve')).status = 'approved', 'SAFD lieutenant: approves the firefighter''s log');
 reset role;
 
-select tst.become('dps_user');
+select tst.become('bcso_head');
 set role authenticated;
-select tst.fails(format('select public.decide_shift_log(%L, %L)', :'chief_shift', 'approve'), 'D5403', 'DPS: cannot decide the SAFD chief''s log');
+select tst.fails(format('select public.decide_shift_log(%L, %L)', :'chief_shift', 'approve'), 'D5403', 'BCSO sheriff: cannot decide the SAFD chief''s log');
 reset role;
 
 select tst.become('fems_cmd');
@@ -129,10 +125,10 @@ set role authenticated;
 select public.request_membership('safd', '[TEST] joining') as new_req \gset
 reset role;
 
-select tst.become('dps_user');
+select tst.become('bcso_head');
 set role authenticated;
 select tst.fails(format('select public.decide_membership(%L, %L, %L)', :'new_req', 'approve', :'head_rank'), 'D5403',
-                 'DPS: cannot decide SAFD roster requests');
+                 'BCSO sheriff: cannot decide SAFD roster requests');
 reset role;
 
 select tst.become('safd_chief');

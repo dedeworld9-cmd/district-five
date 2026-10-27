@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { TrainingRecord } from '@/components/TrainingRecord';
 import { Flash, PageHead, StatusTag } from '@/components/ui';
 import { dateOnly } from '@/lib/format';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIER_LABEL, atLeast, tierRank } from '@/lib/tiers';
-import type { Membership, PersonnelRecord, Rank } from '@/lib/types';
+import type { MemberCertification, Membership, PersonnelRecord, Rank } from '@/lib/types';
 import { updateMembership } from '../../actions';
 
 export const metadata = { title: 'Member' };
@@ -19,9 +20,10 @@ export default async function Member({ params, searchParams }: {
   const supabase = await createClient();
   const { data: m } = await supabase.from('memberships').select('*').eq('id', id).maybeSingle<Membership>();
   if (!m) notFound();
-  const [{ data: ranks }, { data: records }] = await Promise.all([
+  const [{ data: ranks }, { data: records }, { data: certs }] = await Promise.all([
     supabase.from('ranks').select('*').eq('department_key', m.department_key).eq('active', true).order('sort_order').returns<Rank[]>(),
     supabase.from('personnel_records').select('*').eq('membership_id', id).order('created_at', { ascending: false }).returns<PersonnelRecord[]>(),
+    supabase.from('member_certifications').select('*').eq('membership_id', id).is('revoked_at', null).order('name').returns<MemberCertification[]>(),
   ]);
   const dept = s.departments.find((d) => d.key === m.department_key);
   const manage = s.canManageRoster(m.department_key) && (m.profile_id !== s.userId || s.isAdmin) && !['pending', 'denied'].includes(m.status);
@@ -45,6 +47,9 @@ export default async function Member({ params, searchParams }: {
         <div><dt className="label">Leave</dt><dd className="mt-1">{m.leave_until ? `Until ${dateOnly(m.leave_until)}` : 'None'}</dd></div>
         {!m.profile_id && <div className="sm:col-span-3 text-[13px] text-faint">Not linked to an account yet. It links when this member first signs in with Discord.</div>}
       </dl>
+
+      <TrainingRecord certs={certs ?? []} subdivisions={m.subdivisions ?? []} back={back}
+        canRevoke={s.canManageRoster(m.department_key) && m.profile_id !== s.userId} />
 
       {manage && (
         <form action={updateMembership} className="card mt-6 grid gap-4 p-6 sm:grid-cols-2">

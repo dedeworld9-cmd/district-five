@@ -46,7 +46,7 @@ declare
     ['sahp_sup',   'sahp', 'Sergeant',                    'active'],
     ['bcso_hc',    'bcso', 'Captain',                     'active'],
     ['bcso_head',  'bcso', 'Sheriff',                     'active'],
-    ['dps_user',   'dps',  'DPS Captain',                 'active'],
+    ['dps_user',   'dps',  'Captain of DPS',              'active'],
     ['suspended',  'bcso', 'Deputy Sheriff Second Class', 'suspended']];
   i int;
 begin

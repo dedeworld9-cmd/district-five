@@ -239,3 +239,72 @@ export async function adminImportRoster(form: FormData) {
   if (problems.length) flash(back, 'error', `Added ${added}. ${problems.slice(0, 5).join('; ')}${problems.length > 5 ? '…' : ''}`);
   flash(back, 'ok', `Added ${added} roster ${added === 1 ? 'entry' : 'entries'}. Each links to its member at first Discord sign-in.`);
 }
+
+// ------------------------------------------------------- reports & requests
+
+export interface SubmissionFormState { error?: string }
+
+export async function saveSubmission(_prev: SubmissionFormState, form: FormData): Promise<SubmissionFormState> {
+  const submit = form.get('intent') === 'submit';
+  const details: Record<string, string> = {};
+  for (const [k, v] of form.entries()) {
+    if (k.startsWith('f_') && typeof v === 'string' && v.trim()) details[k.slice(2)] = v.trim();
+  }
+  const { data, error } = await rpc<{ id: string; ref: string; title: string }>('save_submission', {
+    p_id: str(form, 'id'),
+    p_kind: str(form, 'kind'),
+    p_department: str(form, 'department'),
+    p_details: details,
+    p_evidence_url: str(form, 'evidence_url'),
+    p_occurred_on: str(form, 'occurred_on'),
+    p_expires_at: str(form, 'expires_at'),
+    p_subject: str(form, 'subject'),
+    p_submit: submit,
+    p_expected_version: num(form, 'version'),
+  });
+  if (error) return { error: friendly(error) };
+  revalidatePath('/hub', 'layout');
+  flash(`/hub/reports/${data.id}`, 'ok', submit ? `${data.ref} sent for review.` : `${data.ref} saved as a draft.`);
+}
+
+export async function withdrawSubmission(form: FormData) {
+  const id = str(form, 'id');
+  await act(form, 'withdraw_submission', { p_id: id, p_reason: str(form, 'reason') }, 'Withdrawn.', `/hub/reports/${id}`);
+}
+
+export async function decideSubmission(action: string, form: FormData) {
+  const msg: Record<string, string> = {
+    approve: 'Approved.', deny: 'Denied.', return: 'Returned to the member for correction.',
+    escalate: 'Escalated to division command.', claim: 'Claimed. It is now under your review.', archive: 'Cleared from the active list.',
+  };
+  await act(form, 'decide_submission', { p_id: str(form, 'id'), p_action: action, p_reason: str(form, 'reason') },
+    msg[action] ?? 'Done.', '/hub/approvals');
+}
+
+export async function revokeCertification(form: FormData) {
+  await act(form, 'revoke_certification', { p_id: str(form, 'id'), p_reason: str(form, 'reason') }, 'Certification revoked.', '/hub/roster');
+}
+
+// ------------------------------------------------------------- materials
+
+export async function savePolicy(form: FormData) {
+  const dept = str(form, 'department');
+  await act(form, 'save_policy', {
+    p_id: str(form, 'id'), p_title: str(form, 'title'), p_category: str(form, 'category'),
+    p_department: dept === 'district' ? null : dept, p_version: str(form, 'version'), p_summary: str(form, 'summary'),
+    p_body: null, p_source_url: str(form, 'source_url'), p_requires_ack: form.get('requires_ack') === 'on',
+    p_effective: null, p_approve: true,
+  }, 'Saved to the library.', '/hub/resources');
+}
+
+export async function acknowledgePolicy(form: FormData) {
+  await act(form, 'acknowledge_policy', { p_policy: str(form, 'id') }, 'Acknowledged.', '/hub/resources');
+}
+
+export async function adminSaveOption(form: FormData) {
+  await act(form, 'admin_save_option', {
+    p_id: str(form, 'id'), p_department: str(form, 'department'), p_kind: str(form, 'kind'), p_name: str(form, 'name'),
+    p_description: str(form, 'description'), p_min_tier: str(form, 'min_tier'), p_open: form.get('is_open') === 'on',
+    p_sort: num(form, 'sort_order'), p_active: form.get('active') !== 'off',
+  }, 'Saved.', '/hub/admin?tab=options');
+}

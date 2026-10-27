@@ -11,21 +11,23 @@ import { setActiveDepartment } from './actions';
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   const s = await requireSession();
   const supabase = await createClient();
-  const [{ count: unread }, { data: open }] = await Promise.all([
+  const reviewer = s.supervised.length > 0 || s.isDps;
+  type Open = { id: string; department_key: string; required_tier: Tier; profile_id: string };
+  const none = Promise.resolve({ data: [] as Open[] });
+  const [{ count: unread }, { data: open }, { data: subs }] = await Promise.all([
     supabase.from('notifications').select('id', { count: 'exact', head: true }).is('read_at', null),
-    s.supervised.length || s.isDps
-      ? supabase.from('shift_logs').select('id,department_key,required_tier,profile_id').in('status', ['submitted', 'under_review'])
-      : Promise.resolve({ data: [] as { id: string; department_key: string; required_tier: Tier; profile_id: string }[] }),
+    reviewer ? supabase.from('shift_logs').select('id,department_key,required_tier,profile_id').in('status', ['submitted', 'under_review']).returns<Open[]>() : none,
+    reviewer ? supabase.from('submissions').select('id,department_key,required_tier,profile_id').in('status', ['submitted', 'under_review']).returns<Open[]>() : none,
   ]);
-  const queue = (open ?? []).filter((l) => canDecide(s, l.department_key, l.required_tier, l.profile_id)).length;
+  const queue = [...(open ?? []), ...(subs ?? [])].filter((l) => canDecide(s, l.department_key, l.required_tier, l.profile_id)).length;
   const member = s.active.length > 0;
 
   const items = [
     { href: '/hub', label: 'Dashboard' },
-    ...(member ? [{ href: '/hub/shifts', label: 'Shifts' }] : []),
-    ...(s.supervised.length || s.isDps ? [{ href: '/hub/approvals', label: 'Approvals', count: queue }] : []),
+    ...(member ? [{ href: '/hub/shifts', label: 'Shifts' }, { href: '/hub/reports', label: 'Reports' }, { href: '/hub/board', label: 'Board' }] : []),
+    ...(reviewer ? [{ href: '/hub/approvals', label: 'Approvals', count: queue }] : []),
     ...(member || s.isAdmin ? [{ href: '/hub/roster', label: 'Roster' }] : []),
-    ...(member ? [{ href: '/hub/announcements', label: 'Announcements' }] : []),
+    ...(member ? [{ href: '/hub/announcements', label: 'Announcements' }, { href: '/hub/resources', label: 'Resources' }] : []),
     ...(s.isAdmin ? [{ href: '/hub/admin', label: 'Admin' }] : []),
   ];
   const c = s.current;

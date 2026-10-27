@@ -1,6 +1,8 @@
 import { Flash, PageHead, StatusTag } from '@/components/ui';
+import { createClient } from '@/lib/supabase/server';
 import { requireSession } from '@/lib/session';
 import { TIER_LABEL } from '@/lib/tiers';
+import type { MemberCertification } from '@/lib/types';
 import { updateProfile } from '../actions';
 
 export const metadata = { title: 'Profile' };
@@ -9,6 +11,11 @@ export default async function Profile({ searchParams }: { searchParams: Promise<
   const sp = await searchParams;
   const s = await requireSession();
   const name = (k: string) => s.departments.find((d) => d.key === k)?.name ?? k;
+  const supabase = await createClient();
+  const { data: certs } = s.active.length
+    ? await supabase.from('member_certifications').select('*').in('membership_id', s.active.map((m) => m.id)).is('revoked_at', null)
+      .order('name').returns<MemberCertification[]>()
+    : { data: [] as MemberCertification[] };
   return (
     <div className="max-w-2xl">
       <Flash searchParams={sp} />
@@ -21,6 +28,12 @@ export default async function Profile({ searchParams }: { searchParams: Promise<
               <div className="text-[13px] text-muted">{[m.rank_name, m.callsign, m.badge && `#${m.badge}`, TIER_LABEL[m.tier]].filter(Boolean).join(' · ')}</div>
             </div>
             <StatusTag status={m.status} />
+            {m.status === 'active' && ((certs ?? []).some((c) => c.membership_id === m.id) || m.subdivisions?.length > 0) && (
+              <div className="flex w-full flex-wrap gap-1.5 border-t border-line pt-3">
+                {(certs ?? []).filter((c) => c.membership_id === m.id).map((c) => <span key={c.id} className="tag tag-gold">{c.name}</span>)}
+                {(m.subdivisions ?? []).map((x) => <span key={x} className="tag">{x}</span>)}
+              </div>
+            )}
           </div>
         ))}
       </section>

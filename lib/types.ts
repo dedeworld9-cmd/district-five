@@ -69,3 +69,26 @@ export interface ComplianceRow {
   membership_id: string; display_name: string; callsign: string | null; rank_name: string | null; tier: Tier;
   approved_minutes: number; pending_minutes: number; district_minutes: number; quota_minutes: number; on_leave: boolean;
 }
+
+export interface Submission {
+  id: string; ref: string; kind: string; department_key: string; profile_id: string; membership_id: string;
+  snapshot_name: string; snapshot_rank: string | null; snapshot_tier: Tier; snapshot_callsign: string | null; snapshot_badge: string | null;
+  title: string; details: Record<string, string>; evidence_url: string | null; occurred_on: string | null; expires_at: string | null;
+  subject_membership: string | null; status: ApprovalStatus; required_tier: Tier; assigned_to: string | null;
+  submitted_at: string | null; decided_at: string | null; decided_by_name: string | null; decision_reason: string | null;
+  version: number; created_at: string;
+}
+
+export interface DepartmentOption {
+  id: string; department_key: string; kind: 'certification' | 'subdivision'; name: string; description: string | null;
+  min_tier: Tier; is_open: boolean; sort_order: number; active: boolean;
+}
+
+export interface MemberCertification {
+  id: string; membership_id: string; department_key: string; name: string; granted_at: string; granted_by_name: string | null; revoked_at: string | null;
+}
+
+export interface Policy {
+  id: string; ref: string; title: string; category: string; department_key: string | null; version: string; summary: string | null;
+  source_url: string | null; status: string; requires_acknowledgment: boolean;
+}

@@ -14,6 +14,8 @@ To put it online, follow [docs/SETUP.md](docs/SETUP.md).
 - Announcements by department or district, with separate approval before anything reaches the public site.
 - Notifications, admin settings for ranks, quotas, week start, time zones, bodycam rules, review routing, roster import, and labeled demo data.
 - A public front page that identifies the site as a roleplay community.
+- Reports and requests: incident, use of force, fire incident, patient care, warrant, BOLO, certification, subdivision, leave and FTO logs, all reviewed through the same queue.
+- A board with units on duty, active warrants and BOLOs, and weekly hours; a resources page with a materials library, read acknowledgments and the chain of command; training records on each roster entry.
 
 ## How permissions work
 
@@ -44,6 +46,6 @@ After changing a migration, run `bash scripts/build-setup-sql.sh` to regenerate 
 
 ## Later stages
 
-- Stage 2: reports, registrations, evidence, warrants, BOLOs, record linking.
-- Stage 3: training, certifications, subdivisions, applications, appeals.
+- Stage 2: registrations, evidence, record linking.
+- Stage 3: applications, appeals.
 - Stage 4: grounded AI assistant, Discord integration, analytics.

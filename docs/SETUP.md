@@ -112,4 +112,6 @@ Supervisors' own shift logs go to high command, high command's go to the departm
 
 **Fire/EMS update (October 2026):** if your database was set up before SAFD and SAEMS were added, run `supabase/migrations/20261027000005_divisions.sql` once in the SQL editor. The SAFD, SAEMS and Fire/EMS Administration rank ladders start empty. Add them under **Admin** → **Ranks**.
 
+**Reports update (October 2026):** after migration 005, run `supabase/migrations/20261027000006_reports_requests.sql` once. It adds reports and requests (incident, use of force, fire incident, patient care, warrant, BOLO, certification, subdivision, leave, FTO log), training records, the weekly hours board, and the starting certification and subdivision lists. Edit those lists under **Admin** → **Certifications**.
+
 When new files appear in `supabase/migrations/`, open each new one in order, paste it into the Supabase SQL editor, and run it. Vercel redeploys the website by itself whenever the code on GitHub changes.

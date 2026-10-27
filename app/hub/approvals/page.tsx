@@ -1,13 +1,15 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { DecisionPanel } from '@/components/DecisionPanel';
+import { SubmissionDecision } from '@/components/SubmissionDecision';
 import { Empty, Flash, PageHead, StatusTag } from '@/components/ui';
 import { ACTIVITY_LABEL, BODYCAM_LABEL, dateTime, duration, relative } from '@/lib/format';
+import { KIND } from '@/lib/kinds';
 import { canDecide } from '@/lib/queue';
 import { requireSession, tzOf } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIER_LABEL } from '@/lib/tiers';
-import type { ShiftLog } from '@/lib/types';
+import type { ShiftLog, Submission } from '@/lib/types';
 
 export const metadata = { title: 'Approvals' };
 
@@ -16,15 +18,17 @@ export default async function Approvals({ searchParams }: { searchParams: Promis
   const s = await requireSession();
   if (!s.supervised.length && !s.isDps) redirect('/hub');
   const supabase = await createClient();
-  const [{ data: open }, { data: decided }] = await Promise.all([
+  const [{ data: open }, { data: decided }, { data: subs }] = await Promise.all([
     supabase.from('shift_logs').select('*').in('status', ['submitted', 'under_review']).order('submitted_at').returns<ShiftLog[]>(),
     supabase.from('shift_logs').select('*').eq('decided_by', s.userId).order('decided_at', { ascending: false }).limit(10).returns<ShiftLog[]>(),
+    supabase.from('submissions').select('*').in('status', ['submitted', 'under_review']).order('submitted_at').returns<Submission[]>(),
   ]);
   const deptFilter = sp.dept;
   const mine = (open ?? []).filter((l) => canDecide(s, l.department_key, l.required_tier, l.profile_id) && (!deptFilter || l.department_key === deptFilter));
   const others = (open ?? []).filter((l) => !canDecide(s, l.department_key, l.required_tier, l.profile_id) && l.profile_id !== s.userId);
   const short = (k: string) => s.departments.find((d) => d.key === k)?.short_name ?? k;
-  const deptKeys = [...new Set((open ?? []).map((l) => l.department_key))];
+  const paperwork = (subs ?? []).filter((r) => canDecide(s, r.department_key, r.required_tier, r.profile_id) && (!deptFilter || r.department_key === deptFilter));
+  const deptKeys = [...new Set([...(open ?? []), ...(subs ?? [])].map((l) => l.department_key))];
 
   return (
     <>
@@ -40,6 +44,45 @@ export default async function Approvals({ searchParams }: { searchParams: Promis
         )}
       </PageHead>
 
+      {paperwork.length > 0 && (
+        <section className="mb-10">
+          <h2 className="label mb-4">Reports & requests</h2>
+          <div className="grid gap-3">
+            {paperwork.map((r) => (
+              <article key={r.id} className="card p-5">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <div className="flex items-center gap-2 text-[12px] text-faint">
+                      <span>{short(r.department_key)}</span><span>·</span>
+                      <span>{KIND[r.kind]?.label ?? r.kind}</span><span>·</span>
+                      <Link href={`/hub/reports/${r.id}`} className="font-mono hover:text-gold">{r.ref}</Link><span>·</span>
+                      <span>sent {r.submitted_at ? relative(r.submitted_at) : ''}</span>
+                    </div>
+                    <Link href={`/hub/reports/${r.id}`} className="mt-1 block text-[16px] font-medium hover:text-gold">{r.title}</Link>
+                    <div className="text-[13px] text-muted">{[r.snapshot_callsign, r.snapshot_name, r.snapshot_rank].filter(Boolean).join(' · ')}</div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {r.required_tier === 'dps' && <span className="tag tag-gold">Command review</span>}
+                    {r.assigned_to && <span className="tag">{r.assigned_to === s.userId ? 'Claimed by you' : 'Claimed'}</span>}
+                    <StatusTag status={r.status} />
+                  </div>
+                </div>
+                {(() => {
+                  const d = r.details;
+                  const gist = d.summary ?? d.scene ?? d.probable_cause ?? d.reason ?? d.why ?? d.treatment ?? d.notes;
+                  return gist ? <p className="mt-3 line-clamp-3 text-[14px] whitespace-pre-wrap text-muted">{gist}</p> : null;
+                })()}
+                {r.evidence_url && <a href={r.evidence_url} target="_blank" rel="noreferrer noopener" className="mt-2 inline-block text-[13px] text-gold">Evidence link</a>}
+                <div className="mt-5 border-t border-line pt-4">
+                  <SubmissionDecision sub={r} back="/hub/approvals" canEscalate={!s.oversees(r.department_key)} />
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {paperwork.length > 0 && <h2 className="label mb-4">Shift logs</h2>}
       {mine.length ? (
         <div className="grid gap-3">
           {mine.map((l) => {
@@ -78,7 +121,7 @@ export default async function Approvals({ searchParams }: { searchParams: Promis
             );
           })}
         </div>
-      ) : <Empty>Nothing is waiting for you.</Empty>}
+      ) : <Empty>{paperwork.length ? 'No shift logs are waiting for you.' : 'Nothing is waiting for you.'}</Empty>}
 
       {others.length > 0 && (
         <p className="mt-6 text-[13px] text-faint">
