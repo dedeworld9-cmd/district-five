@@ -69,7 +69,7 @@ export default async function Home() {
             <div className="rise mt-14 flex flex-wrap items-center justify-center gap-x-5 gap-y-4 sm:mt-16 sm:gap-x-8" style={{ animationDelay: '420ms' }}>
               {units.map((d) => (
                 <a key={d.key} href={`#${d.key}`} className="flex items-center gap-2.5 opacity-80 transition-opacity hover:opacity-100">
-                  <Emblem label={d.short_name} accent={d.accent} division={d.division} size={40} />
+                  <Emblem dept={d.key} label={d.short_name} accent={d.accent} division={d.division} size={40} />
                   <span className="hidden text-left text-[12px] leading-tight text-muted sm:inline">{d.name.split(' ').slice(0, -1).join(' ')}<br /><span className="text-ink">{d.name.split(' ').slice(-1)}</span></span>
                 </a>
               ))}
@@ -93,7 +93,7 @@ export default async function Home() {
                     <div className="absolute inset-x-0 top-0 h-px" style={{ background: `linear-gradient(90deg, transparent, ${d.accent}, transparent)` }} />
                     <div className="absolute -top-24 -right-24 h-56 w-56 rounded-full opacity-[0.10] blur-3xl" style={{ background: d.accent }} />
                     <div className="relative flex items-start gap-5">
-                      <Emblem label={d.short_name} accent={d.accent} division={d.division} size={64} />
+                      <Emblem dept={d.key} label={d.short_name} accent={d.accent} division={d.division} size={64} />
                       <div className="min-w-0">
                         <div className="text-[11px] font-semibold tracking-[0.14em] uppercase" style={{ color: d.accent }}>{d.short_name}</div>
                         <h3 className="mt-1.5 text-[21px] leading-snug font-semibold tracking-tight">{d.name}</h3>

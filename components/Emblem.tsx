@@ -1,5 +1,12 @@
-// A simple department mark: a shield for law enforcement, a roundel for Fire/EMS and dispatch.
-export function Emblem({ label, accent, division, size = 56 }: { label: string; accent: string; division: string; size?: number }) {
+// Department logos supplied by the departments, by department key. Others get a drawn mark.
+const LOGOS: Record<string, string> = { bcso: '/logos/bcso.png', sahp: '/logos/sahp.png' };
+
+// A department's logo, or a simple drawn mark: a shield for law enforcement, a roundel for Fire/EMS and dispatch.
+export function Emblem({ dept, label, accent, division, size = 56 }: { dept: string; label: string; accent: string; division: string; size?: number }) {
+  if (LOGOS[dept]) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={LOGOS[dept]} alt="" width={size} height={size} className="shrink-0 object-contain drop-shadow-[0_4px_14px_rgba(0,0,0,0.5)]" />;
+  }
   const text = label.length > 4 ? 9 : 11;
   return (
     <svg width={size} height={size} viewBox="0 0 56 56" aria-hidden="true">
