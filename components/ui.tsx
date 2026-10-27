@@ -5,7 +5,8 @@ import { STATUS_LABEL } from '@/lib/format';
 export function Brand({ href = '/' }: { href?: string }) {
   return (
     <Link href={href} className="flex items-center gap-2.5 shrink-0">
-      <span className="grid h-7 w-7 place-items-center rounded-full border border-gold/40 text-[11px] font-semibold text-gold">D5</span>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img src="/logos/lounge.png" alt="The Lounge Roleplay" width={28} height={28} className="h-7 w-7 rounded-full ring-1 ring-white/15" />
       <span className="text-[14px] font-medium tracking-tight">District Five</span>
     </Link>
   );

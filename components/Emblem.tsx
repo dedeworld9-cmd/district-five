@@ -1,5 +1,5 @@
 // Department logos supplied by the departments, by department key. Others get a drawn mark.
-const LOGOS: Record<string, string> = { bcso: '/logos/bcso.png', sahp: '/logos/sahp.png', safd: '/logos/safd.png' };
+const LOGOS: Record<string, string> = { bcso: '/logos/bcso.png', sahp: '/logos/sahp.png', safd: '/logos/safd.png', saems: '/logos/saems.png' };
 
 // A department's logo, or a simple drawn mark: a shield for law enforcement, a roundel for Fire/EMS and dispatch.
 export function Emblem({ dept, label, accent, division, size = 56 }: { dept: string; label: string; accent: string; division: string; size?: number }) {
