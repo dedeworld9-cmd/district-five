@@ -18,7 +18,7 @@ export interface KindField {
 export interface KindConfig {
   key: string;
   label: string;
-  group: 'report' | 'request' | 'training';
+  group: 'report' | 'request' | 'training' | 'office';
   blurb: string;
   divisions: string[];
   /** The incident or ride-along date (submissions.occurred_on). */
@@ -48,6 +48,8 @@ export const KINDS: KindConfig[] = [
       { name: 'dobs', label: 'DOBs of involved persons', type: 'text' },
       { name: 'summary', label: 'Incident summary', type: 'textarea', required: true, wide: true },
       { name: 'evidence_collected', label: 'Evidence collected', type: 'textarea' },
+      { name: 'shots_fired', label: 'Shots fired', type: 'select', options: ['No', 'Yes'] },
+      { name: 'ballistics', label: 'Ballistics (weapons, casings, rounds recovered)', type: 'textarea' },
       { name: 'injuries', label: 'Injuries sustained', type: 'textarea' },
       { name: 'notes', label: 'Additional notes', type: 'textarea', wide: true },
     ],
@@ -117,6 +119,32 @@ export const KINDS: KindConfig[] = [
       { name: 'injuries', label: 'Injuries (officers, suspects, bystanders)', type: 'textarea' },
       { name: 'ems', label: 'EMS called', type: 'select', options: ['Yes', 'No'] },
       { name: 'report_url', label: 'Attached report link', type: 'text', placeholder: 'https://' },
+    ],
+  },
+  {
+    key: 'cad_report', label: 'CAD report', group: 'report', divisions: ['leo'],
+    blurb: 'Log a CAD call and how it was handled.', occurred: 'Date of call',
+    evidence: { label: 'Screenshots or video link (optional)' }, notice: TRUTHFUL,
+    fields: [
+      { name: 'cad_no', label: 'CAD record #', type: 'text', required: true },
+      { name: 'call_type', label: 'Call type', type: 'text', required: true, placeholder: 'e.g. 10-50, shots fired' },
+      { name: 'location', label: 'Location', type: 'text', required: true },
+      { name: 'units', label: 'Units on scene', type: 'text', placeholder: 'Callsigns' },
+      { name: 'summary', label: 'Summary', type: 'textarea', required: true, wide: true },
+      { name: 'disposition', label: 'Disposition', type: 'text', placeholder: 'e.g. Arrest made, cleared' },
+    ],
+  },
+  {
+    key: 'evidence_log', label: 'Evidence room log', group: 'report', divisions: ['leo'],
+    blurb: 'Book an item into the evidence room.', occurred: 'Date booked',
+    evidence: { label: 'Photo link (optional)' },
+    fields: [
+      { name: 'case_no', label: 'Case or report #', type: 'text', required: true },
+      { name: 'item', label: 'Item', type: 'text', required: true },
+      { name: 'quantity', label: 'Quantity', type: 'text' },
+      { name: 'collected_from', label: 'Collected from (person or location)', type: 'text' },
+      { name: 'storage', label: 'Stored at', type: 'text', required: true, placeholder: 'e.g. BCSO Office Sandy Shores, locker 3' },
+      { name: 'notes', label: 'Chain of custody notes', type: 'textarea', wide: true },
     ],
   },
   {
@@ -220,8 +248,86 @@ export const KINDS: KindConfig[] = [
         options: ['Continue training', 'Ready for release', 'Needs remediation'] },
     ],
   },
+  {
+    key: 'office_request', label: 'Office request', group: 'office', divisions: ['leo'],
+    blurb: 'Ask the office for help. Ping the office worker on duty after you submit.',
+    fields: [
+      { name: 'badge', label: 'Badge number', type: 'text' },
+      { name: 'description', label: 'Description of request', type: 'textarea', required: true, wide: true },
+      { name: 'priority', label: 'Priority', type: 'select', required: true, options: ['Low', 'Normal', 'High', 'Urgent'] },
+      { name: 'link', label: 'Link', type: 'text', placeholder: 'https://' },
+      { name: 'notes', label: 'Additional notes', type: 'textarea', wide: true },
+    ],
+  },
+  {
+    key: 'roster_update', label: 'Roster update request', group: 'office', divisions: ['leo'],
+    blurb: 'Request a rank change, removal, LOA or new addition. Lt. Colonel and above review it.', occurred: 'Date',
+    evidence: { label: 'Proof link' },
+    fields: [
+      { name: 'character_name', label: 'Character name', type: 'text', required: true },
+      { name: 'update_type', label: 'Update type', type: 'select', required: true, options: ['New addition', 'Rank change', 'Removal', 'LOA'] },
+      { name: 'current', label: 'Current rank / assignment', type: 'text' },
+      { name: 'requested', label: 'Requested rank / assignment', type: 'text' },
+      { name: 'reason', label: 'Reason', type: 'textarea', required: true, wide: true },
+    ],
+  },
+  {
+    key: 'vehicle_reg', label: 'Vehicle registration', group: 'office', divisions: ['leo'],
+    blurb: 'Register a personal vehicle you use on duty.',
+    fields: [
+      { name: 'dl_on_cad', label: "Driver's license on CIV CAD?", type: 'select', required: true, options: ['Yes', 'No'] },
+      { name: 'badge', label: 'Badge number', type: 'text' },
+      { name: 'make', label: 'Vehicle make', type: 'text', required: true },
+      { name: 'model', label: 'Model', type: 'text', required: true },
+      { name: 'primary_color', label: 'Primary color', type: 'text' },
+      { name: 'secondary_color', label: 'Secondary color', type: 'text' },
+      { name: 'plate', label: 'License plate', type: 'text', required: true },
+    ],
+  },
+  {
+    key: 'firearm_reg', label: 'Firearm registration', group: 'office', divisions: ['leo'],
+    blurb: 'Register a firearm. You need a firearms license on CIV CAD.',
+    fields: [
+      { name: 'fl_on_cad', label: 'Firearms license on CIV CAD?', type: 'select', required: true, options: ['Yes', 'No'] },
+      { name: 'economy_items', label: 'Own Legal Weapon, Handgun & Longarm Authorization?', type: 'select', options: ['Yes', 'No'] },
+      { name: 'dept_certified', label: 'Firearm certified in the department?', type: 'select', required: true, options: ['Yes', 'No'] },
+      { name: 'badge', label: 'Badge number', type: 'text' },
+      { name: 'make', label: 'Make / manufacturer', type: 'text', required: true },
+      { name: 'model', label: 'Model', type: 'text', required: true },
+      { name: 'firearm_type', label: 'Type', type: 'select', required: true, options: ['Handgun', 'Longarm - Rifle', 'Longarm - Shotgun'] },
+      { name: 'reg_date', label: 'Date of registration', type: 'date' },
+    ],
+  },
+  {
+    key: 'confiscation', label: 'Confiscation request', group: 'office', divisions: ['leo'],
+    blurb: 'Request to confiscate items from a person.', occurred: 'Date',
+    evidence: { label: 'Video or screenshot link' },
+    fields: [
+      { name: 'subject_name', label: "Subject's character name", type: 'text', required: true },
+      { name: 'items', label: 'Items to confiscate', type: 'textarea', required: true },
+      { name: 'case_no', label: 'Related report #', type: 'text' },
+      { name: 'reason', label: 'Reason', type: 'textarea', required: true, wide: true },
+    ],
+  },
+  {
+    key: 'agreement', label: 'Department agreement', group: 'office', divisions: ['leo'],
+    blurb: 'Sign the department agreement after reading it in Resources.',
+    fields: [
+      { name: 'character_name', label: 'Character name', type: 'text', required: true },
+      { name: 'agrees', label: 'I have read and agree to follow the department agreement', type: 'select', required: true, options: ['I agree'] },
+      { name: 'signature', label: 'Initials (signature)', type: 'text', required: true },
+    ],
+  },
+  {
+    key: 'suggestion', label: 'Suggestion', group: 'office', divisions: ['leo'],
+    blurb: 'Send command an idea to improve the department.',
+    fields: [
+      { name: 'topic', label: 'Topic', type: 'text', required: true },
+      { name: 'suggestion', label: 'Suggestion', type: 'textarea', required: true, wide: true },
+    ],
+  },
 ];
 
 export const KIND = Object.fromEntries(KINDS.map((k) => [k.key, k])) as Record<string, KindConfig>;
 export const kindsFor = (division: string | undefined) => KINDS.filter((k) => k.divisions.includes(division ?? ''));
-export const GROUP_LABEL = { report: 'Reports', request: 'Requests', training: 'Training' } as const;
+export const GROUP_LABEL = { report: 'Reports', request: 'Requests', training: 'Training', office: 'Office, roster & registrations' } as const;

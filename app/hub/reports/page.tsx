@@ -31,7 +31,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
       <PrintHeader title="Reports and requests" sub={s.profile.display_name} />
 
       <div className="grid gap-8">
-        {(['report', 'request', 'training'] as const).map((g) => {
+        {(['report', 'request', 'office', 'training'] as const).map((g) => {
           const kinds = available.filter((k) => k.group === g);
           if (!kinds.length) return null;
           return (
