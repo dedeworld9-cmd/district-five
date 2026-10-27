@@ -28,8 +28,13 @@ returns boolean language sql immutable as $$
 $$;
 
 -- The earlier checks stay as they are; the new kinds are checked here first.
-alter function public.submission_check(text, text, public.memberships, jsonb, text, date, timestamptz, uuid)
-  rename to submission_check_v1;
+-- Guarded so the file can be run again safely.
+do $$ begin
+  if not exists (select 1 from pg_proc where proname = 'submission_check_v1') then
+    alter function public.submission_check(text, text, public.memberships, jsonb, text, date, timestamptz, uuid)
+      rename to submission_check_v1;
+  end if;
+end $$;
 
 create or replace function public.submission_check(
   p_kind text, p_department text, m public.memberships, j jsonb, p_evidence text,
@@ -73,7 +78,11 @@ begin
 end;
 $$;
 
-alter function public.submission_title(text, jsonb, text) rename to submission_title_v1;
+do $$ begin
+  if not exists (select 1 from pg_proc where proname = 'submission_title_v1') then
+    alter function public.submission_title(text, jsonb, text) rename to submission_title_v1;
+  end if;
+end $$;
 
 create or replace function public.submission_title(p_kind text, j jsonb, subj_name text)
 returns text language sql immutable as $$
