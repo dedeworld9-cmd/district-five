@@ -8,6 +8,7 @@ import { canDecide } from '@/lib/queue';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { Tier } from '@/lib/types';
+import { DEFAULT_THEME, PHOTOS, THEMES } from '@/lib/brand';
 import { setActiveDepartment } from './actions';
 
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
@@ -36,10 +37,16 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   ];
   const c = s.current;
   const onShift = s.active.find((m) => m.duty_status === 'on_duty' && m.duty_changed_at);
+  const theme = (c && THEMES[c.department_key]) || DEFAULT_THEME;
+  const photo = c ? PHOTOS[c.department_key] : undefined;
 
   return (
-    <div className="min-h-screen" style={{ '--accent': s.currentDept?.accent ?? '#cfae5a' } as React.CSSProperties}>
-      <div className="app-bg" aria-hidden="true"><div className="app-grid" /></div>
+    <div className="min-h-screen" style={{ '--accent': s.currentDept?.accent ?? '#cfae5a', '--theme-a': theme.a, '--theme-b': theme.b, '--theme-bg': theme.bg } as React.CSSProperties}>
+      <div className="app-bg" aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        {photo && <img src={photo} alt="" className="app-photo" />}
+        <div className="app-grid" />
+      </div>
       <div className="lightbar fixed inset-x-0 top-0 z-30 opacity-70" aria-hidden="true" />
       <header className="sticky top-0 z-20 px-3 pt-3 sm:px-6 sm:pt-4">
         <div className="mx-auto flex max-w-6xl items-center gap-3 rounded-full border border-line bg-surface/85 py-1.5 pr-1.5 pl-4 backdrop-blur-md">
