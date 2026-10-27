@@ -28,7 +28,7 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
   const requests = (members ?? []).filter((m) => m.status === 'pending');
   const myTier = s.tierIn(dept.key);
   const grantable = (ranks ?? []).filter((r) =>
-    s.isDps || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier));
+    s.oversees(dept.key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier));
   const onDuty = roster.filter((m) => m.duty_status === 'on_duty' && m.status === 'active').length;
 
   return (

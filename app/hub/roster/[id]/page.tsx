@@ -27,8 +27,8 @@ export default async function Member({ params, searchParams }: {
   const manage = s.canManageRoster(m.department_key) && (m.profile_id !== s.userId || s.isAdmin) && !['pending', 'denied'].includes(m.status);
   const myTier = s.tierIn(m.department_key);
   const grantable = (ranks ?? []).filter((r) => r.id === m.rank_id ||
-    (s.isDps || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier)));
-  const canGrantPersonnel = s.isDps || atLeast(myTier, 'department_head');
+    (s.oversees(m.department_key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier)));
+  const canGrantPersonnel = s.oversees(m.department_key) || atLeast(myTier, 'department_head');
   const back = `/hub/roster/${m.id}`;
 
   return (
@@ -92,7 +92,7 @@ export default async function Member({ params, searchParams }: {
           </ol>
         ) : (
           <p className="text-[14px] text-muted">
-            {s.isDps || atLeast(myTier, 'department_head') || s.active.some((x) => x.can_view_personnel)
+            {s.oversees(m.department_key) || atLeast(myTier, 'department_head') || s.active.some((x) => x.can_view_personnel)
               ? 'No personnel entries yet.'
               : 'Personnel records are visible only to department heads and members they authorize.'}
           </p>

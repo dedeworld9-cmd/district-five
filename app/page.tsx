@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Brand, Footer } from '@/components/ui';
-import { relative } from '@/lib/format';
+import { DIVISION_LABEL, relative } from '@/lib/format';
 import { getSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { Announcement, Department } from '@/lib/types';
@@ -10,12 +10,17 @@ export default async function Home() {
   const [session, { data: departments }, { data: news }] = await Promise.all([
     getSession(),
     supabase.from('departments').select('*').order('sort_order').returns<Department[]>(),
-    // Row-level security returns only posts a department head or DPS approved for the public.
+    // Row-level security returns only posts a department head or division command approved for the public.
     supabase.from('announcements').select('id,title,body,scope,department_key,published_at')
       .eq('status', 'published').eq('is_public', true).order('published_at', { ascending: false }).limit(3).returns<Announcement[]>(),
   ]);
-  const depts = (departments ?? []).filter((d) => d.kind === 'department');
-  const dps = (departments ?? []).find((d) => d.kind === 'oversight');
+  const all = departments ?? [];
+  // One section per division that has departments, each naming the command that oversees it.
+  const divisions = (['leo', 'fire_ems', 'dispatch'] as const).map((div) => ({
+    key: div,
+    depts: all.filter((d) => d.kind === 'department' && d.division === div),
+    command: all.find((d) => d.kind === 'oversight' && d.oversees.includes(div)),
+  })).filter((g) => g.depts.length);
   const short = (k: string | null) => (k ? departments?.find((d) => d.key === k)?.short_name ?? k : 'District');
 
   return (
@@ -29,13 +34,13 @@ export default async function Home() {
 
       <main className="mx-auto max-w-6xl px-4 sm:px-6">
         <section className="pt-24 pb-20 sm:pt-32">
-          <div className="label mb-5 flex items-center gap-2"><span className="gold-dot" />PS5 law enforcement roleplay</div>
+          <div className="label mb-5 flex items-center gap-2"><span className="gold-dot" />PS5 roleplay community</div>
           <h1 className="max-w-3xl text-[42px] leading-[1.05] font-semibold tracking-tight sm:text-[64px]">
-            District Five Law Enforcement Hub
+            District Five Departments Hub
           </h1>
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-muted">
-            One place for the Blaine County Sheriff&apos;s Office and the San Andreas Highway Patrol to log patrols,
-            run their rosters and stay briefed, under the {dps?.name ?? 'Department of Public Safety'}.
+            One place for District Five&apos;s law enforcement and Fire/EMS departments to log shifts,
+            run their rosters and stay briefed.
           </p>
           <div className="mt-9 flex flex-wrap gap-2">
             <Link href={session ? '/hub' : '/login'} className="btn-primary">{session ? 'Open the hub' : 'Sign in with Discord'}</Link>
@@ -43,20 +48,25 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="departments" className="grid gap-3 sm:grid-cols-2">
-          {depts.map((d) => (
-            <div key={d.key} className="card p-7">
-              <div className="label">{d.short_name}</div>
-              <h2 className="mt-3 text-[22px] font-semibold tracking-tight">{d.name}</h2>
-              <p className="mt-2 text-[15px] text-muted">{d.public_blurb ?? d.tagline}</p>
-            </div>
+        <div id="departments" className="grid gap-14">
+          {divisions.map((g) => (
+            <section key={g.key}>
+              <div className="mb-4 flex flex-wrap items-baseline justify-between gap-2">
+                <h2 className="label">{DIVISION_LABEL[g.key]}</h2>
+                {g.command && <span className="text-[13px] text-faint">Overseen by {g.command.name}</span>}
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {g.depts.map((d) => (
+                  <div key={d.key} className="card p-7">
+                    <div className="label">{d.short_name}</div>
+                    <h3 className="mt-3 text-[22px] font-semibold tracking-tight">{d.name}</h3>
+                    <p className="mt-2 text-[15px] text-muted">{d.public_blurb ?? d.tagline}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
           ))}
-        </section>
-        {dps && (
-          <p className="mt-4 text-[14px] text-muted">
-            <span className="text-ink">{dps.short_name}</span> oversees both departments and sets district-wide policy.
-          </p>
-        )}
+        </div>
 
         {!!news?.length && (
           <section className="mt-24">

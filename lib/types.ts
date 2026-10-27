@@ -1,10 +1,12 @@
 export type Tier = 'probationary' | 'patrol' | 'supervisor' | 'high_command' | 'department_head' | 'dps';
 export type ApprovalStatus = 'draft' | 'submitted' | 'under_review' | 'returned' | 'approved' | 'denied' | 'withdrawn' | 'archived';
 export type DutyStatus = 'off_duty' | 'on_duty' | 'unavailable';
+export type Division = 'leo' | 'fire_ems' | 'dispatch';
 export type MembershipStatus = 'pending' | 'active' | 'suspended' | 'removed' | 'denied';
 
 export interface Department {
   key: string; name: string; short_name: string; kind: 'department' | 'oversight';
+  division: Division; oversees: Division[];
   tagline: string | null; public_blurb: string | null; accent: string;
   quota_minutes: number; week_starts_on: number; timezone: string;
   bodycam_required: boolean; bodycam_policy_text: string | null; bodycam_policy_url: string | null;

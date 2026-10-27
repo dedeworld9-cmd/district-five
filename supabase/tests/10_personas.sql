@@ -75,7 +75,7 @@ select tst.ok(public.week_start_for('2026-10-26 05:00+00', 'America/New_York', 1
 -- ------------------------------------------------- public visitor (anon)
 select tst.become(null);
 set role anon;
-select tst.ok((select count(*) from public.departments) = 3, 'public: departments are listed');
+select tst.ok((select count(*) from public.departments) = 6, 'public: departments are listed');
 select tst.ok((select count(*) from public.memberships) = 0, 'public: roster is hidden');
 select tst.ok((select count(*) from public.profiles) = 0, 'public: profiles are hidden');
 select tst.ok((select count(*) from public.shift_logs) = 0, 'public: shift logs are hidden');

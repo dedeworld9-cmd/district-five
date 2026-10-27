@@ -8,7 +8,7 @@ export const TIER_LABEL: Record<Tier, string> = {
   supervisor: 'Supervisor',
   high_command: 'High command',
   department_head: 'Department head',
-  dps: 'DPS',
+  dps: 'Division command',
 };
 
 export const tierRank = (t: Tier | null | undefined) => (t ? TIERS.indexOf(t) + 1 : 0);

@@ -14,9 +14,9 @@ export default async function Announcements({ searchParams }: { searchParams: Pr
   const supabase = await createClient();
   const { data: items } = await supabase.from('announcements').select('*').neq('status', 'archived')
     .order('pinned', { ascending: false }).order('created_at', { ascending: false }).limit(50).returns<Announcement[]>();
-  const postable = s.departments.filter((d) => d.kind === 'department' && (s.isDps || atLeast(s.tierIn(d.key), 'high_command')));
+  const postable = s.departments.filter((d) => d.kind === 'department' && (s.oversees(d.key) || atLeast(s.tierIn(d.key), 'high_command')));
   const canPost = s.isDps || postable.length > 0;
-  const canApprovePublic = (a: Announcement) => s.isDps || (a.scope === 'department' && atLeast(s.tierIn(a.department_key ?? ''), 'department_head'));
+  const canApprovePublic = (a: Announcement) => (a.scope === 'district' && s.isDps) || (a.scope === 'department' && s.oversees(a.department_key ?? '')) || (a.scope === 'department' && atLeast(s.tierIn(a.department_key ?? ''), 'department_head'));
   const short = (k: string | null) => (k ? s.departments.find((d) => d.key === k)?.short_name ?? k : 'District');
 
   return (
@@ -88,7 +88,7 @@ export default async function Announcements({ searchParams }: { searchParams: Pr
               <button formAction={saveAnnouncement.bind(null, 'publish')} className="btn-primary">Publish to members</button>
               <button formAction={saveAnnouncement.bind(null, 'draft')} className="btn">Save draft</button>
             </div>
-            <p className="text-[12px] text-faint">Publishing shares it inside the hub only. A department head or DPS approves anything for the public site separately.</p>
+            <p className="text-[12px] text-faint">Publishing shares it inside the hub only. A department head or division command approves anything for the public site separately.</p>
           </form>
         )}
       </div>

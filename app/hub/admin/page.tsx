@@ -77,7 +77,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
 
           <form action={adminSetSetting} className="card grid gap-4 p-6 sm:grid-cols-[1fr_auto] sm:items-end">
             <input type="hidden" name="key" value="dual_membership_mode" />
-            <label className="field"><span>Members in both departments meet the quota</span>
+            <label className="field"><span>Members in more than one department meet the quota</span>
               <select name="value" className="input" defaultValue={String(setting('dual_membership_mode') ?? 'combined')}>
                 <option value="combined">Combined: all approved time counts toward one quota</option>
                 <option value="per_department">Per department: each department&apos;s quota separately</option>
@@ -144,7 +144,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
         <div className="grid max-w-3xl gap-6">
           <p className="text-[14px] text-muted">
             Who reviews a shift log depends on the submitter&apos;s tier. District rules apply unless a department has its own row.
-            DPS can always review, and nobody can approve their own entry.
+            Division command can always review its own division, and nobody can approve their own entry.
           </p>
           <div className="card overflow-x-auto">
             <table className="table">

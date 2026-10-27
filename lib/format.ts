@@ -50,7 +50,17 @@ export const STATUS_LABEL: Record<string, string> = {
 export const ACTIVITY_LABEL: Record<string, string> = {
   patrol: 'Patrol', traffic: 'Traffic enforcement', training: 'Training', administrative: 'Administrative',
   special_assignment: 'Special assignment', supervision: 'Supervision',
+  fire_response: 'Fire response', ems_response: 'EMS response', station_duty: 'Station duty', dispatch: 'Dispatch',
 };
+
+// Shift activities offered per division. The database accepts any of them.
+export const DIVISION_ACTIVITIES: Record<string, string[]> = {
+  leo: ['patrol', 'traffic', 'training', 'administrative', 'special_assignment', 'supervision'],
+  fire_ems: ['fire_response', 'ems_response', 'station_duty', 'training', 'administrative', 'supervision'],
+  dispatch: ['dispatch', 'training', 'administrative', 'supervision'],
+};
+
+export const DIVISION_LABEL: Record<string, string> = { leo: 'Law enforcement', fire_ems: 'Fire & EMS', dispatch: 'Dispatch' };
 
 export const BODYCAM_LABEL: Record<string, string> = {
   recorded: 'Recorded', unavailable: 'Unavailable', not_applicable: 'Not applicable', not_required: 'Not recorded',

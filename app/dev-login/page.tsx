@@ -14,6 +14,10 @@ const PERSONAS = [
   ['bcso_head', 'BCSO sheriff (department head)'],
   ['dps_command', 'DPS command'],
   ['suspended_member', 'Suspended BCSO deputy'],
+  ['safd_member', 'SAFD firefighter'],
+  ['safd_supervisor', 'SAFD lieutenant'],
+  ['saems_member', 'SAEMS EMT'],
+  ['fems_command', 'Fire/EMS Administration command'],
   ['new_member', 'Signed in, not on any roster'],
 ];
 

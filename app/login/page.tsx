@@ -17,7 +17,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         <div className="label mb-4 flex items-center gap-2"><span className="gold-dot" />Members</div>
         <h1 className="text-[32px] font-semibold tracking-tight">Sign in to the hub</h1>
         <p className="mt-3 text-[15px] leading-relaxed text-muted">
-          Use the Discord account you use in the BCSO or SAHP servers. Your roster entry links to it automatically.
+          Use the Discord account you use in your department's Discord server. Your roster entry links to it automatically.
         </p>
         {sp.error && <p role="alert" className="mt-6 rounded-xl border border-bad/30 px-4 py-3 text-[14px] text-bad">{sp.error}</p>}
         <form action={signInWithDiscord} className="mt-8">

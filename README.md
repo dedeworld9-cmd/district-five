@@ -1,6 +1,6 @@
-# District Five Law Enforcement Hub
+# District Five Departments Hub
 
-Website for the District Five PS5 law enforcement roleplay community: the Blaine County Sheriff's Office and the San Andreas Highway Patrol, under the Department of Public Safety. All departments, people and records are fictional.
+Website for the District Five PS5 roleplay community. It is organised in divisions: law enforcement (the Blaine County Sheriff's Office and the San Andreas Highway Patrol, under the Department of Public Safety) and Fire/EMS (the San Andreas Fire Department and San Andreas EMS, under Fire/EMS Administration). Dispatch is planned. Each division's command oversees only its own departments. All departments, people and records are fictional.
 
 To put it online, follow [docs/SETUP.md](docs/SETUP.md).
 
@@ -9,7 +9,7 @@ To put it online, follow [docs/SETUP.md](docs/SETUP.md).
 - Discord sign-in, with one account per member and memberships in one or both departments.
 - Dashboard with duty status, clock in and out, weekly quota progress, and announcements.
 - Shift logs with drafts, browser autosave, bodycam fields, overlap protection across departments, and a review timeline.
-- An approval queue routed by tier: approve, return for correction, deny, claim, or escalate to DPS.
+- An approval queue routed by tier: approve, return for correction, deny, claim, or escalate to division command.
 - A roster with join requests, rank changes, leave of absence, suspension, and confidential personnel records.
 - Announcements by department or district, with separate approval before anything reaches the public site.
 - Notifications, admin settings for ranks, quotas, week start, time zones, bodycam rules, review routing, roster import, and labeled demo data.

@@ -68,7 +68,7 @@ export default async function ShiftDetail({ params, searchParams }: {
       {decidable && (
         <section className="card mt-6 p-6">
           <h2 className="label mb-4">Your decision</h2>
-          <DecisionPanel log={log} back={`/hub/shifts/${log.id}`} canEscalate={!s.isDps} />
+          <DecisionPanel log={log} back={`/hub/shifts/${log.id}`} canEscalate={!s.oversees(log.department_key)} />
         </section>
       )}
 

@@ -1,4 +1,4 @@
-# Putting the District Five hub online
+# Putting the District Five Departments Hub online
 
 This guide takes the hub from this repository to a live site. It uses three free accounts: GitHub (holds the code), Supabase (database and Discord sign-in), and Vercel (runs the website). Plan on about 30 minutes.
 
@@ -64,8 +64,8 @@ Technical administrator is a separate role from command. It lets you change sett
    - **Supervisor**: reviews shift logs.
    - **High command**: decides roster requests and posts department announcements.
    - **Department head**: reads personnel records and approves posts for the public site.
-   - **DPS**: district oversight across both departments.
-2. **Add DPS command.** Go to **Admin** → **Roster import** and add one line per DPS member, for example:
+   - **Division command**: oversight of one division. DPS commands law enforcement (BCSO, SAHP). Fire/EMS Administration commands SAFD and SAEMS. Neither sees the other division's shift logs or personnel records.
+2. **Add division command.** Go to **Admin** → **Roster import** and add one line per command member, using `dps` for DPS and `fems` for Fire/EMS Administration, for example:
 
    ```
    dps, M. Hathaway, 123456789012345678, Deputy Commissioner, E-02,
@@ -91,10 +91,10 @@ Technical administrator is a separate role from command. It lets you change sett
 
 The database checks every permission, so a member cannot get around a rule by editing the page or calling the API directly. The automated tests in `supabase/tests/` cover each of these rules.
 
-| | Member | Supervisor | High command | Department head | DPS | Admin |
+| | Member | Supervisor | High command | Department head | Division command | Admin |
 |---|---|---|---|---|---|---|
 | Log and edit own shifts | ✓ | ✓ | ✓ | ✓ | | |
-| Review shift logs in own department | | ✓ | ✓ | ✓ | both departments | |
+| Review shift logs in own department | | ✓ | ✓ | ✓ | every department in its division | |
 | Approve own shift log | never | never | never | never | never | never |
 | Decide roster requests | | | ✓ | ✓ | ✓ | ✓ |
 | Appoint department heads | | | | | ✓ | ✓ |
@@ -106,8 +106,10 @@ The database checks every permission, so a member cannot get around a rule by ed
 
 The hub flags members who are below quota so supervisors can check in. It never issues strikes.
 
-Supervisors' own shift logs go to high command, high command's go to the department head, and department heads' go to DPS. You can change this under **Admin** → **Review routing**.
+Supervisors' own shift logs go to high command, high command's go to the department head, and department heads' go to their division command. You can change this under **Admin** → **Review routing**.
 
 ## Updating later
+
+**Fire/EMS update (October 2026):** if your database was set up before SAFD and SAEMS were added, run `supabase/migrations/20261027000005_divisions.sql` once in the SQL editor. The SAFD, SAEMS and Fire/EMS Administration rank ladders start empty. Add them under **Admin** → **Ranks**.
 
 When new files appear in `supabase/migrations/`, open each new one in order, paste it into the Supabase SQL editor, and run it. Vercel redeploys the website by itself whenever the code on GitHub changes.

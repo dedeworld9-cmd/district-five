@@ -97,9 +97,9 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
         ) : (
           <div className="card p-6">
-            <div className="label">District oversight</div>
+            <div className="label">Division command</div>
             <p className="mt-3 text-[14px] leading-relaxed text-muted">
-              DPS sees both departments. Department heads&apos; shift logs and anything escalated land in your queue.
+              You see every department in your division. Department heads&apos; shift logs and anything escalated land in your queue.
             </p>
           </div>
         )}

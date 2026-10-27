@@ -118,7 +118,7 @@ export async function withdrawShift(form: FormData) {
 export async function decideShift(action: string, form: FormData) {
   const msg: Record<string, string> = {
     approve: 'Approved.', deny: 'Denied.', return: 'Returned to the member for correction.',
-    escalate: 'Escalated to DPS.', claim: 'Claimed. It is now under your review.',
+    escalate: 'Escalated to division command.', claim: 'Claimed. It is now under your review.',
   };
   await act(form, 'decide_shift_log', { p_id: str(form, 'id'), p_action: action, p_reason: str(form, 'reason') },
     msg[action] ?? 'Done.', '/hub/approvals');

@@ -2,10 +2,13 @@
 -- Rank ladders below were transcribed from the departments' Discord channels and are marked
 -- is_sample = true until an administrator confirms them on the Admin page.
 
-insert into public.departments (key, name, short_name, kind, tagline, accent, sort_order, bodycam_required) values
-  ('bcso', 'Blaine County Sheriff''s Office', 'BCSO', 'department', 'Serving Blaine County', '#c9a227', 1, false),
-  ('sahp', 'San Andreas Highway Patrol', 'SAHP', 'department', 'State highways and interstates', '#8fa8c8', 2, false),
-  ('dps', 'Department of Public Safety', 'DPS', 'oversight', 'District Five oversight', '#d8dde6', 0, false)
+insert into public.departments (key, name, short_name, kind, division, oversees, tagline, accent, sort_order, bodycam_required) values
+  ('bcso', 'Blaine County Sheriff''s Office', 'BCSO', 'department', 'leo', '{}', 'Serving Blaine County', '#c9a227', 1, false),
+  ('sahp', 'San Andreas Highway Patrol', 'SAHP', 'department', 'leo', '{}', 'State highways and interstates', '#8fa8c8', 2, false),
+  ('dps', 'Department of Public Safety', 'DPS', 'oversight', 'leo', '{leo}', 'Law enforcement command', '#d8dde6', 0, false),
+  ('safd', 'San Andreas Fire Department', 'SAFD', 'department', 'fire_ems', '{}', 'Fire and rescue', '#c8553d', 3, false),
+  ('saems', 'San Andreas Emergency Medical Services', 'SAEMS', 'department', 'fire_ems', '{}', 'Emergency medical care', '#6fa8c9', 4, false),
+  ('fems', 'Fire/EMS Administration', 'Fire/EMS Admin', 'oversight', 'fire_ems', '{fire_ems}', 'SAFD and SAEMS command', '#d8dde6', 0, false)
 on conflict (key) do nothing;
 
 insert into public.ranks (department_key, name, abbreviation, tier, sort_order) values

@@ -2,9 +2,10 @@
 
 import { useActionState, useEffect, useMemo, useRef, useState } from 'react';
 import { saveShift, type ShiftFormState } from '@/app/hub/actions';
+import { ACTIVITY_LABEL, DIVISION_ACTIVITIES } from '@/lib/format';
 
 export interface ShiftDept {
-  key: string; short_name: string; bodycam_required: boolean;
+  key: string; short_name: string; division: string; bodycam_required: boolean;
   bodycam_policy_text: string | null; bodycam_policy_url: string | null;
 }
 
@@ -14,10 +15,6 @@ export interface ShiftInitial {
   recording_url?: string | null; bodycam_status?: string; bodycam_explanation?: string | null;
 }
 
-const ACTIVITIES: [string, string][] = [
-  ['patrol', 'Patrol'], ['traffic', 'Traffic enforcement'], ['training', 'Training'],
-  ['administrative', 'Administrative'], ['special_assignment', 'Special assignment'], ['supervision', 'Supervision'],
-];
 
 // datetime-local works in the browser's time zone; the database stores UTC.
 const toLocal = (iso?: string) => {
@@ -43,7 +40,7 @@ export function ShiftForm({ depts, initial, lockedDepartment }: { depts: ShiftDe
   const [restored, setRestored] = useState(false);
   const [f, setF] = useState<Fields>({
     department: initial.department, start: '', end: '', break_minutes: String(initial.break_minutes ?? 0),
-    activity_type: initial.activity_type ?? 'patrol', summary: initial.summary ?? '', cad_reference: initial.cad_reference ?? '',
+    activity_type: initial.activity_type ?? '', summary: initial.summary ?? '', cad_reference: initial.cad_reference ?? '',
     bodycam_status: initial.bodycam_status ?? '', recording_url: initial.recording_url ?? '', bodycam_explanation: initial.bodycam_explanation ?? '',
   });
 
@@ -75,6 +72,9 @@ export function ShiftForm({ depts, initial, lockedDepartment }: { depts: ShiftDe
 
   const set = (k: keyof Fields) => (e: { target: { value: string } }) => setF((x) => ({ ...x, [k]: e.target.value }));
   const dept = depts.find((d) => d.key === f.department) ?? depts[0];
+  const activities = DIVISION_ACTIVITIES[dept?.division ?? 'leo'] ?? DIVISION_ACTIVITIES.leo;
+  // Switching to a department in another division resets an activity it does not offer.
+  const activity = activities.includes(f.activity_type) ? f.activity_type : activities[0];
   const minutes = useMemo(() => {
     if (!f.start || !f.end) return null;
     return Math.floor((new Date(f.end).getTime() - new Date(f.start).getTime()) / 60000) - (Number(f.break_minutes) || 0);
@@ -120,8 +120,8 @@ export function ShiftForm({ depts, initial, lockedDepartment }: { depts: ShiftDe
           </>
         )}
         <label className="field"><span>Activity</span>
-          <select name="activity_type" className="input" value={f.activity_type} onChange={set('activity_type')}>
-            {ACTIVITIES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
+          <select name="activity_type" className="input" value={activity} onChange={set('activity_type')}>
+            {activities.map((v) => <option key={v} value={v}>{ACTIVITY_LABEL[v] ?? v}</option>)}
           </select>
         </label>
         <label className="field"><span>Start</span>
@@ -143,13 +143,13 @@ export function ShiftForm({ depts, initial, lockedDepartment }: { depts: ShiftDe
 
       <label className="field"><span>Summary</span>
         <textarea name="summary" className="input" maxLength={4000} value={f.summary} onChange={set('summary')}
-          placeholder="Patrol area, notable calls, who you rode with" />
+          placeholder={dept?.division === 'fire_ems' ? 'Station, notable calls, who you rode with' : 'Patrol area, notable calls, who you rode with'} />
       </label>
       <label className="field sm:max-w-xs"><span>CAD or call reference (optional)</span>
         <input name="cad_reference" className="input" maxLength={80} value={f.cad_reference} onChange={set('cad_reference')} />
       </label>
 
-      <fieldset className="grid gap-4 border-t border-line pt-6">
+      {(dept?.division === 'leo' || dept?.bodycam_required) && <fieldset className="grid gap-4 border-t border-line pt-6">
         <legend className="label mb-2">Bodycam{dept?.bodycam_required ? ' · required' : ' · optional'}</legend>
         {dept?.bodycam_policy_text && <p className="text-[13px] leading-relaxed text-muted">{dept.bodycam_policy_text}</p>}
         {dept?.bodycam_policy_url && <a href={dept.bodycam_policy_url} target="_blank" rel="noreferrer" className="text-[13px] text-gold">Read the bodycam policy</a>}
@@ -173,7 +173,7 @@ export function ShiftForm({ depts, initial, lockedDepartment }: { depts: ShiftDe
             <input name="bodycam_explanation" className="input" minLength={10} value={f.bodycam_explanation} onChange={set('bodycam_explanation')} required />
           </label>
         )}
-      </fieldset>
+      </fieldset>}
 
       <div className="flex flex-wrap gap-2 border-t border-line pt-6">
         <button className="btn-primary" disabled={pending || !!problem}

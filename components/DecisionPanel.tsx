@@ -14,7 +14,7 @@ export function DecisionPanel({ log, back, canEscalate }: { log: ShiftLog; back:
         <button formAction={decideShift.bind(null, 'return')} className="btn btn-sm">Return for correction</button>
         <button formAction={decideShift.bind(null, 'deny')} className="btn-danger btn-sm">Deny</button>
         {log.status === 'submitted' && <button formAction={decideShift.bind(null, 'claim')} className="btn btn-sm">Claim</button>}
-        {canEscalate && log.required_tier !== 'dps' && <button formAction={decideShift.bind(null, 'escalate')} className="btn btn-sm">Escalate to DPS</button>}
+        {canEscalate && log.required_tier !== 'dps' && <button formAction={decideShift.bind(null, 'escalate')} className="btn btn-sm">Escalate to command</button>}
       </div>
     </form>
   );

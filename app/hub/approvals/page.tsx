@@ -59,7 +59,7 @@ export default async function Approvals({ searchParams }: { searchParams: Promis
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
-                    {l.required_tier === 'dps' && <span className="tag tag-gold">DPS review</span>}
+                    {l.required_tier === 'dps' && <span className="tag tag-gold">Command review</span>}
                     {l.assigned_to && <span className="tag">{l.assigned_to === s.userId ? 'Claimed by you' : 'Claimed'}</span>}
                     <StatusTag status={l.status} />
                   </div>
@@ -72,7 +72,7 @@ export default async function Approvals({ searchParams }: { searchParams: Promis
                 {l.summary && <p className="mt-3 line-clamp-3 text-[14px] whitespace-pre-wrap text-muted">{l.summary}</p>}
                 {l.bodycam_explanation && <p className="mt-2 text-[13px] text-warn">Footage unavailable: {l.bodycam_explanation}</p>}
                 <div className="mt-5 border-t border-line pt-4">
-                  <DecisionPanel log={l} back="/hub/approvals" canEscalate={!s.isDps} />
+                  <DecisionPanel log={l} back="/hub/approvals" canEscalate={!s.oversees(l.department_key)} />
                 </div>
               </article>
             );
