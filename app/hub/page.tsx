@@ -6,6 +6,7 @@ import { requireSession, tzOf, type Session } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { ActivityRow, Announcement, ComplianceRow, ShiftLog, Tier } from '@/lib/types';
 import { Emblem } from '@/components/Emblem';
+import { ShiftClock } from '@/components/ShiftClock';
 import { JoinForm } from '@/components/JoinForm';
 import { PHOTOS } from '@/lib/brand';
 import { setActiveDepartment, setDuty } from './actions';
@@ -79,7 +80,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            {s.currentDept?.kind === 'department' && <Link href="/hub/shifts/new" className="btn-primary">Log a shift</Link>}
+            <Link href="/hub/shifts/new" className="btn bg-bg/40 backdrop-blur">Log a past shift</Link>
             {s.currentDept?.kind === 'department' && <Link href="/hub/reports" className="btn bg-bg/40 backdrop-blur">File a report</Link>}
             {queue > 0 && <Link href="/hub/approvals" className="btn bg-bg/40 backdrop-blur">Review {queue} waiting</Link>}
             {s.active.length > 1 && (
@@ -95,36 +96,32 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
       </section>
 
       <section className="grid gap-3 lg:grid-cols-[1.1fr_2fr]">
-        {s.currentDept?.kind === 'department' ? (
-          <div className={`card relative flex flex-col justify-between overflow-hidden p-6 ${onDuty ? 'border-ok/30' : ''}`}>
-            {onDuty && <div className="absolute -top-20 -right-20 h-44 w-44 rounded-full bg-ok/15 blur-3xl" />}
-            <div className="relative">
-              <div className="label">Duty status</div>
-              <div className="mt-3 flex items-center gap-2.5 text-[24px] font-semibold tracking-tight">
-                <span className={`h-3 w-3 rounded-full ${onDuty ? 'on-duty-ring bg-ok' : 'bg-faint'}`} />
-                {onDuty ? 'On duty' : 'Off duty'}
-              </div>
-              <p className="mt-1.5 text-[13px] text-muted">
-                {onDuty && s.current.duty_changed_at
-                  ? `Since ${dateTime(s.current.duty_changed_at, tz)}. Clocking out opens a shift log with these times filled in.`
-                  : `Clock in when you start patrol in ${s.currentDept.short_name}.`}
-              </p>
+        <div className={`card relative flex flex-col justify-between overflow-hidden p-6 ${onDuty ? 'border-ok/40' : ''}`}>
+          {onDuty && <div className="absolute -top-20 -right-20 h-44 w-44 rounded-full bg-ok/20 blur-3xl" />}
+          <div className="relative">
+            <div className="label flex items-center gap-2">
+              <span className={`h-2.5 w-2.5 rounded-full ${onDuty ? 'on-duty-ring bg-ok' : 'bg-faint'}`} />
+              {onDuty ? `On shift · ${s.currentDept?.short_name}` : 'Off duty'}
             </div>
-            <form action={setDuty} className="relative mt-6">
-              <input type="hidden" name="department" value={dept} />
-              <input type="hidden" name="status" value={onDuty ? 'off_duty' : 'on_duty'} />
-              {onDuty && s.current.duty_changed_at && <input type="hidden" name="since" value={s.current.duty_changed_at} />}
-              <button className={onDuty ? 'btn w-full' : 'btn-primary w-full'}>{onDuty ? 'Clock out' : 'Clock in'}</button>
-            </form>
+            {onDuty && s.current.duty_changed_at ? (
+              <>
+                <ShiftClock since={s.current.duty_changed_at} className="mt-3 block font-mono text-[40px] leading-none font-semibold tracking-tight text-ok" />
+                <p className="mt-2 text-[13px] text-muted">Started {dateTime(s.current.duty_changed_at, tz)}. When you end it, your shift log opens with the times filled in.</p>
+              </>
+            ) : (
+              <>
+                <div className="mt-3 text-[24px] font-semibold tracking-tight">Ready to go on duty?</div>
+                <p className="mt-1.5 text-[13px] text-muted">Start your shift when you load in. The timer runs until you end it.</p>
+              </>
+            )}
           </div>
-        ) : (
-          <div className="card p-6">
-            <div className="label">Division command</div>
-            <p className="mt-3 text-[14px] leading-relaxed text-muted">
-              You see every department in your division. Department heads&apos; shift logs and anything escalated land in your queue.
-            </p>
-          </div>
-        )}
+          <form action={setDuty} className="relative mt-6">
+            <input type="hidden" name="department" value={dept} />
+            <input type="hidden" name="status" value={onDuty ? 'off_duty' : 'on_duty'} />
+            {onDuty && s.current.duty_changed_at && <input type="hidden" name="since" value={s.current.duty_changed_at} />}
+            <button className={`${onDuty ? 'btn' : 'btn-primary'} h-12 w-full text-[15px]`}>{onDuty ? 'End shift and write the log' : 'Start shift'}</button>
+          </form>
+        </div>
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Stat gold label="This week" value={hours(approved)} sub={exempt ? 'On leave, quota paused' : `of ${hours(quota)} quota${combined && multi ? ', combined' : ''}`}>
             <div className="mt-4 h-1 overflow-hidden rounded-full bg-white/[0.06]">
@@ -182,7 +179,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
                 </li>
               ))}
             </ul>
-          ) : <Empty>No shifts logged yet. Clock in, or log a past shift.</Empty>}
+          ) : <Empty>No shifts logged yet. Start a shift, or log a past one.</Empty>}
         </div>
       </section>
 

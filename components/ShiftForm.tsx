@@ -49,7 +49,9 @@ export function ShiftForm({ depts, initial, lockedDepartment }: { depts: ShiftDe
     try {
       const saved = localStorage.getItem(storageKey);
       if (saved) {
-        next = { ...next, ...JSON.parse(saved) };
+        // A shift that just ended keeps its clocked times over an older unsaved draft.
+        const times = initial.started_at ? { start: next.start, end: next.end } : {};
+        next = { ...next, ...JSON.parse(saved), ...times };
         setRestored(true);
       }
     } catch { /* storage unavailable */ }
@@ -163,7 +165,7 @@ export function ShiftForm({ depts, initial, lockedDepartment }: { depts: ShiftDe
             </select>
           </label>
           {f.bodycam_status === 'recorded' && (
-            <label className="field"><span>Recording link</span>
+            <label className="field"><span>Bodycam link (proof)</span>
               <input name="recording_url" type="url" className="input" placeholder="https://" value={f.recording_url} onChange={set('recording_url')} required />
             </label>
           )}

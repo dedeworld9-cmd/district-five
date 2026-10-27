@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { PrintHeader, SaveRecord } from '@/components/SaveRecord';
 import { Empty, Flash, PageHead, StatusTag } from '@/components/ui';
 import { ACTIVITY_LABEL, dateTime, duration } from '@/lib/format';
 import { requireSession, tzOf } from '@/lib/session';
@@ -25,9 +26,11 @@ export default async function Shifts({ searchParams }: { searchParams: Promise<R
     <>
       <Flash searchParams={sp} />
       <PageHead eyebrow="Activity" title="Your shifts">
-        <Link href="/hub/shifts/new" className="btn-primary">Log a shift</Link>
+        {!!logs?.length && <SaveRecord title="My shift logs" label="Save as PDF" />}
+        <Link href="/hub/shifts/new" className="no-print btn-primary">Log a shift</Link>
       </PageHead>
-      <div className="mb-5 flex flex-wrap gap-1">
+      <PrintHeader title="Shift logs" sub={s.profile.display_name} />
+      <div className="no-print mb-5 flex flex-wrap gap-1">
         {FILTERS.map(([v, l]) => (
           <Link key={v} href={v ? `/hub/shifts?status=${v}` : '/hub/shifts'}
             className={`rounded-full px-3 py-1.5 text-[13px] ${(sp.status ?? '') === v ? 'bg-white/[0.08] text-ink' : 'text-muted hover:text-ink'}`}>{l}</Link>

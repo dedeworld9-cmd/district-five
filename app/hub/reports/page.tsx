@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { PrintHeader, SaveRecord } from '@/components/SaveRecord';
 import { Empty, Flash, PageHead, StatusTag } from '@/components/ui';
 import { relative } from '@/lib/format';
 import { GROUP_LABEL, KIND, KINDS } from '@/lib/kinds';
@@ -27,13 +28,14 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
     <>
       <Flash searchParams={sp} />
       <PageHead eyebrow="Paperwork" title="Reports & requests" />
+      <PrintHeader title="Reports and requests" sub={s.profile.display_name} />
 
       <div className="grid gap-8">
         {(['report', 'request', 'training'] as const).map((g) => {
           const kinds = available.filter((k) => k.group === g);
           if (!kinds.length) return null;
           return (
-            <section key={g}>
+            <section key={g} className="no-print">
               <h2 className="label mb-3">{GROUP_LABEL[g]}</h2>
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {kinds.map((k) => (
@@ -48,7 +50,10 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
         })}
 
         <section>
-          <h2 className="label mb-3">My history</h2>
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <h2 className="label">My history</h2>
+            {!!mine?.length && <SaveRecord title="My reports" />}
+          </div>
           {mine?.length ? (
             <div className="card overflow-x-auto">
               <table className="table">

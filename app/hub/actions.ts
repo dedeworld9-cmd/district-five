@@ -65,7 +65,7 @@ export async function setDuty(form: FormData) {
   if (error) flash('/hub', 'error', friendly(error));
   // Clocking out opens a prefilled shift log; nothing is submitted until the member confirms.
   if (status === 'off_duty' && since) {
-    const q = new URLSearchParams({ dept: dept ?? '', start: since, end: new Date().toISOString() });
+    const q = new URLSearchParams({ dept: dept ?? '', start: since, end: new Date().toISOString(), ended: '1' });
     redirect(`/hub/shifts/new?${q.toString()}`);
   }
   redirect('/hub');

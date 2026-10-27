@@ -40,7 +40,7 @@ export function Flash({ searchParams }: { searchParams: Record<string, string | 
   if (!ok && !error) return null;
   return (
     <div role={error ? 'alert' : 'status'} data-flash={error ? 'error' : 'ok'}
-      className={`rise mb-6 rounded-xl border px-4 py-3 text-[14px] ${error ? 'border-bad/30 bg-bad/[0.06] text-bad' : 'border-ok/30 bg-ok/[0.06] text-ok'}`}>
+      className={`no-print rise mb-6 rounded-xl border px-4 py-3 text-[14px] ${error ? 'border-bad/30 bg-bad/[0.06] text-bad' : 'border-ok/30 bg-ok/[0.06] text-ok'}`}>
       {error ?? ok}
     </div>
   );

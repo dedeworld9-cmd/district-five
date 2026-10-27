@@ -3,6 +3,7 @@ import { Brand, Footer } from '@/components/ui';
 import { AutoSubmitSelect } from '@/components/AutoSubmitSelect';
 import { Emblem } from '@/components/Emblem';
 import { NavLinks } from '@/components/NavLinks';
+import { ShiftClock } from '@/components/ShiftClock';
 import { canDecide } from '@/lib/queue';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
@@ -34,6 +35,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     ...(s.isAdmin ? [{ href: '/hub/admin', label: 'Admin' }] : []),
   ];
   const c = s.current;
+  const onShift = s.active.find((m) => m.duty_status === 'on_duty' && m.duty_changed_at);
 
   return (
     <div className="min-h-screen" style={{ '--accent': s.currentDept?.accent ?? '#cfae5a' } as React.CSSProperties}>
@@ -64,6 +66,12 @@ export default async function HubLayout({ children }: { children: React.ReactNod
               </AutoSubmitSelect>
               <button className="sr-only">Switch</button>
             </form>
+          )}
+          {onShift && (
+            <Link href="/hub" title="On shift" className="flex h-8 shrink-0 items-center gap-2 rounded-full border border-ok/40 bg-ok/10 px-3 text-[12px] font-medium text-ok">
+              <span className="on-duty-ring h-1.5 w-1.5 rounded-full bg-ok" />
+              <ShiftClock since={onShift.duty_changed_at!} className="font-mono" />
+            </Link>
           )}
           <Link href="/hub/notifications" aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`}
             className="relative grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted hover:text-ink">

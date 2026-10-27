@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { SubmissionDecision } from '@/components/SubmissionDecision';
 import { SubmissionForm } from '@/components/SubmissionForm';
+import { PrintHeader, SaveRecord } from '@/components/SaveRecord';
 import { Flash, PageHead, StatusTag } from '@/components/ui';
 import { dateOnly, dateTime } from '@/lib/format';
 import { KIND } from '@/lib/kinds';
@@ -48,7 +49,9 @@ export default async function SubmissionDetail({ params, searchParams }: {
       <PageHead eyebrow={`${dept?.short_name ?? ''} · ${cfg?.label ?? sub.kind} · ${sub.ref}`} title={sub.title}>
         {active && <span className="tag tag-gold">Active</span>}
         <StatusTag status={sub.status} />
+        {sub.status !== 'draft' && <SaveRecord title={`${sub.ref} ${sub.title}`} />}
       </PageHead>
+      <PrintHeader title={`${cfg?.label ?? sub.kind} · ${sub.ref}`} sub={`${dept?.name ?? ''} · Status: ${sub.status.replace('_', ' ')}`} />
 
       {sub.decision_reason && ['returned', 'denied', 'approved', 'archived'].includes(sub.status) && (
         <div className={`mb-6 rounded-xl border px-4 py-3 text-[14px] ${sub.status === 'denied' ? 'border-bad/30 text-bad' : sub.status === 'returned' ? 'border-warn/30 text-warn' : 'border-line-strong text-muted'}`}>
@@ -77,7 +80,7 @@ export default async function SubmissionDetail({ params, searchParams }: {
       </dl>
 
       {decidable && (
-        <section className="card mt-6 p-6">
+        <section className="no-print card mt-6 p-6">
           <h2 className="label mb-4">Your decision</h2>
           <SubmissionDecision sub={sub} back={`/hub/reports/${sub.id}`} canEscalate={!s.oversees(sub.department_key)} />
         </section>
@@ -129,7 +132,7 @@ export default async function SubmissionDetail({ params, searchParams }: {
           <button className="btn-danger">Withdraw</button>
         </form>
       )}
-      <Link href={mine ? '/hub/reports' : '/hub/approvals'} className="mt-8 inline-block text-[13px] text-muted hover:text-ink">← Back</Link>
+      <Link href={mine ? '/hub/reports' : '/hub/approvals'} className="no-print mt-8 inline-block text-[13px] text-muted hover:text-ink">← Back</Link>
     </div>
   );
 }

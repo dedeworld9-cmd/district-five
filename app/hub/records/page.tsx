@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
+import { PrintHeader, SaveRecord } from '@/components/SaveRecord';
 import { Empty, PageHead, StatusTag } from '@/components/ui';
 import { dateOnly, relative } from '@/lib/format';
 import { KIND, KINDS } from '@/lib/kinds';
@@ -42,8 +43,9 @@ export default async function Records({ searchParams }: { searchParams: Promise<
   return (
     <>
       <PageHead eyebrow={`${dept.short_name} · Supervisors`} title="Records">
+        {!!rows?.length && <SaveRecord title={`${dept.short_name} records`} />}
         {depts.length > 1 && (
-          <div className="flex flex-wrap gap-1">
+          <div className="no-print flex flex-wrap gap-1">
             {depts.map((d) => (
               <Link key={d.key} href={`/hub/records?dept=${d.key}`}
                 className={`rounded-full px-3 py-1.5 text-[13px] ${d.key === dept.key ? 'bg-white/[0.08] text-ink' : 'text-muted hover:text-ink'}`}>{d.short_name}</Link>
@@ -52,6 +54,7 @@ export default async function Records({ searchParams }: { searchParams: Promise<
         )}
       </PageHead>
 
+      <PrintHeader title={`${dept.name} records`} sub={[kind && KIND[kind]?.label, status, q && `“${q}”`].filter(Boolean).join(' · ') || 'All records'} />
       <form className="card mb-4 grid gap-3 p-4 sm:grid-cols-[2fr_1fr_1fr_auto] sm:items-end">
         <input type="hidden" name="dept" value={dept.key} />
         <label className="field"><span>Search</span>

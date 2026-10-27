@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { DecisionPanel } from '@/components/DecisionPanel';
 import { ShiftForm, type ShiftDept } from '@/components/ShiftForm';
+import { PrintHeader, SaveRecord } from '@/components/SaveRecord';
 import { Flash, PageHead, StatusTag } from '@/components/ui';
 import { ACTIVITY_LABEL, BODYCAM_LABEL, dateTime, duration } from '@/lib/format';
 import { canDecide } from '@/lib/queue';
@@ -39,7 +40,9 @@ export default async function ShiftDetail({ params, searchParams }: {
       <Flash searchParams={sp} />
       <PageHead eyebrow={`${dept?.short_name ?? ''} · ${log.ref}`} title={mine ? 'Your shift' : `${log.snapshot_callsign ? `${log.snapshot_callsign} · ` : ''}${log.snapshot_name}`}>
         <StatusTag status={log.status} />
+        {log.status !== 'draft' && <SaveRecord title={`Shift log ${log.ref}`} />}
       </PageHead>
+      <PrintHeader title={`Shift log · ${log.ref}`} sub={`${dept?.name ?? ''} · ${[log.snapshot_callsign, log.snapshot_name].filter(Boolean).join(' · ')} · Status: ${log.status.replace('_', ' ')}`} />
 
       {log.decision_reason && ['returned', 'denied'].includes(log.status) && (
         <div className={`mb-6 rounded-xl border px-4 py-3 text-[14px] ${log.status === 'denied' ? 'border-bad/30 text-bad' : 'border-warn/30 text-warn'}`}>
@@ -66,14 +69,14 @@ export default async function ShiftDetail({ params, searchParams }: {
       </dl>
 
       {decidable && (
-        <section className="card mt-6 p-6">
+        <section className="no-print card mt-6 p-6">
           <h2 className="label mb-4">Your decision</h2>
           <DecisionPanel log={log} back={`/hub/shifts/${log.id}`} canEscalate={!s.oversees(log.department_key)} />
         </section>
       )}
 
       {editable && (
-        <section className="mt-10">
+        <section className="no-print mt-10">
           <h2 className="label mb-4">{log.status === 'returned' ? 'Correct and resubmit' : log.status === 'draft' ? 'Finish this draft' : 'Edit before it is reviewed'}</h2>
           <ShiftForm depts={depts} lockedDepartment initial={{
             id: log.id, version: log.version, department: log.department_key, started_at: log.started_at, ended_at: log.ended_at,
@@ -109,7 +112,7 @@ export default async function ShiftDetail({ params, searchParams }: {
           <button className="btn-danger">Withdraw</button>
         </form>
       )}
-      <Link href={mine ? '/hub/shifts' : '/hub/approvals'} className="mt-8 inline-block text-[13px] text-muted hover:text-ink">← Back</Link>
+      <Link href={mine ? '/hub/shifts' : '/hub/approvals'} className="no-print mt-8 inline-block text-[13px] text-muted hover:text-ink">← Back</Link>
     </div>
   );
 }

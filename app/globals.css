@@ -171,3 +171,21 @@
   a.card:hover, .card-hover:hover { transform: none; }
   .dept-card:hover { transform: none; }
 }
+
+/* Paper and "Save as PDF": a plain black-on-white record without the hub chrome. */
+.print-only { display: none; }
+@media print {
+  @page { margin: 14mm; }
+  html { color-scheme: light; }
+  body { background: #fff !important; color: #111 !important; }
+  header, footer, nav, form, .no-print, .app-bg, .lightbar { display: none !important; }
+  .print-only { display: block !important; }
+  main { padding: 0 !important; max-width: none !important; animation: none !important; }
+  .card { background: #fff !important; border: 1px solid #ccc !important; box-shadow: none !important; break-inside: avoid; }
+  .label, .text-muted, .text-faint, dt { color: #555 !important; }
+  .text-ink, .text-gold, dd, h1, h2, td, th { color: #111 !important; }
+  .wordmark { background: none !important; -webkit-text-fill-color: #111 !important; color: #111 !important; }
+  a { color: #111 !important; text-decoration: underline; }
+  .tag { border: 1px solid #999 !important; background: none !important; color: #111 !important; }
+  table tr:hover td { background: none !important; }
+}
