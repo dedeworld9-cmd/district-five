@@ -338,3 +338,10 @@ export async function adminSaveOption(form: FormData) {
     p_sort: num(form, 'sort_order'), p_active: form.get('active') !== 'off',
   }, 'Saved.', '/hub/admin?tab=options');
 }
+
+export async function addPersonnelNote(form: FormData) {
+  await act(form, 'add_personnel_note', {
+    p_membership: str(form, 'id'), p_category: str(form, 'category'), p_title: str(form, 'title'),
+    p_detail: str(form, 'detail'), p_effective: str(form, 'effective'),
+  }, 'Added to the personnel record.');
+}

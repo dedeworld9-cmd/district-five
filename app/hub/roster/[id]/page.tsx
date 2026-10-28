@@ -8,7 +8,7 @@ import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIER_LABEL, atLeast, tierRank } from '@/lib/tiers';
 import type { MemberCertification, Membership, PersonnelRecord, Rank, ShiftLog, Submission } from '@/lib/types';
-import { updateMembership } from '../../actions';
+import { addPersonnelNote, updateMembership } from '../../actions';
 
 export const metadata = { title: 'Member' };
 
@@ -44,6 +44,8 @@ export default async function Member({ params, searchParams }: {
   const grantable = (ranks ?? []).filter((r) => r.id === m.rank_id ||
     (s.oversees(m.department_key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier)));
   const canGrantPersonnel = s.oversees(m.department_key) || atLeast(myTier, 'department_head');
+  // High command writes commendations and write-ups for members below its own tier.
+  const canNote = manage && (s.oversees(m.department_key) || s.isAdmin || tierRank(m.tier) < tierRank(myTier));
   const back = `/hub/roster/${m.id}`;
 
   return (
@@ -118,6 +120,23 @@ export default async function Member({ params, searchParams }: {
         </form>
       )}
 
+      {canNote && (
+        <form action={addPersonnelNote} className="card mt-6 grid gap-4 p-6 sm:grid-cols-[1fr_2fr_1fr]">
+          <input type="hidden" name="id" value={m.id} /><input type="hidden" name="back" value={back} />
+          <h2 className="label sm:col-span-3">Commendation or write-up</h2>
+          <label className="field"><span>Type</span>
+            <select name="category" className="input" defaultValue="commendation">
+              <option value="commendation">Commendation</option><option value="disciplinary">Disciplinary</option><option value="note">Note</option>
+            </select>
+          </label>
+          <label className="field"><span>Title</span><input name="title" className="input" required minLength={3} maxLength={200} placeholder="e.g. Exemplary pursuit conduct" /></label>
+          <label className="field"><span>Date</span><input type="date" name="effective" className="input" /></label>
+          <label className="field sm:col-span-3"><span>Details</span><textarea name="detail" className="input" rows={3} maxLength={4000} /></label>
+          <p className="text-[12px] text-faint sm:col-span-2">Entries are confidential: department heads and members they authorize can read them.</p>
+          <div className="sm:text-right"><button className="btn-primary btn-sm">Add to record</button></div>
+        </form>
+      )}
+
       <section className="mt-10">
         <h2 className="label mb-4">Personnel record</h2>
         {records?.length ? (
@@ -125,7 +144,11 @@ export default async function Member({ params, searchParams }: {
             {records.map((r) => (
               <li key={r.id} className="px-5 py-4 text-[14px]">
                 <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <span className="font-medium">{r.title}</span>
+                  <span className="font-medium">
+                    {['commendation', 'disciplinary'].includes(r.category) && (
+                      <span className={`tag mr-2 ${r.category === 'commendation' ? 'tag-ok' : 'tag-warn'}`}>{r.category === 'commendation' ? 'Commendation' : 'Disciplinary'}</span>
+                    )}{r.title}
+                  </span>
                   <span className="text-[12px] text-faint">{dateOnly(r.effective_date)} · {r.created_by_name}</span>
                 </div>
                 {r.detail && <p className="mt-1 text-muted">{r.detail}</p>}

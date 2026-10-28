@@ -40,3 +40,17 @@ select tst.ok((select required_tier from public.submissions where id = :'dps_cit
 select tst.fails(format('select public.decide_submission(%L, %L)', :'dps_cit', 'approve'), 'D5403', 'dps patrol: cannot review own report');
 select tst.fails($$select public.save_submission(null, 'fire_incident', 'dps', '{}', null, current_date, null, null, false)$$, 'D5422', 'dps patrol: only law enforcement paperwork');
 reset role;
+
+-- Personnel notes: high command writes on members below it.
+select tst.become('bcso_hc');
+set role authenticated;
+select tst.ok((public.add_personnel_note((select id from public.memberships where profile_id = tst.id('bcso_mem') and department_key = 'bcso'),
+  'commendation', '[TEST] Great pursuit', 'Kept it safe', null)).category = 'commendation', 'high command: writes a commendation');
+select tst.fails(format('select public.add_personnel_note(%L, %L, %L, null, null)', (select id from public.memberships where profile_id = tst.id('bcso_head') and department_key = 'bcso'), 'disciplinary', '[TEST] Nope'),
+  'D5403', 'high command: cannot write on the sheriff');
+reset role;
+select tst.become('bcso_sup');
+set role authenticated;
+select tst.fails(format('select public.add_personnel_note(%L, %L, %L, null, null)', (select id from public.memberships where profile_id = tst.id('bcso_mem') and department_key = 'bcso'), 'note', '[TEST] Nope'),
+  'D5403', 'supervisor: cannot write personnel entries');
+reset role;
