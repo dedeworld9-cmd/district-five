@@ -48,7 +48,7 @@ export default async function Home() {
   const hubHref = session ? '/hub' : '/login';
 
   const actions = [
-    { title: 'Join the Discord', body: 'Connect with District Five, get updates, and reach recruitment, support and department channels.',
+    { title: 'Join the Discord', body: 'Connect with The Lounge, get District Five updates, and reach recruitment, support and department channels.',
       href: DISCORD, cta: 'Join Discord', external: true, tone: 'text-[#5865f2] bg-[#5865f2]/10 border-[#5865f2]/25', icon: <DiscordIcon size={18} /> },
     { title: 'Apply today', body: 'Sign in with Discord, pick a department and give command your roleplay name. Keep your DMs open for the interview.',
       href: joinHref(), cta: 'Apply today', tone: 'text-[#a78bfa] bg-[#a78bfa]/10 border-[#a78bfa]/25',
@@ -81,15 +81,15 @@ export default async function Home() {
           <div className="rise inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-black/50 px-2.5 py-1 text-[11px] text-zinc-300 backdrop-blur">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/logos/lounge.png" alt="" width={16} height={16} className="h-4 w-4 rounded-full" />
-            District Five · Open applications
+            The Lounge Roleplay · Open applications
           </div>
           <h1 className="rise mt-5 max-w-2xl text-[46px] leading-[1.05] font-semibold tracking-tight text-white sm:text-[64px]" style={{ animationDelay: '80ms' }}>
-            District Five<br />Departments
+            District Five<br />Department Hub
           </h1>
           <p className="rise mt-6 max-w-xl text-[16px] leading-relaxed text-zinc-300" style={{ animationDelay: '160ms' }}>
-            Welcome to District Five, the law enforcement and Fire &amp; EMS departments of The Lounge Roleplay. We are committed to
-            professionalism, accountability and structured training while giving every member a realistic and immersive roleplay
-            experience. Our personnel are held to high standards and expected to uphold the values of their department.
+            Welcome to the District Five Department Hub. District Five is home to every department on The Lounge Roleplay,
+            and this hub serves its law enforcement, Fire &amp; EMS and dispatch personnel. We are committed to professionalism,
+            accountability and structured training while giving every member a realistic and immersive roleplay experience. Our personnel are held to high standards and expected to uphold the values of their department.
           </p>
           <div className="rise mt-8 flex flex-wrap gap-2" style={{ animationDelay: '240ms' }}>
             <a href={DISCORD} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center rounded-full bg-white px-5 text-[13px] font-semibold text-black hover:bg-zinc-200">Join Discord</a>
@@ -195,7 +195,7 @@ export default async function Home() {
           <div className="text-[11px] tracking-[0.3em] text-zinc-400 uppercase">Get involved</div>
           <h2 className="mt-3 text-[32px] font-semibold tracking-tight text-white">Quick Actions.</h2>
           <p className="mx-auto mt-3 max-w-xl text-[14px] leading-relaxed text-zinc-400">
-            Three direct ways to get started with District Five. Join the community, apply to a department, or sign in to the hub.
+            Three direct ways to get started. Join The Lounge Discord, apply to a District Five department, or sign in to the hub.
           </p>
           <div className="mx-auto mt-10 grid max-w-4xl gap-4 sm:grid-cols-3">
             {actions.map((a) => (
@@ -217,8 +217,8 @@ export default async function Home() {
       <footer className="border-t border-white/8">
         <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-6 px-4 py-8 sm:px-6">
           <div>
-            <div className="text-[13px] font-semibold text-white">District Five Departments</div>
-            <div className="mt-1 text-[13px] text-zinc-500">Law enforcement and Fire &amp; EMS roleplay on The Lounge Roleplay.</div>
+            <div className="text-[13px] font-semibold text-white">District Five Department Hub</div>
+            <div className="mt-1 text-[13px] text-zinc-500">Law enforcement, Fire &amp; EMS and dispatch for District Five on The Lounge Roleplay.</div>
           </div>
           <nav className="flex flex-wrap gap-4 text-[13px] text-zinc-400">
             <a href="#top" className="hover:text-white">Home</a>
@@ -228,7 +228,7 @@ export default async function Home() {
           </nav>
         </div>
         <div className="mx-auto max-w-6xl px-4 pb-8 text-[12px] leading-relaxed text-zinc-600 sm:px-6">
-          District Five is part of The Lounge Roleplay, a roleplay community. Every department, person and record here is fictional,
+          The Lounge Roleplay is the roleplay server, and District Five is where its departments are. Every department, person and record here is fictional,
           and none of it is affiliated with any real government agency. Do not enter real-world personal information.
         </div>
       </footer>
