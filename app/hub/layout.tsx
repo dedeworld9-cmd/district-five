@@ -29,6 +29,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
     { href: '/hub', label: 'Dashboard' },
     ...(!member ? [{ href: '/hub/join', label: 'Join a department' }] : []),
     ...(member ? [{ href: '/hub/shifts', label: 'Shifts' }, { href: '/hub/reports', label: 'Reports' }, { href: '/hub/board', label: 'Board' }] : []),
+    ...(s.isDps ? [{ href: '/hub/patrol', label: 'Patrol' }, { href: '/hub/oversight', label: 'Oversight' }] : []),
     ...(s.supervised.length ? [{ href: '/hub/command', label: 'Panels' }] : []),
     ...(reviewer ? [{ href: '/hub/approvals', label: 'Approvals', count: queue }] : []),
     ...(member || s.isAdmin ? [{ href: '/hub/roster', label: 'Roster' }] : []),

@@ -81,7 +81,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <Link href="/hub/shifts/new" className="btn bg-bg/40 backdrop-blur">Log a past shift</Link>
-            {s.currentDept?.kind === 'department' && <Link href="/hub/reports" className="btn bg-bg/40 backdrop-blur">File a report</Link>}
+            {s.currentDept && <Link href="/hub/reports" className="btn bg-bg/40 backdrop-blur">File a report</Link>}
             {queue > 0 && <Link href="/hub/approvals" className="btn bg-bg/40 backdrop-blur">Review {queue} waiting</Link>}
             {s.active.length > 1 && (
               <form action={setActiveDepartment} className="flex gap-1 md:hidden">

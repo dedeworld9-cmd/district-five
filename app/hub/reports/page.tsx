@@ -18,9 +18,9 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
   const { data: mine } = await supabase.from('submissions').select('*').eq('profile_id', s.userId)
     .order('created_at', { ascending: false }).limit(50).returns<Submission[]>();
 
-  // Kinds the caller can file in at least one of their departments.
+  // Kinds the caller can file in at least one of their departments; division command files its own division's paperwork.
   const myDivisions = new Set<string>(s.active.map((m) => s.departments.find((d) => d.key === m.department_key))
-    .filter((d) => d?.kind === 'department').map((d) => d!.division));
+    .filter((d) => !!d).map((d) => d!.division));
   const filing = KINDS.filter((k) => k.divisions.some((d) => myDivisions.has(d)));
   // Division command and admins without a department membership can open every form to look at it.
   const watched = new Set<string>(s.departments.filter((d) => d.kind === 'department' && (s.isAdmin || s.oversees(d.key))).map((d) => d.division));

@@ -60,15 +60,16 @@ export async function setDuty(form: FormData) {
   const dept = str(form, 'department');
   const status = str(form, 'status');
   const since = str(form, 'since');
+  const back = safePath(str(form, 'back'), '/hub');
   const { error } = await rpc('set_duty_status', { p_department: dept, p_status: status });
   revalidatePath('/hub', 'layout');
-  if (error) flash('/hub', 'error', friendly(error));
+  if (error) flash(back, 'error', friendly(error));
   // Clocking out opens a prefilled shift log; nothing is submitted until the member confirms.
   if (status === 'off_duty' && since) {
     const q = new URLSearchParams({ dept: dept ?? '', start: since, end: new Date().toISOString(), ended: '1' });
     redirect(`/hub/shifts/new?${q.toString()}`);
   }
-  redirect('/hub');
+  redirect(back);
 }
 
 export async function updateProfile(form: FormData) {

@@ -39,7 +39,7 @@ export interface ShiftLog {
 }
 
 export interface ApprovalAction {
-  id: string; record_type: string; record_id: string; actor_name: string | null; actor_tier: Tier | null;
+  id: string; record_type: string; record_id: string; department_key: string; actor_name: string | null; actor_tier: Tier | null;
   action: string; from_status: string | null; to_status: string | null; reason: string | null; created_at: string;
 }
 

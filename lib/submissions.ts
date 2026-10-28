@@ -6,7 +6,7 @@ import type { DepartmentOption, Membership } from './types';
 // Departments where the caller can file this kind, plus select options and FTO trainees.
 export async function formContext(s: Session, kind: string) {
   const cfg = KIND[kind];
-  const depts = s.departments.filter((d) => d.kind === 'department' && cfg?.divisions.includes(d.division)
+  const depts = s.departments.filter((d) => cfg?.divisions.includes(d.division)
     && s.active.some((m) => m.department_key === d.key));
   const keys = depts.map((d) => d.key);
   const supabase = await createClient();

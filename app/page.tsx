@@ -37,6 +37,7 @@ export default async function Home() {
   ]);
   const all = departments ?? [];
   const units = all.filter((d) => d.kind === 'department');
+  const dps = all.find((d) => d.key === 'dps');
   const command = (div: Department['division']) => all.find((d) => d.kind === 'oversight' && d.oversees.includes(div));
   const short = (k: string | null) => (k ? all.find((d) => d.key === k)?.short_name ?? k : 'District Five');
   // Signed-out visitors sign in with Discord first, then land on the join form.
@@ -104,6 +105,28 @@ export default async function Home() {
             {(['leo', 'fire_ems'] as const).map((div) => command(div) && `${DIVISION_LABEL[div]} is overseen by ${command(div)!.name}.`).filter(Boolean).join(' ')
               || 'The departments that make up District Five.'}
           </p>
+          {dps && (
+            <article id="dps" className="mt-8 grid scroll-mt-24 overflow-hidden rounded-2xl border border-[#d6457f]/25 bg-zinc-950 md:grid-cols-[1.1fr_1fr]"
+              style={{ background: 'radial-gradient(circle at 0% 100%, rgb(214 69 127 / 0.14), transparent 55%), rgb(9 9 11)' }}>
+              <div className="relative min-h-52 overflow-hidden md:order-2">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={PHOTOS.dps} alt="" className="absolute inset-0 h-full w-full object-cover opacity-85" />
+                <div className="absolute inset-0 hidden md:block" style={{ background: 'linear-gradient(90deg, rgb(9 9 11), transparent 45%)' }} />
+                <div className="absolute inset-0 md:hidden" style={{ background: 'linear-gradient(transparent 40%, rgb(9 9 11))' }} />
+              </div>
+              <div className="relative flex flex-col justify-center p-6 sm:p-8">
+                <div className="flex items-center gap-4">
+                  <Emblem dept={dps.key} label={dps.short_name} accent="#d6457f" division={dps.division} size={76} />
+                  <div className="text-[10px] font-semibold tracking-[0.18em] text-[#f2a7c3] uppercase">Command · {dps.short_name}</div>
+                </div>
+                <h3 className="mt-4 text-[22px] leading-snug font-semibold text-white">{dps.name}</h3>
+                <p className="mt-2 max-w-md text-[14px] leading-relaxed text-zinc-400">
+                  {dps.public_blurb ?? 'The administrative department of District Five. A command staff of eight oversees law enforcement, Fire & EMS and dispatch, sets district policy and reviews the most serious records.'}
+                </p>
+                <p className="mt-4 text-[12px] text-zinc-500">Positions are filled by appointment from within the departments.</p>
+              </div>
+            </article>
+          )}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {units.map((d, i) => (
               <article key={d.key} id={d.key} className="group flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-white/8 bg-zinc-950">

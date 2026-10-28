@@ -31,16 +31,16 @@ export default async function Board({ searchParams }: { searchParams: Promise<Re
   ]);
   const leaders = (board.data ?? []) as Leader[];
 
-  // On-duty units, grouped by department and ordered by division.
+  // On-duty units, grouped by department (division command included) and ordered by division.
   const order = ['leo', 'fire_ems', 'dispatch'];
-  const units = s.departments.filter((d) => d.kind === 'department')
+  const units = [...s.departments]
     .sort((a, b) => order.indexOf(a.division) - order.indexOf(b.division))
     .map((d) => ({ d, list: (onDuty ?? []).filter((m) => m.department_key === d.key) }))
     .filter((g) => g.list.length);
   const short = (k: string) => s.departments.find((d) => d.key === k)?.short_name ?? k;
   const warrants = (alerts ?? []).filter((a) => a.kind === 'warrant');
   const bolos = (alerts ?? []).filter((a) => a.kind === 'bolo');
-  const leo = myDepts.some((d) => d.division === 'leo');
+  const leo = s.active.some((m) => s.departments.find((d) => d.key === m.department_key)?.division === 'leo');
 
   return (
     <>

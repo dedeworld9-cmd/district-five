@@ -31,3 +31,12 @@ select tst.become('dps_user');
 set role authenticated;
 select tst.ok(public.can_administer('bcso') and public.can_administer('sahp'), 'division command: administers its departments');
 reset role;
+
+-- DPS patrol: division command files its own division's reports, reviewed by division command.
+select tst.become('dps_user');
+set role authenticated;
+select (public.save_submission(null, 'citation', 'dps', '{"suspect_name":"[TEST] Driver","violations":"Speeding","fine":"500"}', null, current_date, null, null, false)).id as dps_cit \gset
+select tst.ok((select required_tier from public.submissions where id = :'dps_cit') = 'dps', 'dps patrol: report routes to division command');
+select tst.fails(format('select public.decide_submission(%L, %L)', :'dps_cit', 'approve'), 'D5403', 'dps patrol: cannot review own report');
+select tst.fails($$select public.save_submission(null, 'fire_incident', 'dps', '{}', null, current_date, null, null, false)$$, 'D5422', 'dps patrol: only law enforcement paperwork');
+reset role;
