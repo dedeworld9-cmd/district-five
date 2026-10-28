@@ -87,8 +87,8 @@ export default async function Home() {
             District Five<br />Department Hub
           </h1>
           <p className="rise mt-6 max-w-xl text-[16px] leading-relaxed text-zinc-300" style={{ animationDelay: '160ms' }}>
-            Welcome to the District Five Department Hub. District Five is home to every department on The Lounge Roleplay,
-            and this hub serves its law enforcement, Fire &amp; EMS and dispatch personnel. We are committed to professionalism,
+            Welcome to the District Five Department Hub. This hub serves our law enforcement, Fire &amp; EMS and dispatch
+            personnel. We are committed to professionalism,
             accountability and structured training while giving every member a realistic and immersive roleplay experience. Our personnel are held to high standards and expected to uphold the values of their department.
           </p>
           <div className="rise mt-8 flex flex-wrap gap-2" style={{ animationDelay: '240ms' }}>
