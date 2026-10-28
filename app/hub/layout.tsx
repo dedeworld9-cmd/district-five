@@ -24,16 +24,21 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   ]);
   const queue = [...(open ?? []), ...(subs ?? [])].filter((l) => canDecide(s, l.department_key, l.required_tier, l.profile_id)).length;
   const member = s.active.length > 0;
+  const patrol = s.currentDept?.kind === 'oversight';
 
   const items = [
-    { href: '/hub', label: 'Dashboard' },
+    // Division command's home is its patrol panel: the shift clock, logs and paperwork in one place.
+    patrol ? { href: '/hub/patrol', label: 'Patrol' } : { href: '/hub', label: 'Dashboard' },
     ...(!member ? [{ href: '/hub/join', label: 'Join a department' }] : []),
-    ...(member ? [{ href: '/hub/shifts', label: 'Shifts' }, { href: '/hub/reports', label: 'Reports' }, { href: '/hub/board', label: 'Board' }] : []),
-    ...(s.isDps ? [{ href: '/hub/patrol', label: 'Patrol' }, { href: '/hub/oversight', label: 'Oversight' }] : []),
-    ...(s.supervised.length ? [{ href: '/hub/command', label: 'Panels' }] : []),
+    ...(member && !patrol ? [{ href: '/hub/shifts', label: 'Shifts' }] : []),
+    ...(member ? [{ href: '/hub/reports', label: 'Reports' }, { href: '/hub/board', label: 'Board' }] : []),
+    // Division command reaches each department's panels from its oversight panel.
+    ...(s.isDps ? [{ href: '/hub/oversight', label: 'Oversight' }] : s.supervised.length ? [{ href: '/hub/command', label: 'Panels' }] : []),
     ...(reviewer ? [{ href: '/hub/approvals', label: 'Approvals', count: queue }] : []),
     ...(member || s.isAdmin ? [{ href: '/hub/roster', label: 'Roster' }] : []),
-    ...(member ? [{ href: '/hub/announcements', label: 'News' }, { href: '/hub/resources', label: 'Resources' }] : []),
+    ...(member ? [{ href: '/hub/announcements', label: 'News' }] : []),
+    // DPS has no resources of its own yet.
+    ...(member && !patrol ? [{ href: '/hub/resources', label: 'Resources' }] : []),
     ...(s.isAdmin ? [{ href: '/hub/admin', label: 'Admin' }] : []),
   ];
   const c = s.current;

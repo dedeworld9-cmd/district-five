@@ -2,17 +2,17 @@ import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { PanelTabs } from '@/components/PanelTabs';
 import { Empty, Flash, PageHead, StatusTag } from '@/components/ui';
-import { dateOnly, hours, relative } from '@/lib/format';
+import { dateOnly, relative } from '@/lib/format';
 import { panelDepts } from '@/lib/panels';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { atLeast, tierRank } from '@/lib/tiers';
-import type { ComplianceRow, Membership, Rank, Submission } from '@/lib/types';
+import type { Membership, Rank, Submission } from '@/lib/types';
 import { adminImportRoster, decideMembership } from '../../actions';
 
 export const metadata = { title: 'Command staff panel' };
 
-// High command: who joins, who moves up, who needs a check-in.
+// High command: who joins, who moves up, who is away. Activity and quota are on the supervisor panel.
 export default async function StaffPanel({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const s = await requireSession();
@@ -21,13 +21,12 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
   const supabase = await createClient();
   const back = `/hub/command/staff?dept=${dept.key}`;
 
-  const [{ data: members }, { data: ranks }, { data: updates }, { data: compliance }] = await Promise.all([
+  const [{ data: members }, { data: ranks }, { data: updates }] = await Promise.all([
     supabase.from('memberships').select('*').eq('department_key', dept.key).in('status', ['active', 'suspended', 'pending'])
       .order('display_name').returns<Membership[]>(),
     supabase.from('ranks').select('*').eq('department_key', dept.key).eq('active', true).order('sort_order').returns<Rank[]>(),
     supabase.from('submissions').select('id,ref,title,status,created_at').eq('department_key', dept.key).eq('kind', 'roster_update')
       .in('status', ['submitted', 'under_review']).order('created_at').returns<Pick<Submission, 'id' | 'ref' | 'title' | 'status' | 'created_at'>[]>(),
-    supabase.rpc('department_compliance', { p_department: dept.key }),
   ]);
 
   const all = members ?? [];
@@ -39,7 +38,6 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
     { label: 'On leave', list: active.filter((m) => m.leave_until && m.leave_until >= today), note: (m: Membership) => `Until ${dateOnly(m.leave_until!)}` },
     { label: 'Suspended', list: all.filter((m) => m.status === 'suspended'), note: () => '' },
   ];
-  const below = ((compliance ?? []) as ComplianceRow[]).filter((r) => !r.on_leave && r.approved_minutes < r.quota_minutes);
   const myTier = s.tierIn(dept.key);
   const grantable = (ranks ?? []).filter((r) =>
     s.oversees(dept.key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier));
@@ -47,7 +45,7 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
   const tiles = [
     { label: 'Join requests', value: requests.length, gold: requests.length > 0 },
     { label: 'Roster updates', value: (updates ?? []).length, gold: (updates ?? []).length > 0 },
-    { label: 'Below quota', value: below.length, warn: below.length > 0 },
+    { label: 'On probation', value: watch[0].list.length },
     { label: 'Active members', value: active.length },
   ];
 
@@ -61,7 +59,7 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
         {tiles.map((t) => (
           <div key={t.label} className={`card p-5 ${t.gold ? 'border-gold/30' : ''}`}>
             <div className="label">{t.label}</div>
-            <div className={`mt-3 text-[30px] font-semibold tracking-tight ${t.gold ? 'text-gold' : t.warn ? 'text-warn' : ''}`}>{t.value}</div>
+            <div className={`mt-3 text-[30px] font-semibold tracking-tight ${t.gold ? 'text-gold' : ''}`}>{t.value}</div>
           </div>
         ))}
       </section>
@@ -120,21 +118,10 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
-          {[...watch, { label: 'Below quota this week', list: [] as Membership[], note: () => '' }].map((g) => (
+          {watch.map((g) => (
             <div key={g.label}>
               <h2 className="label mb-3">{g.label}</h2>
-              {g.label === 'Below quota this week' ? (
-                below.length ? (
-                  <div className="card divide-y divide-line">
-                    {below.map((r) => (
-                      <Link key={r.membership_id} href={`/hub/roster/${r.membership_id}`} className="flex justify-between px-4 py-2.5 text-[14px] hover:bg-white/[0.02]">
-                        <span>{r.callsign && <span className="mr-2 font-mono text-[12px] text-gold">{r.callsign}</span>}{r.display_name}</span>
-                        <span className="text-muted">{hours(r.approved_minutes)} of {hours(r.quota_minutes)}</span>
-                      </Link>
-                    ))}
-                  </div>
-                ) : <Empty>Everyone is on track.</Empty>
-              ) : g.list.length ? (
+              {g.list.length ? (
                 <div className="card divide-y divide-line">
                   {g.list.map((m) => (
                     <Link key={m.id} href={`/hub/roster/${m.id}`} className="flex justify-between gap-3 px-4 py-2.5 text-[14px] hover:bg-white/[0.02]">

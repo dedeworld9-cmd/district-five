@@ -8,13 +8,13 @@ import { dateTime, duration, hours, relative } from '@/lib/format';
 import { kindsFor } from '@/lib/kinds';
 import { requireSession, tzOf } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
-import type { Membership, ShiftLog, Submission } from '@/lib/types';
+import type { ShiftLog, Submission } from '@/lib/types';
 import { setDuty } from '../actions';
 
 export const metadata = { title: 'Patrol panel' };
 
 // Division command (DPS, Fire/EMS Administration) on patrol: their own clock, logs and paperwork,
-// filed under the command itself, plus every unit on duty in the departments they oversee.
+// filed under the command itself. Units on duty are on the Board.
 export default async function Patrol({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const s = await requireSession();
@@ -26,19 +26,15 @@ export default async function Patrol({ searchParams }: { searchParams: Promise<R
   const supabase = await createClient();
   const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
 
-  const [{ data: logs }, { data: filed }, { data: onDuty }] = await Promise.all([
+  const [{ data: logs }, { data: filed }] = await Promise.all([
     supabase.from('shift_logs').select('*').eq('profile_id', s.userId).eq('department_key', cmd.key)
       .order('started_at', { ascending: false }).limit(6).returns<ShiftLog[]>(),
     supabase.from('submissions').select('id,ref,title,kind,status,created_at').eq('profile_id', s.userId).eq('department_key', cmd.key)
       .order('created_at', { ascending: false }).limit(6).returns<Pick<Submission, 'id' | 'ref' | 'title' | 'kind' | 'status' | 'created_at'>[]>(),
-    supabase.from('memberships').select('id,display_name,callsign,rank_name,department_key,duty_changed_at').eq('duty_status', 'on_duty').eq('status', 'active')
-      .order('callsign', { nullsFirst: false }).returns<Pick<Membership, 'id' | 'display_name' | 'callsign' | 'rank_name' | 'department_key' | 'duty_changed_at'>[]>(),
   ]);
   const onShift = me.duty_status === 'on_duty' && me.duty_changed_at;
   const week = (logs ?? []).filter((l) => l.started_at >= weekAgo && l.status !== 'returned').reduce((n, l) => n + l.duration_minutes, 0);
   const forms = kindsFor(cmd.division).filter((k) => k.group === 'report');
-  const covered = s.departments.filter((d) => d.key === cmd.key || (d.kind === 'department' && cmd.oversees.includes(d.division)));
-  const units = covered.map((d) => ({ d, list: (onDuty ?? []).filter((m) => m.department_key === d.key) }));
   const back = `/hub/patrol?dept=${cmd.key}`;
 
   return (
@@ -108,7 +104,13 @@ export default async function Patrol({ searchParams }: { searchParams: Promise<R
 
       <div className="mt-12 grid gap-10 lg:grid-cols-2">
         <section>
-          <h2 className="label mb-3">My patrol logs</h2>
+          <div className="mb-3 flex items-baseline justify-between">
+            <h2 className="label">My patrol logs</h2>
+            <span className="flex gap-4 text-[13px]">
+              <Link href={`/hub/shifts/new?dept=${cmd.key}`} className="text-muted hover:text-ink">Log a past patrol</Link>
+              <Link href="/hub/shifts" className="text-muted hover:text-ink">All shifts →</Link>
+            </span>
+          </div>
           {logs?.length ? (
             <div className="card divide-y divide-line">
               {logs.map((l) => (
@@ -135,30 +137,6 @@ export default async function Patrol({ searchParams }: { searchParams: Promise<R
         </section>
       </div>
 
-      <section className="mt-12">
-        <h2 className="label mb-3">Units on duty now · {units.reduce((n, u) => n + u.list.length, 0)}</h2>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {units.map(({ d, list }) => (
-            <div key={d.key} className="card p-5">
-              <div className="flex items-center gap-2.5">
-                <Emblem dept={d.key} label={d.short_name} accent={d.accent} division={d.division} size={26} />
-                <span className="text-[15px] font-medium">{d.short_name}</span>
-                <span className="ml-auto text-[12px] text-faint">{list.length} on duty</span>
-              </div>
-              {list.length ? (
-                <ul className="mt-3 grid gap-1.5 text-[14px]">
-                  {list.map((m) => (
-                    <li key={m.id} className="flex justify-between gap-2">
-                      <span>{m.callsign && <span className="mr-2 font-mono text-[12px] text-gold">{m.callsign}</span>}{m.display_name}</span>
-                      {m.duty_changed_at && <span className="text-[12px] text-faint">{relative(m.duty_changed_at)}</span>}
-                    </li>
-                  ))}
-                </ul>
-              ) : <p className="mt-3 text-[13px] text-faint">Nobody clocked in.</p>}
-            </div>
-          ))}
-        </div>
-      </section>
     </>
   );
 }

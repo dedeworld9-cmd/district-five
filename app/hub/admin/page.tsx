@@ -5,13 +5,14 @@ import { dateTime } from '@/lib/format';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIERS, TIER_LABEL } from '@/lib/tiers';
-import type { DepartmentOption, Rank, Tier } from '@/lib/types';
-import { DeptSettingsForm, OptionEditor, RankEditor } from '@/components/DeptAdmin';
+import type { Rank, Tier } from '@/lib/types';
+import { RankEditor } from '@/components/DeptAdmin';
 import { adminAddSelf, adminDemo, adminImportRoster, adminSaveRoute, adminSetSetting } from '../actions';
 
 export const metadata = { title: 'Admin' };
 
-const TABS = [['settings', 'Settings'], ['ranks', 'Ranks'], ['options', 'Certifications'], ['routing', 'Review routing'], ['import', 'Roster import'], ['audit', 'Audit log']] as const;
+// Site-wide only. Each department's own settings, ranks, certifications and routing live in its Administration panel.
+const TABS = [['settings', 'Settings'], ['ranks', 'Command ranks'], ['routing', 'District routing'], ['import', 'Roster import'], ['audit', 'Audit log']] as const;
 
 interface Route { id: string; record_type: string; department_key: string | null; submitter_tier: Tier; required_tier: Tier }
 interface Audit { id: number; actor_name: string | null; action: string; entity_ref: string | null; department_key: string | null; created_at: string }
@@ -22,13 +23,12 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
   if (!s.isAdmin) redirect('/hub');
   const tab = TABS.some(([k]) => k === sp.tab) ? sp.tab! : 'settings';
   const supabase = await createClient();
-  const [{ data: ranks }, { data: routes }, { data: settings }, { data: audit }, { count: demoCount }, { data: options }] = await Promise.all([
+  const [{ data: ranks }, { data: routes }, { data: settings }, { data: audit }, { count: demoCount }] = await Promise.all([
     supabase.from('ranks').select('*').order('department_key').order('sort_order').returns<Rank[]>(),
     supabase.from('approval_routes').select('*').eq('record_type', 'shift_log').returns<Route[]>(),
     supabase.from('app_settings').select('*').returns<{ key: string; value: unknown }[]>(),
     tab === 'audit' ? supabase.from('audit_log').select('*').order('created_at', { ascending: false }).limit(100).returns<Audit[]>() : Promise.resolve({ data: [] as Audit[] }),
     supabase.from('memberships').select('id', { count: 'exact', head: true }).eq('is_demo', true),
-    supabase.from('department_options').select('*').order('department_key').order('kind').order('sort_order').order('name').returns<DepartmentOption[]>(),
   ]);
   const setting = (k: string) => settings?.find((x) => x.key === k)?.value;
   const departments = s.departments.filter((d) => d.kind === 'department');
@@ -72,9 +72,17 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
 
       {tab === 'settings' && (
         <div className="grid gap-6">
-          {departments.map((d) => (
-            <DeptSettingsForm key={d.key} d={d} back="/hub/admin" />
-          ))}
+          <section className="card divide-y divide-line">
+            <div className="px-6 py-4">
+              <h2 className="text-[16px] font-medium">Departments</h2>
+              <p className="mt-1 text-[13px] text-muted">Quota, bodycam rules, ranks, certifications and review routing are set in each department&apos;s Administration panel.</p>
+            </div>
+            {departments.map((d) => (
+              <Link key={d.key} href={`/hub/command/admin?dept=${d.key}&tab=settings`} className="flex items-center justify-between px-6 py-3 text-[14px] hover:bg-white/[0.02]">
+                <span>{d.name}</span><span className="text-[13px] text-muted">Administration panel →</span>
+              </Link>
+            ))}
+          </section>
 
           <form action={adminSetSetting} className="card grid gap-4 p-6 sm:grid-cols-[1fr_auto] sm:items-end">
             <input type="hidden" name="key" value="dual_membership_mode" />
@@ -105,10 +113,10 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
       {tab === 'ranks' && (
         <div className="grid gap-8">
           <p className="max-w-2xl text-[14px] text-muted">
-            Ranks marked <span className="tag">sample</span> were copied from the Discord channels and need confirming.
-            Saving a rank confirms it. The tier decides what that rank can review and approve.
+            Ranks for division command. Department ladders are edited in each department&apos;s Administration panel.
+            Saving a rank confirms it.
           </p>
-          {s.departments.map((d) => (
+          {s.departments.filter((d) => d.kind === 'oversight').map((d) => (
             <section key={d.key}>
               <h2 className="label mb-3">{d.name}</h2>
               <RankEditor d={d} ranks={(ranks ?? []).filter((r) => r.department_key === d.key)} back="/hub/admin?tab=ranks" />
@@ -117,45 +125,26 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
         </div>
       )}
 
-      {tab === 'options' && (
-        <div className="grid gap-8">
-          <p className="max-w-2xl text-[14px] text-muted">
-            What members can request on the Reports page. Approving a certification request adds it to the member&apos;s training record;
-            approving a subdivision request adds the subdivision to their roster entry. Closed options stay on records but cannot be requested.
-          </p>
-          {departments.map((d) => (
-            <section key={d.key}>
-              <h2 className="label mb-3">{d.name}</h2>
-              <OptionEditor d={d} options={(options ?? []).filter((o) => o.department_key === d.key)} back="/hub/admin?tab=options" />
-            </section>
-          ))}
-        </div>
-      )}
-
       {tab === 'routing' && (
         <div className="grid max-w-3xl gap-6">
           <p className="text-[14px] text-muted">
-            Who reviews a shift log depends on the submitter&apos;s tier. District rules apply unless a department has its own row.
+            The default reviewer for a shift log, by the submitter&apos;s tier. A department can override it in its Administration panel.
             Division command can always review its own division, and nobody can approve their own entry.
           </p>
           <div className="card overflow-x-auto">
             <table className="table">
-              <thead><tr><th>Applies to</th><th>Submitter</th><th>Reviewed by</th></tr></thead>
+              <thead><tr><th>Submitter</th><th>Reviewed by</th></tr></thead>
               <tbody>
-                {(routes ?? []).sort((a, b) => (a.department_key ?? '').localeCompare(b.department_key ?? '') || TIERS.indexOf(a.submitter_tier) - TIERS.indexOf(b.submitter_tier)).map((r) => (
+                {(routes ?? []).filter((r) => !r.department_key).sort((a, b) => TIERS.indexOf(a.submitter_tier) - TIERS.indexOf(b.submitter_tier)).map((r) => (
                   <tr key={r.id}>
-                    <td>{r.department_key ? s.departments.find((d) => d.key === r.department_key)?.short_name : 'District default'}</td>
                     <td>{TIER_LABEL[r.submitter_tier]}</td><td>{TIER_LABEL[r.required_tier]}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <form action={adminSaveRoute} className="card grid gap-3 p-6 sm:grid-cols-4 sm:items-end">
-            <label className="field"><span>Applies to</span>
-              <select name="department" className="input"><option value="">District default</option>
-                {departments.map((d) => <option key={d.key} value={d.key}>{d.short_name}</option>)}</select>
-            </label>
+          <form action={adminSaveRoute} className="card grid gap-3 p-6 sm:grid-cols-3 sm:items-end">
+            <input type="hidden" name="back" value="/hub/admin?tab=routing" />
             <label className="field"><span>Submitter</span>
               <select name="submitter" className="input">{TIERS.map((t) => <option key={t} value={t}>{TIER_LABEL[t]}</option>)}</select>
             </label>

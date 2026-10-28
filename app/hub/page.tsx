@@ -1,10 +1,11 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Empty, Flash, Stat, StatusTag } from '@/components/ui';
 import { ACTIVITY_LABEL, dateOnly, dateTime, duration, greeting, hours, relative, todayLabel } from '@/lib/format';
 import { canDecide } from '@/lib/queue';
 import { requireSession, tzOf, type Session } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
-import type { ActivityRow, Announcement, ComplianceRow, ShiftLog, Tier } from '@/lib/types';
+import type { ActivityRow, Announcement, ShiftLog, Tier } from '@/lib/types';
 import { Emblem } from '@/components/Emblem';
 import { ShiftClock } from '@/components/ShiftClock';
 import { JoinForm } from '@/components/JoinForm';
@@ -17,13 +18,13 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const sp = await searchParams;
   const s = await requireSession();
   if (!s.current) return <NotOnRoster s={s} sp={sp} />;
+  if (s.currentDept?.kind === 'oversight') redirect('/hub/patrol');
 
   const supabase = await createClient();
   const dept = s.current.department_key;
   const tz = tzOf(s);
-  const supervising = s.canSupervise(dept) && s.currentDept?.kind === 'department';
 
-  const [{ data: activity }, { data: mode }, { data: recent }, { data: news }, { data: open }, { data: compliance }] = await Promise.all([
+  const [{ data: activity }, { data: mode }, { data: recent }, { data: news }, { data: open }] = await Promise.all([
     supabase.rpc('my_activity', { p_weeks: 4 }),
     supabase.from('app_settings').select('value').eq('key', 'dual_membership_mode').maybeSingle<{ value: string }>(),
     supabase.from('shift_logs').select('*').eq('profile_id', s.userId).order('started_at', { ascending: false }).limit(5).returns<ShiftLog[]>(),
@@ -31,7 +32,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
     s.supervised.length || s.isDps
       ? supabase.from('shift_logs').select('id,department_key,required_tier,profile_id').in('status', ['submitted', 'under_review'])
       : Promise.resolve({ data: [] as { id: string; department_key: string; required_tier: Tier; profile_id: string }[] }),
-    supervising ? supabase.rpc('department_compliance', { p_department: dept }) : Promise.resolve({ data: null }),
   ]);
 
   const rows = (activity ?? []) as ActivityRow[];
@@ -46,7 +46,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const exempt = scoped.length > 0 && scoped.every((r) => r.exempt);
   const fourWeeks = rows.filter((r) => combined || r.department_key === dept).reduce((n, r) => n + r.approved_minutes, 0);
   const queue = (open ?? []).filter((l) => canDecide(s, l.department_key, l.required_tier, l.profile_id)).length;
-  const below = ((compliance ?? []) as ComplianceRow[]).filter((c) => !c.on_leave && (combined ? c.district_minutes : c.approved_minutes) < c.quota_minutes);
   const deptLabel = (k: string) => s.departments.find((d) => d.key === k)?.short_name ?? k.toUpperCase();
   const pct = quota ? Math.min(100, Math.round((approved / quota) * 100)) : 100;
   const onDuty = s.current.duty_status === 'on_duty';
@@ -130,9 +129,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
           </Stat>
           <Stat label="Pending review" value={hours(pending)} sub="Not yet counted" />
           <Stat label="Returned" value={returned} sub={returned ? <Link href="/hub/shifts?status=returned" className="text-warn">Needs your correction</Link> : 'Nothing to fix'} />
-          {supervising
-            ? <Stat label="Below quota" value={below.length} sub={`${deptLabel(dept)} this week · a flag, not a strike`} />
-            : <Stat label="Last 4 weeks" value={hours(fourWeeks)} sub="Approved time" />}
+          <Stat label="Last 4 weeks" value={hours(fourWeeks)} sub="Approved time" />
         </div>
       </section>
 
@@ -183,28 +180,6 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </div>
       </section>
 
-      {supervising && below.length > 0 && (
-        <section className="mt-12">
-          <h2 className="label mb-4">Below quota this week · {deptLabel(dept)}</h2>
-          <div className="card overflow-x-auto">
-            <table className="table">
-              <thead><tr><th>Member</th><th>Rank</th><th>Approved</th><th>Pending</th>{combined && <th>District total</th>}</tr></thead>
-              <tbody>
-                {below.map((c) => (
-                  <tr key={c.membership_id}>
-                    <td><Link href={`/hub/roster/${c.membership_id}`} className="hover:text-gold">{c.callsign ? `${c.callsign} · ` : ''}{c.display_name}</Link></td>
-                    <td className="text-muted">{c.rank_name}</td>
-                    <td>{hours(c.approved_minutes)}</td>
-                    <td className="text-muted">{hours(c.pending_minutes)}</td>
-                    {combined && <td className="text-muted">{hours(c.district_minutes)}</td>}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <p className="mt-3 text-[12px] text-faint">The hub never issues strikes. Use this list to check in with members.</p>
-        </section>
-      )}
     </>
   );
 }

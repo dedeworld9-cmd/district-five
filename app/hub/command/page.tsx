@@ -60,7 +60,7 @@ export default async function Command({ searchParams }: { searchParams: Promise<
     { label: 'Hours this week', value: hours(weekMinutes), sub: `${hours(pendingMinutes)} still pending review` },
     { label: 'Below quota', value: below.length, sub: quota ? `Quota ${hours(quota)} a week · a flag, not a strike` : 'No quota set', warn: below.length > 0 },
     { label: 'Waiting for you', value: myQueue, sub: 'Shift logs, reports and requests', href: '/hub/approvals', gold: myQueue > 0 },
-    { label: 'Join requests', value: pendingJoin.length, sub: pendingJoin.length ? `Oldest ${relative(pendingJoin.sort((a, b) => a.created_at.localeCompare(b.created_at))[0].created_at)}` : 'None waiting', href: `/hub/roster?dept=${dept.key}`, gold: pendingJoin.length > 0 && s.canManageRoster(dept.key) },
+    { label: 'Join requests', value: pendingJoin.length, sub: pendingJoin.length ? `Oldest ${relative(pendingJoin.sort((a, b) => a.created_at.localeCompare(b.created_at))[0].created_at)}` : 'None waiting', href: s.canManageRoster(dept.key) ? `/hub/command/staff?dept=${dept.key}` : `/hub/roster?dept=${dept.key}`, gold: pendingJoin.length > 0 && s.canManageRoster(dept.key) },
   ];
 
   return (

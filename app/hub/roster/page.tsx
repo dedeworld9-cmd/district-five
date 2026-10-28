@@ -2,12 +2,9 @@ import Link from 'next/link';
 import { Fragment } from 'react';
 import { Emblem } from '@/components/Emblem';
 import { Empty, Flash, PageHead, StatusTag } from '@/components/ui';
-import { dateOnly } from '@/lib/format';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
-import { atLeast, tierRank } from '@/lib/tiers';
 import type { Membership, Rank } from '@/lib/types';
-import { decideMembership } from '../actions';
 
 export const metadata = { title: 'Roster' };
 
@@ -28,9 +25,6 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
   const roster = (members ?? []).filter((m) => m.status !== 'pending')
     .sort((a, b) => (rankOrder.get(b.rank_id ?? '') ?? 0) - (rankOrder.get(a.rank_id ?? '') ?? 0) || a.display_name.localeCompare(b.display_name));
   const requests = (members ?? []).filter((m) => m.status === 'pending');
-  const myTier = s.tierIn(dept.key);
-  const grantable = (ranks ?? []).filter((r) =>
-    s.oversees(dept.key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier));
   const onDuty = roster.filter((m) => m.duty_status === 'on_duty' && m.status === 'active').length;
   const q = (sp.q ?? '').trim().toLowerCase();
   const shown = q ? roster.filter((m) => [m.display_name, m.callsign, m.badge, m.rank_name].some((v) => v?.toLowerCase().includes(q))) : roster;
@@ -48,40 +42,10 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
       </PageHead>
 
       {manage && requests.length > 0 && (
-        <section className="mb-10">
-          <h2 className="label mb-4">Requests to join · {requests.length}</h2>
-          <div className="grid gap-3">
-            {requests.map((m) => (
-              <div key={m.id} className="card p-5">
-                <div className="flex flex-wrap items-baseline justify-between gap-2">
-                  <div className="text-[15px] font-medium">{m.display_name}</div>
-                  <div className="text-[12px] text-faint">{m.ref} · {dateOnly(m.created_at)}</div>
-                </div>
-                {m.request_note && <p className="mt-2 text-[14px] whitespace-pre-line text-muted">{m.request_note}</p>}
-                {m.profile_id === s.userId ? (
-                  <p className="mt-3 text-[13px] text-faint">Another commander must decide your own request.</p>
-                ) : (
-                  <form className="mt-4 grid gap-3 sm:grid-cols-[2fr_1fr_1fr]">
-                    <input type="hidden" name="id" value={m.id} />
-                    <input type="hidden" name="back" value={`/hub/roster?dept=${dept.key}`} />
-                    <label className="field"><span>Starting rank</span>
-                      <select name="rank" className="input" defaultValue={grantable[0]?.id}>
-                        {grantable.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
-                      </select>
-                    </label>
-                    <label className="field"><span>Callsign</span><input name="callsign" className="input" maxLength={16} /></label>
-                    <label className="field"><span>Badge</span><input name="badge" className="input" maxLength={16} /></label>
-                    <label className="field sm:col-span-3"><span>Reason (required to deny)</span><input name="reason" className="input" maxLength={600} /></label>
-                    <div className="flex gap-2 sm:col-span-3">
-                      <button formAction={decideMembership.bind(null, 'approve')} className="btn-primary btn-sm">Add to roster</button>
-                      <button formAction={decideMembership.bind(null, 'deny')} className="btn-danger btn-sm">Deny</button>
-                    </div>
-                  </form>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
+        <Link href={`/hub/command/staff?dept=${dept.key}`} className="card mb-8 flex items-center justify-between gap-3 border-gold/30 px-5 py-4 hover:border-gold/50">
+          <span className="text-[14px]"><span className="font-medium text-gold">{requests.length}</span> {requests.length === 1 ? 'person is' : 'people are'} waiting to join {dept.short_name}</span>
+          <span className="text-[13px] text-muted">Review on the command staff panel →</span>
+        </Link>
       )}
 
       {roster.length > 0 && (
