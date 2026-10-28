@@ -22,7 +22,7 @@ export default async function NewSubmission({ searchParams }: { searchParams: Pr
   return (
     <div className="max-w-3xl">
       <Link href="/hub/reports" className="text-[13px] text-muted hover:text-ink">← Reports &amp; requests</Link>
-      <PageHead eyebrow={cfg.group === 'report' ? 'Report' : cfg.group === 'training' ? 'Training' : cfg.group === 'office' ? 'Office' : 'Request'} title={cfg.label} />
+      <PageHead title={cfg.label} />
       <p className="-mt-4 mb-6 text-[14px] text-muted">{cfg.blurb}</p>
       {preview && (
         <p className="mb-4 rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-[14px] text-muted">

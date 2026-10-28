@@ -33,7 +33,7 @@ export default async function Approvals({ searchParams }: { searchParams: Promis
   return (
     <>
       <Flash searchParams={sp} />
-      <PageHead eyebrow="Review" title="Approvals">
+      <PageHead title="Approvals">
         {deptKeys.length > 1 && (
           <div className="flex gap-1">
             <Link href="/hub/approvals" className={`rounded-full px-3 py-1.5 text-[13px] ${!deptFilter ? 'bg-white/[0.08]' : 'text-muted'}`}>All</Link>

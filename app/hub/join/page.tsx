@@ -17,7 +17,7 @@ export default async function Join({ searchParams }: { searchParams: Promise<Rec
   return (
     <div className="max-w-2xl">
       <Flash searchParams={sp} />
-      <PageHead eyebrow="Roster" title={want && joinable.includes(want) ? `Join ${want.short_name}` : 'Join a department'} />
+      <PageHead title={want && joinable.includes(want) ? `Join ${want.short_name}` : 'Join a department'} />
       {pending.length > 0 && (
         <div className="mb-6 grid gap-2">
           {pending.map((m) => (

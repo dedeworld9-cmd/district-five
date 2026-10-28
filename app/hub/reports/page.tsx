@@ -31,7 +31,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
   return (
     <>
       <Flash searchParams={sp} />
-      <PageHead eyebrow="Paperwork" title="Reports & requests" />
+      <PageHead title="Reports & requests" />
       <PrintHeader title="Reports and requests" sub={s.profile.display_name} />
 
       {preview && available.length > 0 && (

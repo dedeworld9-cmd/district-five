@@ -25,7 +25,7 @@ export default async function Shifts({ searchParams }: { searchParams: Promise<R
   return (
     <>
       <Flash searchParams={sp} />
-      <PageHead eyebrow="Activity" title="Your shifts">
+      <PageHead title="Your shifts">
         {!!logs?.length && <SaveRecord title="My shift logs" label="Save as PDF" />}
         <Link href="/hub/shifts/new" className="no-print btn-primary">Log a shift</Link>
       </PageHead>

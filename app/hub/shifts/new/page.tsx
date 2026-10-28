@@ -15,7 +15,7 @@ export default async function NewShift({ searchParams }: { searchParams: Promise
   const preferred = depts.find((d) => d.key === sp.dept) ?? depts.find((d) => d.key === s.current?.department_key) ?? depts[0];
   return (
     <div className="max-w-3xl">
-      <PageHead eyebrow="Activity" title={ended ? 'Shift ended' : 'Log a shift'} />
+      <PageHead title={ended ? 'Shift ended' : 'Log a shift'} />
       {ended && (
         <div className="card mb-4 border-ok/30 p-5">
           <div className="text-[15px] font-medium">You were on shift for {mins !== null && mins >= 0 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : 'a while'}.</div>

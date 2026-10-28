@@ -44,7 +44,7 @@ export default async function Board({ searchParams }: { searchParams: Promise<Re
 
   return (
     <>
-      <PageHead eyebrow="Right now" title="Board" />
+      <PageHead title="Board" />
 
       <div className="grid gap-10">
         <section>

@@ -104,7 +104,7 @@ export default async function HubLayout({ children }: { children: React.ReactNod
           <NavLinks items={items} />
         </div>
       </header>
-      <main className="rise mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">{children}</main>
+      <main className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">{children}</main>
       <Footer />
     </div>
   );

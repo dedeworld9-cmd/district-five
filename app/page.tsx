@@ -78,12 +78,7 @@ export default async function Home() {
         <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgb(3 6 14 / 0.92) 0%, rgb(3 6 14 / 0.7) 45%, rgb(3 6 14 / 0.45) 100%)' }} />
         <div className="absolute inset-x-0 bottom-0 h-40" style={{ background: 'linear-gradient(transparent, #000)' }} />
         <div className="relative mx-auto flex w-full max-w-6xl flex-1 flex-col justify-center px-4 pt-28 pb-20 sm:px-6">
-          <div className="rise inline-flex w-fit items-center gap-2 rounded-full border border-white/10 bg-black/50 px-2.5 py-1 text-[11px] text-zinc-300 backdrop-blur">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logos/lounge.png" alt="" width={16} height={16} className="h-4 w-4 rounded-full" />
-            The Lounge Roleplay · Open applications
-          </div>
-          <h1 className="rise mt-5 max-w-2xl text-[46px] leading-[1.05] font-semibold tracking-tight text-white sm:text-[64px]" style={{ animationDelay: '80ms' }}>
+          <h1 className="rise max-w-2xl text-[46px] leading-[1.05] font-semibold tracking-tight text-white sm:text-[64px]" style={{ animationDelay: '80ms' }}>
             District Five<br />Department Hub
           </h1>
           <p className="rise mt-6 max-w-xl text-[16px] leading-relaxed text-zinc-300" style={{ animationDelay: '160ms' }}>
@@ -92,57 +87,55 @@ export default async function Home() {
             accountability and structured training while giving every member a realistic and immersive roleplay experience. Our personnel are held to high standards and expected to uphold the values of their department.
           </p>
           <div className="rise mt-8 flex flex-wrap gap-2" style={{ animationDelay: '240ms' }}>
-            <a href={DISCORD} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center rounded-full bg-white px-5 text-[13px] font-semibold text-black hover:bg-zinc-200">Join Discord</a>
-            <a href="#departments" className="inline-flex h-10 items-center rounded-full border border-white/20 bg-black/40 px-5 text-[13px] font-semibold text-white backdrop-blur hover:bg-white/10">About us</a>
+            <a href={DISCORD} target="_blank" rel="noreferrer" className="inline-flex h-10 items-center rounded-full bg-white px-5 text-[13px] font-semibold text-black transition-transform active:scale-[0.97] hover:bg-zinc-200">Join Discord</a>
+            <a href="#departments" className="inline-flex h-10 items-center rounded-full border border-white/20 bg-black/40 px-5 text-[13px] font-semibold text-white transition-transform active:scale-[0.97] hover:bg-white/10">About us</a>
           </div>
+          <p className="rise mt-6 flex items-center gap-2 text-[13px] text-zinc-300" style={{ animationDelay: '320ms' }}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logos/lounge.png" alt="" width={18} height={18} className="h-[18px] w-[18px] rounded-full" />
+            Part of The Lounge Roleplay. Applications are open.
+          </p>
         </div>
       </section>
 
       <section id="departments" className="relative scroll-mt-20 bg-black">
         <div className="mx-auto max-w-6xl px-4 py-24 sm:px-6">
           <h2 className="text-[26px] font-semibold tracking-tight text-white">Our departments</h2>
-          <p className="mt-1.5 text-[14px] text-zinc-500">
+          <p className="mt-1.5 text-[14px] text-zinc-400">
             {(['leo', 'fire_ems'] as const).map((div) => command(div) && `${DIVISION_LABEL[div]} is overseen by ${command(div)!.name}.`).filter(Boolean).join(' ')
               || 'The departments that make up District Five.'}
           </p>
           {dps && (
-            <article id="dps" className="mt-8 grid scroll-mt-24 overflow-hidden rounded-2xl border border-[#d6457f]/25 bg-zinc-950 md:grid-cols-[1.1fr_1fr]"
-              style={{ background: 'radial-gradient(circle at 0% 100%, rgb(214 69 127 / 0.14), transparent 55%), rgb(9 9 11)' }}>
+            <article id="dps" className="mt-8 grid scroll-mt-24 overflow-hidden rounded-2xl border border-[#d6457f]/25 bg-zinc-950 md:grid-cols-[1.1fr_1fr]">
               <div className="relative min-h-52 overflow-hidden md:order-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={PHOTOS.dps} alt="" className="absolute inset-0 h-full w-full object-cover opacity-85" />
+                <img src={PHOTOS.dps} alt="" loading="lazy" className="absolute inset-0 h-full w-full object-cover opacity-85" />
                 <div className="absolute inset-0 hidden md:block" style={{ background: 'linear-gradient(90deg, rgb(9 9 11), transparent 45%)' }} />
                 <div className="absolute inset-0 md:hidden" style={{ background: 'linear-gradient(transparent 40%, rgb(9 9 11))' }} />
               </div>
               <div className="relative flex flex-col justify-center p-6 sm:p-8">
-                <div className="flex items-center gap-4">
-                  <Emblem dept={dps.key} label={dps.short_name} accent="#d6457f" division={dps.division} size={76} />
-                  <div className="text-[10px] font-semibold tracking-[0.18em] text-[#f2a7c3] uppercase">Command · {dps.short_name}</div>
-                </div>
+                <Emblem dept={dps.key} label={dps.short_name} accent="#d6457f" division={dps.division} size={76} />
                 <h3 className="mt-4 text-[22px] leading-snug font-semibold text-white">{dps.name}</h3>
                 <p className="mt-2 max-w-md text-[14px] leading-relaxed text-zinc-400">
                   {dps.public_blurb ?? 'The administrative department of District Five. A command staff of eight oversees law enforcement, Fire & EMS and dispatch, sets district policy and reviews the most serious records.'}
                 </p>
-                <p className="mt-4 text-[12px] text-zinc-500">Positions are filled by appointment from within the departments.</p>
+                <p className="mt-4 text-[13px] text-[#f2a7c3]">Positions are filled by appointment from within the departments.</p>
               </div>
             </article>
           )}
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {units.map((d, i) => (
+            {units.map((d) => (
               <article key={d.key} id={d.key} className="group flex scroll-mt-24 flex-col overflow-hidden rounded-2xl border border-white/8 bg-zinc-950">
                 <div className="relative h-40 overflow-hidden">
                   {PHOTOS[d.key] ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={PHOTOS[d.key]} alt="" className="h-full w-full object-cover opacity-80 transition-transform duration-500 group-hover:scale-105" />
-                  ) : <div className="h-full w-full" style={{ background: `radial-gradient(circle at 70% 80%, ${d.accent}33, transparent 60%)` }} />}
+                    <img src={PHOTOS[d.key]} alt="" loading="lazy" className="lift h-full w-full object-cover opacity-80" />
+                  ) : <div className="h-full w-full" style={{ background: `${d.accent}1f` }} />}
                   <div className="absolute inset-0" style={{ background: 'linear-gradient(transparent 30%, rgb(9 9 11))' }} />
                   <div className="absolute bottom-3 left-4"><Emblem dept={d.key} label={d.short_name} accent={d.accent} division={d.division} size={44} /></div>
                 </div>
                 <div className="flex flex-1 flex-col p-5 pt-3">
-                  <div className="text-[10px] font-semibold tracking-[0.18em] text-zinc-400 uppercase">
-                    {String(i + 1).padStart(2, '0')} · {d.short_name}
-                  </div>
-                  <h3 className="mt-2 text-[17px] leading-snug font-semibold text-white">{d.name}</h3>
+                  <h3 className="text-[17px] leading-snug font-semibold text-white">{d.name}</h3>
                   <p className="mt-2 flex-1 text-[13px] leading-relaxed text-zinc-400">{d.public_blurb ?? d.tagline}</p>
                   <Link href={joinHref(d.key)} className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-medium text-white hover:text-zinc-300">
                     Request to join <Arrow />
@@ -155,17 +148,15 @@ export default async function Home() {
           {!!news?.length && (
             <div className="mt-20">
               <h2 className="text-[26px] font-semibold tracking-tight text-white">Press releases</h2>
-              <p className="mt-1.5 text-[14px] text-zinc-500">The most recent public statements from District Five command.</p>
+              <p className="mt-1.5 text-[14px] text-zinc-400">The most recent public statements from District Five command.</p>
               <div className="mt-8 grid gap-4 md:grid-cols-3">
-                {news.map((a, i) => (
-                  <article key={a.id} className="rounded-2xl border border-white/8 bg-zinc-950 p-5"
-                    style={{ background: 'radial-gradient(circle at 90% 0%, rgb(34 197 94 / 0.06), transparent 50%), rgb(9 9 11)' }}>
-                    <div className="text-[10px] font-semibold tracking-[0.18em] text-zinc-400 uppercase">
-                      Release {String(i + 1).padStart(2, '0')} · {a.scope === 'district' ? 'District Five' : short(a.department_key)}
-                    </div>
-                    <h3 className="mt-3 text-[17px] font-semibold text-white">{a.title}</h3>
+                {news.map((a) => (
+                  <article key={a.id} className="rounded-2xl border border-white/8 bg-zinc-950 p-5">
+                    <h3 className="text-[17px] font-semibold text-white">{a.title}</h3>
                     <p className="mt-2 line-clamp-4 text-[13px] leading-relaxed text-zinc-400">{a.body}</p>
-                    {a.published_at && <div className="mt-4 text-[12px] text-zinc-500">{relative(a.published_at)}</div>}
+                    <div className="mt-4 text-[12px] text-zinc-400">
+                      {a.scope === 'district' ? 'District Five' : short(a.department_key)}{a.published_at && ` · ${relative(a.published_at)}`}
+                    </div>
                   </article>
                 ))}
               </div>
@@ -177,12 +168,12 @@ export default async function Home() {
       <section className="relative bg-black">
         <div className="mx-auto max-w-6xl px-4 pb-8 sm:px-6">
           <h2 className="text-[26px] font-semibold tracking-tight text-white">Life in District Five</h2>
-          <p className="mt-1.5 text-[14px] text-zinc-500">Training, patrol and tactical operations from our members.</p>
+          <p className="mt-1.5 text-[14px] text-zinc-400">Training, patrol and tactical operations from our members.</p>
           <div className="mt-8 grid auto-rows-[180px] grid-cols-2 gap-3 sm:auto-rows-[220px] lg:grid-cols-4">
             {GALLERY.map((g, i) => (
               <figure key={g.src} className={`group relative overflow-hidden rounded-2xl border border-white/8 ${i === 0 ? 'col-span-2 row-span-2' : ''}`}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={g.src} alt={g.caption} loading="lazy" className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <img src={g.src} alt={g.caption} loading="lazy" className="lift h-full w-full object-cover" />
                 <figcaption className="absolute inset-x-0 bottom-0 p-3 text-[12px] font-medium text-white" style={{ background: 'linear-gradient(transparent, rgb(0 0 0 / 0.75))' }}>{g.caption}</figcaption>
               </figure>
             ))}
@@ -192,8 +183,7 @@ export default async function Home() {
 
       <section className="relative">
         <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6">
-          <div className="text-[11px] tracking-[0.3em] text-zinc-400 uppercase">Get involved</div>
-          <h2 className="mt-3 text-[32px] font-semibold tracking-tight text-white">Quick Actions.</h2>
+          <h2 className="text-[32px] font-semibold tracking-tight text-white">Get started</h2>
           <p className="mx-auto mt-3 max-w-xl text-[14px] leading-relaxed text-zinc-400">
             Three direct ways to get started. Join The Lounge Discord, apply to a District Five department, or sign in to the hub.
           </p>
@@ -204,9 +194,9 @@ export default async function Home() {
                 <h3 className="mt-3 text-[16px] font-semibold text-white">{a.title}</h3>
                 <p className="mt-2 flex-1 text-[13px] leading-relaxed text-zinc-400">{a.body}</p>
                 {a.external ? (
-                  <a href={a.href} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-white text-[13px] font-semibold text-black hover:bg-zinc-200">{a.cta} <Arrow /></a>
+                  <a href={a.href} target="_blank" rel="noreferrer" className="mt-5 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-white text-[13px] font-semibold text-black transition-transform active:scale-[0.97] hover:bg-zinc-200">{a.cta} <Arrow /></a>
                 ) : (
-                  <Link href={a.href} className="mt-5 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-white text-[13px] font-semibold text-black hover:bg-zinc-200">{a.cta} <Arrow /></Link>
+                  <Link href={a.href} className="mt-5 inline-flex h-9 w-full items-center justify-center gap-1.5 rounded-lg bg-white text-[13px] font-semibold text-black transition-transform active:scale-[0.97] hover:bg-zinc-200">{a.cta} <Arrow /></Link>
                 )}
               </div>
             ))}
@@ -218,7 +208,7 @@ export default async function Home() {
         <div className="mx-auto flex max-w-6xl flex-wrap items-start justify-between gap-6 px-4 py-8 sm:px-6">
           <div>
             <div className="text-[13px] font-semibold text-white">District Five Department Hub</div>
-            <div className="mt-1 text-[13px] text-zinc-500">Law enforcement, Fire &amp; EMS and dispatch for District Five on The Lounge Roleplay.</div>
+            <div className="mt-1 text-[13px] text-zinc-400">Law enforcement, Fire &amp; EMS and dispatch for District Five on The Lounge Roleplay.</div>
           </div>
           <nav className="flex flex-wrap gap-4 text-[13px] text-zinc-400">
             <a href="#top" className="hover:text-white">Home</a>
@@ -227,7 +217,7 @@ export default async function Home() {
             <a href={DISCORD} target="_blank" rel="noreferrer" className="hover:text-white">Discord</a>
           </nav>
         </div>
-        <div className="mx-auto max-w-6xl px-4 pb-8 text-[12px] leading-relaxed text-zinc-600 sm:px-6">
+        <div className="mx-auto max-w-6xl px-4 pb-8 text-[12px] leading-relaxed text-zinc-500 sm:px-6">
           The Lounge Roleplay is the roleplay server, and District Five is where its departments are. Every department, person and record here is fictional,
           and none of it is affiliated with any real government agency. Do not enter real-world personal information.
         </div>

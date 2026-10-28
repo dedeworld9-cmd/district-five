@@ -36,7 +36,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
   return (
     <>
       <Flash searchParams={sp} />
-      <PageHead eyebrow="Technical administration" title="Admin" />
+      <PageHead title="Admin" />
       <div className="mb-8 flex flex-wrap gap-1">
         {TABS.map(([k, l]) => (
           <Link key={k} href={`/hub/admin?tab=${k}`} className={`rounded-full px-3 py-1.5 text-[13px] ${tab === k ? 'bg-white/[0.08] text-ink' : 'text-muted hover:text-ink'}`}>{l}</Link>

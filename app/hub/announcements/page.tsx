@@ -22,7 +22,7 @@ export default async function Announcements({ searchParams }: { searchParams: Pr
   return (
     <>
       <Flash searchParams={sp} />
-      <PageHead eyebrow="Briefing room" title="Announcements" />
+      <PageHead title="Announcements" />
       <div className={`grid gap-10 ${canPost ? 'lg:grid-cols-[1.6fr_1fr]' : ''}`}>
         <div className="grid content-start gap-3">
           {items?.length ? items.map((a) => (

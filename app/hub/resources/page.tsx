@@ -58,7 +58,7 @@ export default async function Resources({ searchParams }: { searchParams: Promis
   return (
     <>
       <Flash searchParams={sp} />
-      <PageHead eyebrow="Reference" title="Resources" />
+      <PageHead title="Resources" />
 
       <div className="grid gap-12">
         {pending.length > 0 && (
