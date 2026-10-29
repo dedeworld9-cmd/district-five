@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { SITE } from '@/lib/site';
 
 // Save the page as a PDF through the browser's print dialog (on phones: Print, then Save to Files
 // or Save as PDF), or share the link. The print stylesheet strips the hub chrome.
@@ -32,7 +33,7 @@ export function SaveRecord({ title, label = 'Save as PDF' }: { title: string; la
 export function PrintHeader({ title, sub }: { title: string; sub?: string }) {
   return (
     <div className="print-only mb-6 border-b pb-3">
-      <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>District Five Department Hub · The Lounge Roleplay</div>
+      <div style={{ fontSize: 11, letterSpacing: '0.12em', textTransform: 'uppercase' }}>{SITE.name} · {SITE.community.name}</div>
       <div style={{ fontSize: 20, fontWeight: 600, marginTop: 4 }}>{title}</div>
       {sub && <div style={{ fontSize: 12, marginTop: 2 }}>{sub}</div>}
       <div style={{ fontSize: 10, marginTop: 6 }} suppressHydrationWarning>Fictional roleplay record. Not affiliated with any real government agency. Saved {new Date().toLocaleString()}.</div>

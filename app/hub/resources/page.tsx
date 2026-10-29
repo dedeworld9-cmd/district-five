@@ -200,7 +200,7 @@ export default async function Resources({ searchParams }: { searchParams: Promis
             <h2 className="label mb-3">Add to the library</h2>
             <form action={savePolicy} className="card grid gap-4 p-6 sm:grid-cols-2">
               <label className="field sm:col-span-2"><span>Title</span>
-                <input name="title" className="input" required maxLength={200} placeholder="e.g. SAHP Standard Operating Procedures" />
+                <input name="title" className="input" required maxLength={200} placeholder="e.g. HCSO Master SOP" />
               </label>
               <label className="field"><span>Category</span>
                 <select name="category" className="input" defaultValue="sop">

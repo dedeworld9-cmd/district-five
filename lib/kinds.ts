@@ -143,7 +143,7 @@ export const KINDS: KindConfig[] = [
       { name: 'item', label: 'Item', type: 'text', required: true },
       { name: 'quantity', label: 'Quantity', type: 'text' },
       { name: 'collected_from', label: 'Collected from (person or location)', type: 'text' },
-      { name: 'storage', label: 'Stored at', type: 'text', required: true, placeholder: 'e.g. BCSO Office Sandy Shores, locker 3' },
+      { name: 'storage', label: 'Stored at', type: 'text', required: true, placeholder: 'e.g. Evidence room, locker 3' },
       { name: 'notes', label: 'Chain of custody notes', type: 'textarea', wide: true },
     ],
   },

@@ -1,15 +1,14 @@
 import Link from 'next/link';
 import { Brand, Footer } from '@/components/ui';
-import { AutoSubmitSelect } from '@/components/AutoSubmitSelect';
-import { Emblem } from '@/components/Emblem';
 import { NavLinks } from '@/components/NavLinks';
+import { MobileMenu } from '@/components/site/MobileMenu';
 import { ShiftClock } from '@/components/ShiftClock';
 import { canDecide } from '@/lib/queue';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { Tier } from '@/lib/types';
 import { DEFAULT_THEME, PHOTOS, THEMES } from '@/lib/brand';
-import { setActiveDepartment } from './actions';
+import { SITE } from '@/lib/site';
 
 export default async function HubLayout({ children }: { children: React.ReactNode }) {
   const s = await requireSession();
@@ -29,21 +28,19 @@ export default async function HubLayout({ children }: { children: React.ReactNod
   const items = [
     // Division command's home is its patrol panel: the shift clock, logs and paperwork in one place.
     patrol ? { href: '/hub/patrol', label: 'Patrol' } : { href: '/hub', label: 'Dashboard' },
-    ...(!member ? [{ href: '/hub/join', label: 'Join a department' }] : []),
+    ...(!member ? [{ href: '/hub/join', label: 'Join HCSO' }] : []),
     ...(member && !patrol ? [{ href: '/hub/shifts', label: 'Shifts' }] : []),
     ...(member ? [{ href: '/hub/reports', label: 'Reports' }, { href: '/hub/board', label: 'Board' }] : []),
-    // Division command reaches each department's panels from its oversight panel.
-    ...(s.isDps ? [{ href: '/hub/oversight', label: 'Oversight' }] : s.supervised.length ? [{ href: '/hub/command', label: 'Panels' }] : []),
+    ...(s.supervised.length ? [{ href: '/hub/command', label: 'Panels' }] : []),
     ...(reviewer ? [{ href: '/hub/approvals', label: 'Approvals', count: queue }] : []),
     ...(member || s.isAdmin ? [{ href: '/hub/roster', label: 'Roster' }] : []),
     ...(member ? [{ href: '/hub/announcements', label: 'News' }] : []),
-    // DPS has no resources of its own yet.
     ...(member && !patrol ? [{ href: '/hub/resources', label: 'Resources' }] : []),
     ...(s.isAdmin ? [{ href: '/hub/admin', label: 'Admin' }] : []),
   ];
   const c = s.current;
   const onShift = s.active.find((m) => m.duty_status === 'on_duty' && m.duty_changed_at);
-  const theme = (c && THEMES[c.department_key]) || DEFAULT_THEME;
+  const theme = THEMES[c?.department_key ?? SITE.department] ?? DEFAULT_THEME;
   const photo = c ? PHOTOS[c.department_key] : undefined;
 
   return (
@@ -54,32 +51,12 @@ export default async function HubLayout({ children }: { children: React.ReactNod
         <div className="app-grid" />
       </div>
       <div className="lightbar fixed inset-x-0 top-0 z-30 opacity-70" aria-hidden="true" />
-      <header className="sticky top-0 z-20 px-3 pt-3 sm:px-6 sm:pt-4">
-        <div className="mx-auto flex max-w-6xl items-center gap-3 rounded-full border border-line bg-surface/85 py-1.5 pr-1.5 pl-4 backdrop-blur-md">
+      <header className="sticky top-0 z-20 px-3 pt-3 sm:px-6 sm:pt-4 lg:px-10 min-[1440px]:px-16">
+        <div className="relative mx-auto flex max-w-[1472px] items-center gap-2 rounded-full border border-line bg-surface/85 py-1.5 pr-1.5 pl-4 backdrop-blur-md sm:gap-3">
           <Brand />
           <div className="mx-1 hidden h-5 w-px bg-line sm:block" />
           <div className="hidden min-w-0 flex-1 md:block"><NavLinks items={items} /></div>
           <div className="flex-1 md:hidden" />
-          {c && (
-            <span className="hidden shrink-0 md:block" title={s.currentDept?.name}>
-              <Emblem dept={c.department_key} label={s.currentDept?.short_name ?? ''} accent={s.currentDept?.accent ?? '#cfae5a'} division={s.currentDept?.division ?? 'leo'} size={26} />
-            </span>
-          )}
-          {s.active.length > 1 && (
-            <form action={setActiveDepartment} className="hidden md:block">
-              <input type="hidden" name="back" value="/hub" />
-              <label className="sr-only" htmlFor="dept-switch">Department</label>
-              <AutoSubmitSelect id="dept-switch" name="department" defaultValue={c?.department_key}
-                className="h-8 cursor-pointer rounded-full border border-line-strong bg-transparent px-3 text-[12px] font-medium text-ink">
-                {s.active.map((m) => (
-                  <option key={m.id} value={m.department_key} className="bg-surface">
-                    {s.departments.find((d) => d.key === m.department_key)?.short_name ?? m.department_key}
-                  </option>
-                ))}
-              </AutoSubmitSelect>
-              <button className="sr-only">Switch</button>
-            </form>
-          )}
           {onShift && (
             <Link href="/hub" title="On shift" className="flex h-8 shrink-0 items-center gap-2 rounded-full border border-ok/40 bg-ok/10 px-3 text-[12px] font-medium text-ok">
               <span className="on-duty-ring h-1.5 w-1.5 rounded-full bg-ok" />
@@ -93,18 +70,16 @@ export default async function HubLayout({ children }: { children: React.ReactNod
             </svg>
             {!!unread && <span className="absolute top-1.5 right-1.5 h-1.5 w-1.5 rounded-full bg-gold" />}
           </Link>
-          <Link href="/hub/profile" className="flex h-8 shrink-0 items-center gap-2 rounded-full border border-gold/30 pr-3 pl-1">
+          <Link href="/hub/profile" aria-label={`Profile: ${s.profile.display_name}`} className="flex h-8 shrink-0 items-center gap-2 rounded-full border border-gold/30 pr-1 pl-1 lg:pr-3">
             <span className="grid h-6 min-w-6 place-items-center rounded-full bg-gold/15 px-1.5 text-[11px] font-semibold text-gold">
               {c?.callsign ?? s.profile.display_name.slice(0, 1).toUpperCase()}
             </span>
             <span className="hidden max-w-[120px] truncate text-[12px] font-medium lg:block">{s.profile.display_name}</span>
           </Link>
-        </div>
-        <div className="mx-auto mt-2 max-w-6xl rounded-full border border-line bg-surface/85 p-1 backdrop-blur-md md:hidden">
-          <NavLinks items={items} />
+          <MobileMenu className="md:hidden" items={[...items, { href: '/', label: 'Public site' }]} />
         </div>
       </header>
-      <main className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-14">{children}</main>
+      <main id="main" className="mx-auto max-w-[1600px] px-4 pt-10 sm:px-6 sm:pt-14 lg:px-10 min-[1440px]:px-16">{children}</main>
       <Footer />
     </div>
   );

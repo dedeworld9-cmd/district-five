@@ -1,23 +1,24 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { STATUS_LABEL } from '@/lib/format';
+import { SITE } from '@/lib/site';
 
 export function Brand({ href = '/' }: { href?: string }) {
   return (
-    <Link href={href} className="flex items-center gap-2.5 shrink-0">
+    <Link href={href} className="flex shrink-0 items-center gap-2.5">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src="/logos/lounge.png" alt="The Lounge Roleplay" width={28} height={28} className="h-7 w-7 rounded-full ring-1 ring-white/15" />
-      <span className="text-[14px] font-medium tracking-tight">District Five</span>
+      <img src={SITE.logo} alt="" width={30} height={30} className="h-[30px] w-[30px]" />
+      <span className="text-[14px] font-semibold tracking-tight">{SITE.shortName}</span>
     </Link>
   );
 }
 
 export function Footer() {
   return (
-    <footer className="mx-auto mt-24 max-w-6xl px-4 pb-10 text-[12px] leading-relaxed text-faint sm:px-6">
+    <footer className="mx-auto mt-24 max-w-[1600px] px-4 pb-10 text-[12px] leading-relaxed text-faint sm:px-6 lg:px-10 min-[1440px]:px-16">
       <div className="border-t border-line pt-6">
-        The Lounge Roleplay is the roleplay server, and District Five is where its departments are. Every department, person and record here is fictional,
-        and none of it is affiliated with any real government agency. Do not enter real-world personal information.
+        {SITE.shortName} is a roleplay department on {SITE.community.name} ({SITE.community.game}). Everyone and everything here is part of the game.
+        It is not the real Hillsborough County Sheriff&apos;s Office or any government agency. Do not enter real-world personal information.
       </div>
     </footer>
   );

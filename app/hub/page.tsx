@@ -27,8 +27,8 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
   const [{ data: activity }, { data: mode }, { data: recent }, { data: news }, { data: open }] = await Promise.all([
     supabase.rpc('my_activity', { p_weeks: 4 }),
     supabase.from('app_settings').select('value').eq('key', 'dual_membership_mode').maybeSingle<{ value: string }>(),
-    supabase.from('shift_logs').select('*').eq('profile_id', s.userId).order('started_at', { ascending: false }).limit(5).returns<ShiftLog[]>(),
-    supabase.from('announcements').select('*').eq('status', 'published').order('published_at', { ascending: false }).limit(4).returns<Announcement[]>(),
+    supabase.from('shift_logs').select('*').eq('profile_id', s.userId).eq('department_key', dept).order('started_at', { ascending: false }).limit(5).returns<ShiftLog[]>(),
+    supabase.from('announcements').select('*').eq('status', 'published').eq('department_key', dept).order('published_at', { ascending: false }).limit(4).returns<Announcement[]>(),
     s.supervised.length || s.isDps
       ? supabase.from('shift_logs').select('id,department_key,required_tier,profile_id').in('status', ['submitted', 'under_review'])
       : Promise.resolve({ data: [] as { id: string; department_key: string; required_tier: Tier; profile_id: string }[] }),

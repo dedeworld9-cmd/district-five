@@ -48,8 +48,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
           <div className="sm:col-span-3">
             <h2 className="text-[16px] font-medium">Put yourself on a roster</h2>
             <p className="mt-1 text-[13px] leading-relaxed text-muted">
-              Admin access covers settings only. Shifts, reports, approvals and the board belong to roster members, so add yourself to a department.
-              A DPS command rank oversees every division and opens every page.
+              Admin access covers settings only. Shifts, reports, approvals and the board belong to roster members, so add yourself to the HCSO roster.
             </p>
           </div>
           <label className="field"><span>Department and rank</span>
@@ -165,7 +164,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<Re
               Rank can be the full name or abbreviation. Each entry links to its member the first time they sign in with that Discord account.
             </p>
           </div>
-          <textarea name="rows" className="input font-mono text-[13px]" rows={10} placeholder={'bcso, J. Doe, 123456789012345678, Sergeant, 1S-10, 1010\nsahp, A. Smith, 234567890123456789, Trooper, 4A-12, 2212'} />
+          <textarea name="rows" className="input font-mono text-[13px]" rows={10} placeholder={'hcso, J. Doe, 123456789012345678, Sergeant, 2S-20, 2020\nhcso, A. Smith, 234567890123456789, Deputy First Class, 3S-41, 3041'} />
           <div><button className="btn-primary">Import</button></div>
         </form>
       )}

@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { TIERS, TIER_LABEL, atLeast } from '@/lib/tiers';
 import type { Announcement } from '@/lib/types';
 import { saveAnnouncement, setAnnouncementPublic } from '../actions';
+import { SITE } from '@/lib/site';
 
 export const metadata = { title: 'Announcements' };
 
@@ -12,7 +13,7 @@ export default async function Announcements({ searchParams }: { searchParams: Pr
   const sp = await searchParams;
   const s = await requireSession();
   const supabase = await createClient();
-  const { data: items } = await supabase.from('announcements').select('*').neq('status', 'archived')
+  const { data: items } = await supabase.from('announcements').select('*').eq('department_key', SITE.department).neq('status', 'archived')
     .order('pinned', { ascending: false }).order('created_at', { ascending: false }).limit(50).returns<Announcement[]>();
   const postable = s.departments.filter((d) => d.kind === 'department' && (s.oversees(d.key) || atLeast(s.tierIn(d.key), 'high_command')));
   const canPost = s.isDps || postable.length > 0;
@@ -23,7 +24,7 @@ export default async function Announcements({ searchParams }: { searchParams: Pr
     <>
       <Flash searchParams={sp} />
       <PageHead title="Announcements" />
-      <div className={`grid gap-10 ${canPost ? 'lg:grid-cols-[1.6fr_1fr]' : ''}`}>
+      <div className={`grid gap-10 [&>*]:min-w-0 ${canPost ? 'lg:grid-cols-[1.6fr_1fr]' : ''}`}>
         <div className="grid content-start gap-3">
           {items?.length ? items.map((a) => (
             <article key={a.id} className="card p-5">
@@ -63,17 +64,17 @@ export default async function Announcements({ searchParams }: { searchParams: Pr
         </div>
 
         {canPost && (
-          <form className="card grid content-start gap-4 p-6">
+          <form className="card grid grid-cols-[minmax(0,1fr)] content-start gap-4 p-6">
             <h2 className="label">New announcement</h2>
             <label className="field"><span>Post to</span>
               <select name="scope_dept" className="input" defaultValue={postable[0] ? `department:${postable[0].key}` : 'district:'}>
-                {s.isDps && <option value="district:">All of District Five</option>}
+                {s.isDps && <option value="district:">All departments</option>}
                 {postable.map((d) => <option key={d.key} value={`department:${d.key}`}>{d.name}</option>)}
               </select>
             </label>
             <label className="field"><span>Title</span><input name="title" className="input" required minLength={3} maxLength={160} /></label>
             <label className="field"><span>Message</span><textarea name="body" className="input" rows={6} /></label>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid gap-3 min-[360px]:grid-cols-2 [&>*]:min-w-0">
               <label className="field"><span>Priority</span>
                 <select name="priority" className="input"><option value="normal">Normal</option><option value="important">Important</option><option value="urgent">Urgent</option></select>
               </label>
@@ -84,7 +85,7 @@ export default async function Announcements({ searchParams }: { searchParams: Pr
               </label>
             </div>
             <label className="flex items-center gap-2 text-[14px] text-muted"><input type="checkbox" name="pinned" /> Pin to the top</label>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               <button formAction={saveAnnouncement.bind(null, 'publish')} className="btn-primary">Publish to members</button>
               <button formAction={saveAnnouncement.bind(null, 'draft')} className="btn">Save draft</button>
             </div>

@@ -10,6 +10,11 @@
   --color-muted: #8b93a5;
   --color-faint: #767e91;
   --color-gold: #cfae5a;
+  /* Site brand: HCSO green with badge gold. Department themes still override --theme-a/b in the hub. */
+  --color-brand: #2f8f5b;
+  --color-brand-strong: #3fae72;
+  --color-brand-soft: rgb(47 143 91 / 0.14);
+  --color-brand-button: #22784a; /* 5.4:1 with white text */
   --color-ok: #4cbf8a;
   --color-warn: #e2a945;
   --color-bad: #ec6a6e;
@@ -38,6 +43,21 @@
 }
 
 @layer components {
+  /* Layout: one content width and gutter everywhere, and a shared vertical rhythm for sections. */
+  /* Wide screens use most of the width: 1600px content cap with gutters that grow with the screen. */
+  .container-page { width: 100%; max-width: 1600px; margin-inline: auto; padding-inline: 16px; }
+  @media (min-width: 640px) { .container-page { padding-inline: 24px; } }
+  @media (min-width: 1024px) { .container-page { padding-inline: 40px; } }
+  @media (min-width: 1440px) { .container-page { padding-inline: 64px; } }
+  .section { padding-block: 48px; }
+  @media (min-width: 768px) { .section { padding-block: 88px; } }
+  .h1 { font-size: clamp(2.25rem, 1.6rem + 3vw, 3.75rem); line-height: 1.05; font-weight: 600; letter-spacing: -0.025em; }
+  .h2 { font-size: clamp(1.5rem, 1.3rem + 0.9vw, 2rem); line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }
+  .h3 { font-size: 17px; line-height: 1.35; font-weight: 600; }
+  .lead { font-size: 16px; line-height: 1.65; color: rgb(212 216 224); }
+  .body-sm { font-size: 14px; line-height: 1.6; color: var(--color-muted); }
+  .skip-link { position: absolute; left: 12px; top: -48px; z-index: 100; padding: 8px 14px; border-radius: 999px; background: #fff; color: #000; font-size: 14px; font-weight: 600; }
+  .skip-link:focus { top: 12px; }
   .label {
     font-size: 11px;
     font-weight: 600;
@@ -80,6 +100,12 @@
   .btn-danger { border: 1px solid rgb(236 106 110 / 0.35); color: var(--color-bad); }
   .btn-danger:hover { background: rgb(236 106 110 / 0.08); }
   .btn-sm { height: 30px; padding: 0 12px; font-size: 13px; }
+  .btn-lg { height: 44px; padding: 0 22px; font-size: 14px; font-weight: 600; }
+  .btn-brand { background: var(--color-brand-button); color: #fff; border: 1px solid transparent; }
+  .btn-brand:hover { background: #1f6f45; }
+  .link-arrow { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 500; color: var(--color-ink); }
+  .link-arrow:hover { color: var(--color-brand-strong); }
+  a.btn[aria-disabled='true'] { opacity: 0.45; pointer-events: none; }
   button:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
 
   .input {
@@ -97,7 +123,7 @@
   .input { transition: border-color 120ms, box-shadow 120ms; }
   .input:focus { outline: none; border-color: color-mix(in srgb, var(--theme-a, var(--color-gold)) 65%, transparent); box-shadow: 0 0 0 3px color-mix(in srgb, var(--theme-a, var(--color-gold)) 16%, transparent); }
   .input::placeholder { color: var(--color-faint); }
-  .field { display: grid; gap: 6px; }
+  .field { display: grid; gap: 6px; min-width: 0; }
   .field > span { font-size: 13px; color: var(--color-muted); }
 
   .gold-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent, var(--color-gold)); box-shadow: 0 0 10px var(--accent, var(--color-gold)); display: inline-block; }
@@ -153,6 +179,14 @@
   }
   .rise { animation: rise 600ms var(--ease-out) both; }
   .pulse-dot { animation: pulse 2s ease-in-out infinite; }
+}
+
+/* Public site: a dark page with one quiet green and gold glow behind the top of the page. */
+@layer components {
+  .site-bg { position: absolute; inset: 0 0 auto 0; height: 820px; z-index: -1; pointer-events: none;
+    background:
+      radial-gradient(60% 55% at 85% 10%, color-mix(in srgb, var(--theme-b, #c9a227) 10%, transparent), transparent 70%),
+      radial-gradient(70% 60% at 10% 0%, color-mix(in srgb, var(--theme-a, #2f8f5b) 20%, transparent), transparent 70%); }
 }
 
 /* Signed-in app: the same night backdrop, quieter. */

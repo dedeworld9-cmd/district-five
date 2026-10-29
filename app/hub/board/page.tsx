@@ -5,6 +5,7 @@ import { DIVISION_LABEL, dateTime, hours, relative } from '@/lib/format';
 import { requireSession, tzOf } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { Membership, Submission } from '@/lib/types';
+import { SITE } from '@/lib/site';
 
 export const metadata = { title: 'Board' };
 
@@ -25,7 +26,7 @@ export default async function Board({ searchParams }: { searchParams: Promise<Re
     supabase.from('memberships').select('id,display_name,callsign,rank_name,department_key,duty_changed_at')
       .eq('duty_status', 'on_duty').eq('status', 'active').order('callsign', { nullsFirst: false })
       .returns<Pick<Membership, 'id' | 'display_name' | 'callsign' | 'rank_name' | 'department_key' | 'duty_changed_at'>[]>(),
-    supabase.from('submissions').select('*').in('kind', ['warrant', 'bolo']).eq('status', 'approved')
+    supabase.from('submissions').select('*').eq('department_key', SITE.department).in('kind', ['warrant', 'bolo']).eq('status', 'approved')
       .gt('expires_at', new Date().toISOString()).order('expires_at').returns<Submission[]>(),
     dept ? supabase.rpc('weekly_leaderboard', { p_department: dept.key, p_limit: 10 }) : Promise.resolve({ data: [] }),
   ]);

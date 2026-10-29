@@ -5,6 +5,7 @@ import { ACTIVITY_LABEL, dateTime, duration } from '@/lib/format';
 import { requireSession, tzOf } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { ShiftLog } from '@/lib/types';
+import { SITE } from '@/lib/site';
 
 export const metadata = { title: 'Shifts' };
 
@@ -16,7 +17,7 @@ export default async function Shifts({ searchParams }: { searchParams: Promise<R
   const sp = await searchParams;
   const s = await requireSession();
   const supabase = await createClient();
-  let q = supabase.from('shift_logs').select('*').eq('profile_id', s.userId).order('started_at', { ascending: false }).limit(100);
+  let q = supabase.from('shift_logs').select('*').eq('profile_id', s.userId).eq('department_key', SITE.department).order('started_at', { ascending: false }).limit(100);
   if (sp.status === 'submitted') q = q.in('status', ['submitted', 'under_review']);
   else if (sp.status) q = q.eq('status', sp.status);
   const { data: logs } = await q.returns<ShiftLog[]>();

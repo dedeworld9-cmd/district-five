@@ -81,7 +81,7 @@ export default async function AdminPanel({ searchParams }: { searchParams: Promi
             })}
             <div className="grid gap-2 px-5 py-4 sm:grid-cols-[220px_1fr] sm:gap-6">
               <div className="text-[14px] font-medium">Division command</div>
-              <p className="text-[14px] leading-relaxed text-muted">DPS for law enforcement and Fire/EMS Administration for fire and EMS. Opens every panel in the departments they oversee.</p>
+              <p className="text-[14px] leading-relaxed text-muted">Opens every panel in the departments they oversee.</p>
             </div>
           </div>
         </div>

@@ -2,8 +2,9 @@ import Link from 'next/link';
 import { JoinForm } from '@/components/JoinForm';
 import { Empty, Flash, PageHead } from '@/components/ui';
 import { requireSession } from '@/lib/session';
+import { SITE } from '@/lib/site';
 
-export const metadata = { title: 'Join a department' };
+export const metadata = { title: 'Join' };
 
 export default async function Join({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
@@ -17,7 +18,7 @@ export default async function Join({ searchParams }: { searchParams: Promise<Rec
   return (
     <div className="max-w-2xl">
       <Flash searchParams={sp} />
-      <PageHead title={want && joinable.includes(want) ? `Join ${want.short_name}` : 'Join a department'} />
+      <PageHead title={joinable.length === 1 ? `Join ${joinable[0].short_name}` : want && joinable.includes(want) ? `Join ${want.short_name}` : `Join ${SITE.shortName}`} />
       {pending.length > 0 && (
         <div className="mb-6 grid gap-2">
           {pending.map((m) => (
@@ -32,7 +33,7 @@ export default async function Join({ searchParams }: { searchParams: Promise<Rec
       )}
       {joinable.length
         ? <JoinForm joinable={joinable} preselect={sp.dept} name={s.profile.display_name} back={back} />
-        : <Empty>You have a membership or request in every department.</Empty>}
+        : !pending.length && <Empty>You are already on the roster. <Link href="/hub" className="text-gold">Go to your dashboard</Link></Empty>}
     </div>
   );
 }

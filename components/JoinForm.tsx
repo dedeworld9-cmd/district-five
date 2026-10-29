@@ -8,9 +8,10 @@ export function JoinForm({ joinable, preselect, name, back }: { joinable: Depart
     <form action={requestMembership} className="card grid gap-4 p-6 sm:grid-cols-2">
       <input type="hidden" name="back" value={back} />
       <div className="sm:col-span-2">
-        <div className="text-[16px] font-medium">Request to join a department</div>
+        <div className="text-[16px] font-medium">{joinable.length === 1 ? `Request to join the ${joinable[0].name}` : 'Request to join a department'}</div>
         <p className="mt-1 text-[13px] text-muted">Command reviews every request. If you are already on a roster, command can link your Discord account instead.</p>
       </div>
+      {joinable.length === 1 ? <input type="hidden" name="department" value={joinable[0].key} /> : (
       <fieldset className="grid gap-2 sm:col-span-2 sm:grid-cols-2">
         <legend className="mb-2 text-[13px] text-muted">Department</legend>
         {joinable.map((d, i) => (
@@ -26,6 +27,7 @@ export function JoinForm({ joinable, preselect, name, back }: { joinable: Depart
           </label>
         ))}
       </fieldset>
+      )}
       <label className="field"><span>Roleplay name</span>
         <input name="rp_name" className="input" required minLength={2} maxLength={60} defaultValue={name} placeholder="e.g. John Carter" />
       </label>

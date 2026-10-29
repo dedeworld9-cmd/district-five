@@ -7,6 +7,7 @@ import { GROUP_LABEL, KIND, KINDS } from '@/lib/kinds';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { Submission } from '@/lib/types';
+import { SITE } from '@/lib/site';
 
 export const metadata = { title: 'Reports & requests' };
 
@@ -15,7 +16,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
   const s = await requireSession();
   if (!s.active.length) redirect('/hub');
   const supabase = await createClient();
-  const { data: mine } = await supabase.from('submissions').select('*').eq('profile_id', s.userId)
+  const { data: mine } = await supabase.from('submissions').select('*').eq('profile_id', s.userId).eq('department_key', SITE.department)
     .order('created_at', { ascending: false }).limit(50).returns<Submission[]>();
 
   // Kinds the caller can file in at least one of their departments; division command files its own division's paperwork.
@@ -37,7 +38,7 @@ export default async function Reports({ searchParams }: { searchParams: Promise<
       {preview && available.length > 0 && (
         <p className="no-print mb-6 rounded-xl border border-gold/30 bg-gold/5 px-4 py-3 text-[14px] leading-relaxed text-muted">
           You are on a command roster only, so you can open every form to see it, but you can&apos;t file one.
-          To file reports yourself, join a department roster (BCSO, SAHP, SAFD or SAEMS) from Admin or Request to join.
+          To file reports yourself, join the HCSO roster from Admin or Request to join.
         </p>
       )}
       <div className="grid gap-8">

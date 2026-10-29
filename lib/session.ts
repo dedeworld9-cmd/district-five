@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
+import { SITE } from './site';
 import { createClient } from './supabase/server';
 import { atLeast } from './tiers';
 import type { Department, Membership, Profile, Tier } from './types';
@@ -41,8 +42,10 @@ export const getSession = cache(async (): Promise<Session | null> => {
   ]);
   if (!profile) return null;
 
-  const depts = departments ?? [];
-  const all = mine ?? [];
+  // The site serves one department. Other departments' rows stay in the database but the hub
+  // sees neither them nor memberships in them, so every list and switcher shows just this one.
+  const depts = (departments ?? []).filter((d) => d.key === SITE.department);
+  const all = (mine ?? []).filter((m) => m.department_key === SITE.department);
   const active = all.filter((m) => m.status === 'active');
   const deptOf = (key: string) => depts.find((d) => d.key === key) ?? null;
   const isDps = active.some((m) => deptOf(m.department_key)?.kind === 'oversight');

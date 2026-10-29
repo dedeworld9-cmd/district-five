@@ -7,7 +7,10 @@ export const dynamic = 'force-dynamic';
 
 const PERSONAS = [
   ['admin', 'Technical administrator (no roster access by default)'],
-  ['bcso_member', 'BCSO deputy'],
+  ['hcso_member', 'HCSO deputy'],
+  ['hcso_supervisor', 'HCSO sergeant'],
+  ['hcso_head', 'HCSO sheriff (department head)'],
+  ['bcso_member', 'BCSO deputy (other department, hidden on this site)'],
   ['sahp_member', 'SAHP trooper'],
   ['dual_member', 'Member of both BCSO and SAHP'],
   ['bcso_supervisor', 'BCSO sergeant'],

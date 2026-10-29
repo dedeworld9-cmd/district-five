@@ -7,6 +7,9 @@ insert into public.ranks (department_key, name, tier, sort_order) values
 do $$
 declare
   spec text[][] := array[
+    ['hcso_member',      'Jamie Ortega',    'hcso', 'Deputy First Class',          'active',    '3S-40', null],
+    ['hcso_supervisor',  'Dana Whitfield',  'hcso', 'Sergeant',                    'active',    '2S-20', null],
+    ['hcso_head',        'Chris Langford',  'hcso', 'Sheriff',                     'active',    '1S-01', null],
     ['bcso_member',      'Avery Cole',      'bcso', 'Deputy Sheriff Second Class', 'active',    '1D-24', '2024'],
     ['sahp_member',      'Jordan Reyes',    'sahp', 'Trooper',                     'active',    '4A-17', '4417'],
     ['dual_member',      'Sam Whitaker',    'bcso', 'Deputy Sheriff First Class',  'active',    '1D-09', '2009'],

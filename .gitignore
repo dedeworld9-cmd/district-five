@@ -2,3 +2,8 @@ node_modules
 .next
 .env*.local
 .vercel
+
+# Nonpublic research notes (Discord, Master SOP) stay off GitHub
+.private/
+# Screenshots from local visual QA
+artifacts/

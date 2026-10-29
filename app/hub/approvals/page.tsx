@@ -10,6 +10,7 @@ import { requireSession, tzOf } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import { TIER_LABEL } from '@/lib/tiers';
 import type { ShiftLog, Submission } from '@/lib/types';
+import { SITE } from '@/lib/site';
 
 export const metadata = { title: 'Approvals' };
 
@@ -19,9 +20,9 @@ export default async function Approvals({ searchParams }: { searchParams: Promis
   if (!s.supervised.length && !s.isDps) redirect('/hub');
   const supabase = await createClient();
   const [{ data: open }, { data: decided }, { data: subs }] = await Promise.all([
-    supabase.from('shift_logs').select('*').in('status', ['submitted', 'under_review']).order('submitted_at').returns<ShiftLog[]>(),
-    supabase.from('shift_logs').select('*').eq('decided_by', s.userId).order('decided_at', { ascending: false }).limit(10).returns<ShiftLog[]>(),
-    supabase.from('submissions').select('*').in('status', ['submitted', 'under_review']).order('submitted_at').returns<Submission[]>(),
+    supabase.from('shift_logs').select('*').eq('department_key', SITE.department).in('status', ['submitted', 'under_review']).order('submitted_at').returns<ShiftLog[]>(),
+    supabase.from('shift_logs').select('*').eq('department_key', SITE.department).eq('decided_by', s.userId).order('decided_at', { ascending: false }).limit(10).returns<ShiftLog[]>(),
+    supabase.from('submissions').select('*').eq('department_key', SITE.department).in('status', ['submitted', 'under_review']).order('submitted_at').returns<Submission[]>(),
   ]);
   const deptFilter = sp.dept;
   const mine = (open ?? []).filter((l) => canDecide(s, l.department_key, l.required_tier, l.profile_id) && (!deptFilter || l.department_key === deptFilter));
