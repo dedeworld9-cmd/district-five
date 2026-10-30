@@ -41,3 +41,10 @@ Seven policy documents, read through the Google Drive connector: Use of Force, T
 Vehicular Pursuits, Spike Strips, Grappler, Air-1 Support, Vehicle Boxing. Titles are public on the
 homepage. Short summaries and links to the Google Docs live in the hub's policies table, which is
 members-only by RLS. Full SOP text is not in the repo because the repo is public.
+
+## Leadership roster (2026-10-30)
+
+dede supplied a screenshot of the HCSO roster sheet (Office of the Sheriff, Command staff, Senior supervisors,
+Sergeants; the Patrol Deputy section was cut off). Published on /team and the home page: name, rank, callsign, duty,
+active or vacant. Not published: Discord IDs, strikes, vehicle and certification checkboxes. Data lives in `LEADERSHIP`
+in `lib/site.ts`. Sheet quirk: 2S-18 lists "J.Parker" with status Vacant; it is shown as vacant until command confirms.

@@ -4,7 +4,7 @@ import { JoinBanner, Photo } from '@/components/site/Photo';
 import { SectionHeading } from '@/components/site/Section';
 import { relative } from '@/lib/format';
 import { getSession } from '@/lib/session';
-import { CHAIN_OF_COMMAND, MASS_SHIFT_REWARDS, SITE, SOP_TITLES } from '@/lib/site';
+import { CHAIN_OF_COMMAND, LEADERSHIP, MASS_SHIFT_REWARDS, SITE, SOP_TITLES } from '@/lib/site';
 import { createClient } from '@/lib/supabase/server';
 import type { Announcement } from '@/lib/types';
 
@@ -200,6 +200,17 @@ export default async function Home() {
               </li>
             ))}
           </ol>
+          <h3 className="mt-12 mb-4 text-[18px] font-semibold">Office of the Sheriff</h3>
+          <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-5">
+            {LEADERSHIP[0].leaders.map((l) => (
+              <li key={l.callsign} className="card flex flex-col p-3.5 sm:p-5">
+                <span className="tag tag-gold w-fit font-mono">{l.callsign}</span>
+                <p className="mt-3 text-[17px] leading-tight font-semibold sm:mt-4 sm:text-[19px]">{l.name}</p>
+                <p className="mt-1 text-[14px] text-gold">{l.rank}</p>
+                {l.duty && <p className="mt-3 body-sm">{l.duty}</p>}
+              </li>
+            ))}
+          </ul>
         </div>
       </section>
 

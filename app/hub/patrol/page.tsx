@@ -1,142 +1,116 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { Emblem } from '@/components/Emblem';
+import { ConfirmButton } from '@/components/ops/Confirm';
+import { DiscordLink, Panel, WorkspaceHeader } from '@/components/ops/kit';
+import { DraftRecovery } from '@/components/ops/PatrolControls';
 import { ShiftClock } from '@/components/ShiftClock';
-import { Empty, Flash, PageHead, StatusTag } from '@/components/ui';
-import { PHOTOS } from '@/lib/brand';
-import { dateTime, duration, hours, relative } from '@/lib/format';
-import { kindsFor } from '@/lib/kinds';
+import { Flash } from '@/components/ui';
+import { dateTime } from '@/lib/format';
 import { requireSession, tzOf } from '@/lib/session';
+import { SITE } from '@/lib/site';
 import { createClient } from '@/lib/supabase/server';
-import type { ShiftLog, Submission } from '@/lib/types';
+import type { Policy, ShiftLog } from '@/lib/types';
 import { setDuty } from '../actions';
+import { RecentTable } from '../_ops/recent';
 
-export const metadata = { title: 'Patrol panel' };
+export const metadata = { title: 'Patrol Operations' };
 
-// Division command (DPS, Fire/EMS Administration) on patrol: their own clock, logs and paperwork,
-// filed under the command itself. Units on duty are on the Board.
+// The patrol clock is the member's duty status, stored by the database when they start and end.
+// The timer on screen only displays elapsed time; credited time is set when the log is submitted
+// and approved. There is no pause: breaks are entered as minutes in the log.
 export default async function Patrol({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const s = await requireSession();
-  const commands = s.active.filter((m) => s.departments.find((d) => d.key === m.department_key)?.kind === 'oversight');
-  const me = commands.find((m) => m.department_key === sp.dept) ?? commands.find((m) => m.department_key === s.current?.department_key) ?? commands[0];
+  const me = s.active.find((m) => m.department_key === SITE.department);
   if (!me) redirect('/hub');
-  const cmd = s.departments.find((d) => d.key === me.department_key)!;
-  const tz = tzOf(s, cmd.key);
+  const tz = tzOf(s, me.department_key);
   const supabase = await createClient();
-  const weekAgo = new Date(Date.now() - 7 * 864e5).toISOString();
-
-  const [{ data: logs }, { data: filed }] = await Promise.all([
-    supabase.from('shift_logs').select('*').eq('profile_id', s.userId).eq('department_key', cmd.key)
-      .order('started_at', { ascending: false }).limit(6).returns<ShiftLog[]>(),
-    supabase.from('submissions').select('id,ref,title,kind,status,created_at').eq('profile_id', s.userId).eq('department_key', cmd.key)
-      .order('created_at', { ascending: false }).limit(6).returns<Pick<Submission, 'id' | 'ref' | 'title' | 'kind' | 'status' | 'created_at'>[]>(),
+  const [{ data: logs }, { data: sops }] = await Promise.all([
+    supabase.from('shift_logs').select('*').eq('profile_id', s.userId).eq('department_key', me.department_key).order('started_at', { ascending: false }).limit(6).returns<ShiftLog[]>(),
+    supabase.from('policies').select('id,title,source_url').eq('department_key', me.department_key).eq('status', 'approved').order('title').limit(7).returns<Pick<Policy, 'id' | 'title' | 'source_url'>[]>(),
   ]);
-  const onShift = me.duty_status === 'on_duty' && me.duty_changed_at;
-  const week = (logs ?? []).filter((l) => l.started_at >= weekAgo && l.status !== 'returned').reduce((n, l) => n + l.duration_minutes, 0);
-  const forms = kindsFor(cmd.division).filter((k) => k.group === 'report');
-  const back = `/hub/patrol?dept=${cmd.key}`;
+  const since = me.duty_status === 'on_duty' ? me.duty_changed_at : null;
 
   return (
     <>
       <Flash searchParams={sp} />
-      <section className="card relative mb-6 overflow-hidden p-6 sm:p-8">
-        {PHOTOS[cmd.key] && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={PHOTOS[cmd.key]} alt="" className="absolute inset-0 h-full w-full object-cover opacity-30" />
-        )}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(90deg, rgb(8 6 10 / 0.95), rgb(8 6 10 / 0.55))' }} />
-        <div className="relative flex items-center gap-5">
-          <Emblem dept={cmd.key} label={cmd.short_name} accent={cmd.accent} division={cmd.division} size={72} />
-          <div className="min-w-0">
-            <PageHead eyebrow={cmd.name} title="Patrol panel" />
-            <p className="-mt-4 text-[13px] text-muted">
-              {me.callsign && <span className="mr-2 font-mono text-gold">{me.callsign}</span>}{me.display_name}{me.rank_name ? ` · ${me.rank_name}` : ''}
-            </p>
+      <WorkspaceHeader title="Patrol Operations" description="Start your patrol, keep the clock, then log it for review.">
+        <Link href="/hub/shifts/new" className="btn">Manual activity log</Link>
+      </WorkspaceHeader>
+
+      <section className="card mb-5 grid overflow-hidden lg:grid-cols-[3fr_2fr]" aria-label="Patrol control panel">
+        <div className="p-5 md:p-7">
+          <div className="flex items-center gap-2 text-[13px]">
+            <span className={`h-2 w-2 rounded-full ${since ? 'on-duty-ring bg-ok' : 'bg-faint'}`} />
+            <span className={since ? 'font-medium text-ok' : 'text-muted'}>{since ? 'Patrol in progress' : 'Not on patrol'}</span>
           </div>
+          <div className="tnum mt-3 font-mono text-[44px] leading-none font-semibold tracking-tight md:text-[52px]" aria-live="off">
+            {since ? <ShiftClock since={since} /> : '00:00:00'}
+          </div>
+          <dl className="mt-5 grid grid-cols-1 gap-x-8 gap-y-3 text-[13px] sm:grid-cols-3">
+            <div><dt className="text-faint">Started</dt><dd className="mt-0.5 text-[14px]">{since ? dateTime(since, tz) : '—'}</dd></div>
+            <div><dt className="text-faint">Break</dt><dd className="mt-0.5 text-[14px] text-muted">Entered in the log</dd></div>
+            <div><dt className="text-faint">Qualifying time</dt><dd className="mt-0.5 text-[14px] text-muted">End − start − breaks</dd></div>
+          </dl>
+          <p className="mt-5 text-[12px] leading-relaxed text-faint">
+            {since
+              ? 'Your start time is saved by the hub, so closing this page does not stop the clock. The timer is a display only: approved time comes from the log you submit.'
+              : 'Starting a patrol saves your start time in the hub. Forgot to start? Use the manual activity log and enter the times yourself.'}
+          </p>
+        </div>
+        <div className="flex flex-col justify-center gap-3 border-t border-line bg-white/[0.02] p-5 md:p-7 lg:border-t-0 lg:border-l">
+          {since ? (
+            <form action={setDuty} className="grid gap-3">
+              <input type="hidden" name="department" value={me.department_key} />
+              <input type="hidden" name="status" value="off_duty" />
+              <input type="hidden" name="since" value={since} />
+              <input type="hidden" name="back" value="/hub/patrol" />
+              <ConfirmButton label="End patrol and write the log" title="End this patrol?" confirmLabel="End patrol" className="btn-primary h-14 w-full text-[15px]">
+                Your patrol stops now and the log form opens with your times filled in. Nothing is submitted until you press Submit.
+              </ConfirmButton>
+            </form>
+          ) : (
+            <form action={setDuty}>
+              <input type="hidden" name="department" value={me.department_key} />
+              <input type="hidden" name="status" value="on_duty" />
+              <input type="hidden" name="back" value="/hub/patrol" />
+              <button className="btn-brand h-14 w-full text-[16px] font-semibold">Start patrol</button>
+            </form>
+          )}
+          <Link href="/hub/shifts/new" className="btn w-full">Log patrol manually</Link>
+          <DraftRecovery />
         </div>
       </section>
 
-      <section className="grid gap-3 lg:grid-cols-[1.1fr_2fr]">
-        <div className={`card relative flex flex-col justify-between overflow-hidden p-6 ${onShift ? 'border-ok/40' : ''}`}>
-          <div>
-            <div className="label flex items-center gap-2">
-              <span className={`h-2.5 w-2.5 rounded-full ${onShift ? 'on-duty-ring bg-ok' : 'bg-faint'}`} />
-              {onShift ? `On patrol · ${cmd.short_name}` : 'Off duty'}
-            </div>
-            {onShift ? (
-              <>
-                <ShiftClock since={me.duty_changed_at!} className="mt-3 block font-mono text-[40px] leading-none font-semibold tracking-tight text-ok" />
-                <p className="mt-2 text-[13px] text-muted">Started {dateTime(me.duty_changed_at!, tz)}. Ending it opens your patrol log with the times filled in.</p>
-              </>
-            ) : (
-              <>
-                <div className="mt-3 text-[24px] font-semibold tracking-tight">Going out on patrol?</div>
-                <p className="mt-1.5 text-[13px] text-muted">Your time is logged under {cmd.short_name} and reviewed by another {cmd.short_name} member.</p>
-              </>
-            )}
-          </div>
-          <form action={setDuty} className="mt-6">
-            <input type="hidden" name="department" value={cmd.key} />
-            <input type="hidden" name="back" value={back} />
-            <input type="hidden" name="status" value={onShift ? 'off_duty' : 'on_duty'} />
-            {onShift && <input type="hidden" name="since" value={me.duty_changed_at!} />}
-            <button className={`${onShift ? 'btn' : 'btn-primary'} h-12 w-full text-[15px]`}>{onShift ? 'End patrol and write the log' : 'Start patrol'}</button>
-          </form>
-        </div>
-
-        <div className="card p-6">
-          <div className="flex items-baseline justify-between">
-            <h2 className="label">File paperwork</h2>
-            <span className="text-[12px] text-faint">{hours(week)} logged in the last 7 days</span>
-          </div>
-          <div className="mt-4 grid gap-2 sm:grid-cols-2">
-            {forms.map((k) => (
-              <Link key={k.key} href={`/hub/reports/new?kind=${k.key}&dept=${cmd.key}`} className="rounded-xl border border-line px-4 py-3 transition-colors hover:border-line-strong">
-                <div className="text-[14px] font-medium">{k.label}</div>
-                <div className="mt-0.5 line-clamp-1 text-[12px] text-muted">{k.blurb}</div>
-              </Link>
+      <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
+        <Panel title="Patrol information" action={<DiscordLink channel="patrol-information" className="text-[13px] text-gold" label="#patrol-information" />}>
+          <p className="mb-3 text-[13px] text-muted">Approved standard operating procedures.</p>
+          {sops?.length ? (
+            <ul className="divide-y divide-line">
+              {sops.map((p) => (
+                <li key={p.id}>
+                  {p.source_url
+                    ? <a href={p.source_url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center justify-between gap-3 py-2 text-[14px] hover:text-gold">{p.title}<span className="text-gold" aria-hidden="true">↗</span><span className="sr-only">Opens in a new tab</span></a>
+                    : <span className="flex min-h-11 items-center py-2 text-[14px] text-muted">{p.title}</span>}
+                </li>
+              ))}
+            </ul>
+          ) : <p className="body-sm">No procedures are published in the hub yet.</p>}
+          <Link href="/hub/resources" className="mt-3 inline-block text-[13px] text-gold">All resources →</Link>
+        </Panel>
+        <Panel title="Communications">
+          <ul className="grid gap-2 text-[14px]">
+            {([['patrol-announcements', 'Patrol Announcements'], ['patrol-chat', 'Patrol Chat'], ['patrol-suggestions', 'Suggestions']] as const).map(([c, l]) => (
+              <li key={c}><DiscordLink channel={c} label={l} className="flex min-h-11 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong" /></li>
             ))}
-          </div>
-          <Link href="/hub/reports" className="mt-3 inline-block text-[13px] text-muted hover:text-ink">Every form and request →</Link>
-        </div>
-      </section>
-
-      <div className="mt-12 grid gap-10 lg:grid-cols-2">
-        <section>
-          <div className="mb-3 flex items-baseline justify-between">
-            <h2 className="label">My patrol logs</h2>
-            <span className="flex gap-4 text-[13px]">
-              <Link href={`/hub/shifts/new?dept=${cmd.key}`} className="text-muted hover:text-ink">Log a past patrol</Link>
-              <Link href="/hub/shifts" className="text-muted hover:text-ink">All shifts →</Link>
-            </span>
-          </div>
-          {logs?.length ? (
-            <div className="card divide-y divide-line">
-              {logs.map((l) => (
-                <Link key={l.id} href={`/hub/shifts/${l.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/[0.02]">
-                  <span className="text-[14px]">{dateTime(l.started_at, tz)}<span className="ml-2 text-muted">{duration(l.duration_minutes)}</span></span>
-                  <StatusTag status={l.status} />
-                </Link>
-              ))}
-            </div>
-          ) : <Empty>No patrols logged yet.</Empty>}
-        </section>
-        <section>
-          <h2 className="label mb-3">My paperwork</h2>
-          {filed?.length ? (
-            <div className="card divide-y divide-line">
-              {filed.map((r) => (
-                <Link key={r.id} href={`/hub/reports/${r.id}`} className="flex items-center justify-between gap-3 px-4 py-3 hover:bg-white/[0.02]">
-                  <span className="min-w-0 truncate text-[14px]"><span className="mr-2 font-mono text-[12px] text-muted">{r.ref}</span>{r.title}</span>
-                  <span className="flex shrink-0 items-center gap-2 text-[12px] text-faint">{relative(r.created_at)} <StatusTag status={r.status} /></span>
-                </Link>
-              ))}
-            </div>
-          ) : <Empty>Nothing filed under {cmd.short_name} yet.</Empty>}
-        </section>
+            <li><Link href="/hub/board" className="flex min-h-11 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong">Units on duty<span aria-hidden="true">→</span></Link></li>
+          </ul>
+        </Panel>
       </div>
 
+      <Panel title="Recent patrol activity" className="mt-5" action={<Link href="/hub/shifts" className="text-[13px] text-gold">All logs</Link>}>
+        <RecentTable logs={logs ?? []} tz={tz} empty={<>No patrols logged yet.</>} />
+      </Panel>
     </>
   );
 }

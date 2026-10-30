@@ -40,3 +40,43 @@ export const SOP_TITLES = ['Use of Force', 'Traffic Stops', 'Vehicular Pursuits'
 
 // What a mass shift can earn a deputy, from the HCSO #mass-shifts announcements.
 export const MASS_SHIFT_REWARDS = ['Certifications', 'Paycheck bonuses', 'One quota exemption', 'Extra hours', 'Promotions', 'Removal of infractions'];
+
+// Leadership roster, from the HCSO roster sheet supplied by dede on 2026-10-30. Names, ranks,
+// callsigns and duties only: Discord IDs and strikes are deliberately not published.
+// A null name means the slot is vacant. Update this list when command changes.
+export type Leader = { name: string | null; rank: string; callsign: string; duty: string | null };
+export const LEADERSHIP: { group: string; leaders: Leader[] }[] = [
+  { group: 'Office of the Sheriff', leaders: [
+    { name: 'C. Bangle', rank: 'Sheriff', callsign: '1S-01', duty: 'Department Oversight' },
+    { name: 'Brian Ross', rank: 'Undersheriff', callsign: '1S-02', duty: 'Administration Oversight' },
+    { name: 'J. Baldwin', rank: 'Chief Deputy', callsign: '1S-03', duty: 'Command Staff & Personnel Oversight' },
+    { name: 'T. West', rank: 'Major', callsign: '1S-04', duty: 'Special Operations Oversight' },
+    { name: 'L. Post', rank: 'Major', callsign: '1S-05', duty: 'Patrol Oversight' },
+  ] },
+  { group: 'Command staff', leaders: [
+    { name: 'W. Brooks', rank: 'Captain', callsign: '1S-06', duty: 'Patrol Captain' },
+    { name: 'L. Walker', rank: 'Captain', callsign: '1S-07', duty: 'Patrol Captain' },
+    { name: 'C. Bryd', rank: 'Captain', callsign: '1S-08', duty: 'Special Weapons and Tactics Commander' },
+    { name: 'M. Hathaway', rank: 'Captain', callsign: '1S-09', duty: 'FTO Captain' },
+    { name: null, rank: 'Captain', callsign: '1S-10', duty: 'Internal Affairs Commander' },
+  ] },
+  { group: 'Senior supervisors', leaders: [
+    { name: null, rank: 'Lieutenant', callsign: '2S-11', duty: 'Special Weapons and Tactics Assistant Commander' },
+    { name: 'J. Roach', rank: 'Lieutenant', callsign: '2S-12', duty: 'TEU Commander' },
+    { name: 'E. Rose', rank: 'Lieutenant', callsign: '2S-13', duty: 'PIO Commander' },
+    { name: null, rank: 'Lieutenant', callsign: '2S-14', duty: null },
+    { name: 'R. Thompson', rank: 'Lieutenant', callsign: '2S-15', duty: 'North Division Command' },
+    { name: 'R. Ramos', rank: 'Lieutenant', callsign: '2S-16', duty: 'South Division Command' },
+  ] },
+  { group: 'Sergeants', leaders: [
+    { name: null, rank: 'Sergeant', callsign: '2S-17', duty: 'North Division Supervision' },
+    { name: null, rank: 'Sergeant', callsign: '2S-18', duty: 'South Division Supervision' },
+    { name: null, rank: 'Sergeant', callsign: '2S-19', duty: 'North Division Supervision' },
+    { name: null, rank: 'Sergeant', callsign: '2S-20', duty: 'South Division Supervision' },
+    { name: null, rank: 'Sergeant', callsign: '2S-21', duty: null },
+    { name: null, rank: 'Sergeant', callsign: '2S-22', duty: null },
+    { name: 'B. Rooker', rank: 'Sergeant', callsign: '2S-23', duty: 'BLS Certificate Trainer' },
+    { name: null, rank: 'Sergeant', callsign: '2S-24', duty: null },
+    { name: null, rank: 'Sergeant', callsign: '2S-25', duty: null },
+  ] },
+];

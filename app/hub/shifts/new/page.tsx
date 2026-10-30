@@ -1,9 +1,9 @@
 import { redirect } from 'next/navigation';
 import { ShiftForm, type ShiftDept } from '@/components/ShiftForm';
-import { PageHead } from '@/components/ui';
+import { WorkspaceHeader } from '@/components/ops/kit';
 import { requireSession } from '@/lib/session';
 
-export const metadata = { title: 'Log a shift' };
+export const metadata = { title: 'Activity Logger' };
 
 export default async function NewShift({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
@@ -14,10 +14,10 @@ export default async function NewShift({ searchParams }: { searchParams: Promise
   const mins = ended ? Math.floor((new Date(sp.end!).getTime() - new Date(sp.start!).getTime()) / 60000) : null;
   const preferred = depts.find((d) => d.key === sp.dept) ?? depts.find((d) => d.key === s.current?.department_key) ?? depts[0];
   return (
-    <div className="max-w-3xl">
-      <PageHead title={ended ? 'Shift ended' : 'Log a shift'} />
+    <div>
+      <WorkspaceHeader title={ended ? 'Patrol ended' : 'Activity Logger'} description="Log your time and report. Nothing counts until it is submitted and approved." />
       {ended && (
-        <div className="card mb-4 border-ok/30 p-5">
+        <div className="card mb-5 border-ok/30 p-5">
           <div className="text-[15px] font-medium">You were on shift for {mins !== null && mins >= 0 ? `${Math.floor(mins / 60)}h ${mins % 60}m` : 'a while'}.</div>
           <p className="mt-1 text-[13px] text-muted">
             Your start and end times are filled in. Add your bodycam link{preferred.division === 'leo' ? ' (your proof)' : ''} and a short summary, then submit it for review.
