@@ -18,6 +18,7 @@ export interface Rank { id: string; department_key: string; name: string; abbrev
 export interface Profile {
   id: string; display_name: string; discord_id: string | null; discord_username: string | null;
   psn_id: string | null; avatar_url: string | null; active_department: string | null; is_admin: boolean;
+  discord_rank: string | null; discord_rank_at: string | null;
 }
 
 export interface Membership {

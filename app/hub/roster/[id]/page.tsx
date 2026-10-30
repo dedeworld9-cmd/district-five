@@ -6,7 +6,7 @@ import { ACTIVITY_LABEL, dateOnly, duration, hours } from '@/lib/format';
 import { KIND } from '@/lib/kinds';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
-import { TIER_LABEL, atLeast, tierRank } from '@/lib/tiers';
+import { TIER_LABEL, atLeast, canGrantRank, tierRank } from '@/lib/tiers';
 import type { MemberCertification, Membership, PersonnelRecord, Rank, ShiftLog, Submission } from '@/lib/types';
 import { addPersonnelNote, updateMembership } from '../../actions';
 
@@ -41,8 +41,9 @@ export default async function Member({ params, searchParams }: {
   const pending28 = recentLogs.filter((l) => ['submitted', 'under_review'].includes(l.status)).reduce((n, l) => n + l.duration_minutes, 0);
   const manage = s.canManageRoster(m.department_key) && (m.profile_id !== s.userId || s.isAdmin) && !['pending', 'denied'].includes(m.status);
   const myTier = s.tierIn(m.department_key);
-  const grantable = (ranks ?? []).filter((r) => r.id === m.rank_id ||
-    (s.oversees(m.department_key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier)));
+  const mine = s.active.find((x) => x.department_key === m.department_key);
+  const who = { unrestricted: s.oversees(m.department_key) || s.isAdmin, dept: m.department_key, tier: myTier, rankSort: (ranks ?? []).find((r) => r.id === mine?.rank_id)?.sort_order ?? null };
+  const grantable = (ranks ?? []).filter((r) => r.id === m.rank_id || canGrantRank(who, r));
   const canGrantPersonnel = s.oversees(m.department_key) || atLeast(myTier, 'department_head');
   // High command writes commendations and write-ups for members below its own tier.
   const canNote = manage && (s.oversees(m.department_key) || s.isAdmin || tierRank(m.tier) < tierRank(myTier));

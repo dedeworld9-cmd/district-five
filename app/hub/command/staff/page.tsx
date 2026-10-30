@@ -6,8 +6,8 @@ import { dateOnly, relative } from '@/lib/format';
 import { panelDepts } from '@/lib/panels';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
-import { atLeast, tierRank } from '@/lib/tiers';
-import type { Membership, Rank, Submission } from '@/lib/types';
+import { canGrantRank } from '@/lib/tiers';
+import type { Membership, Profile, Rank, Submission } from '@/lib/types';
 import { adminImportRoster, decideMembership } from '../../actions';
 
 export const metadata = { title: 'Command staff panel' };
@@ -31,6 +31,12 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
 
   const all = members ?? [];
   const requests = all.filter((m) => m.status === 'pending');
+  // Discord's rank role for each applicant is only a hint; staff still choose the rank.
+  const ids = requests.map((m) => m.profile_id).filter((x): x is string => !!x);
+  const { data: hints } = ids.length
+    ? await supabase.from('profiles').select('id,discord_rank').in('id', ids).returns<Pick<Profile, 'id' | 'discord_rank'>[]>()
+    : { data: [] as Pick<Profile, 'id' | 'discord_rank'>[] };
+  const hintOf = (m: Membership) => hints?.find((h) => h.id === m.profile_id)?.discord_rank ?? null;
   const active = all.filter((m) => m.status === 'active');
   const today = new Date().toISOString().slice(0, 10);
   const watch = [
@@ -39,8 +45,9 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
     { label: 'Suspended', list: all.filter((m) => m.status === 'suspended'), note: () => '' },
   ];
   const myTier = s.tierIn(dept.key);
-  const grantable = (ranks ?? []).filter((r) =>
-    s.oversees(dept.key) || s.isAdmin ? true : !atLeast(r.tier, 'department_head') && tierRank(r.tier) < tierRank(myTier));
+  const mine = s.active.find((m) => m.department_key === dept.key);
+  const who = { unrestricted: s.oversees(dept.key) || s.isAdmin, dept: dept.key, tier: myTier, rankSort: (ranks ?? []).find((r) => r.id === mine?.rank_id)?.sort_order ?? null };
+  const grantable = (ranks ?? []).filter((r) => canGrantRank(who, r));
 
   const tiles = [
     { label: 'Join requests', value: requests.length, gold: requests.length > 0 },
@@ -75,6 +82,13 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
                     <div className="text-[15px] font-medium">{m.display_name}</div>
                     <div className="text-[12px] text-faint">{m.ref} · {dateOnly(m.created_at)}</div>
                   </div>
+                  {dept.key === 'hcso' && (
+                    <p className="mt-2 text-[13px] text-muted">
+                      {hintOf(m)
+                        ? <>Discord role: <span className="text-ink">{hintOf(m)}</span>{grantable.some((r) => r.name === hintOf(m)) ? '' : ' (above what you can grant)'}</>
+                        : 'No rank role found in Discord. They may not be in the server, or have not signed in since the link was added.'}
+                    </p>
+                  )}
                   {m.request_note && <p className="mt-2 text-[14px] whitespace-pre-line text-muted">{m.request_note}</p>}
                   {m.profile_id === s.userId ? (
                     <p className="mt-3 text-[13px] text-faint">Another commander must decide your own request.</p>
@@ -83,7 +97,7 @@ export default async function StaffPanel({ searchParams }: { searchParams: Promi
                       <input type="hidden" name="id" value={m.id} />
                       <input type="hidden" name="back" value={back} />
                       <label className="field"><span>Starting rank</span>
-                        <select name="rank" className="input" defaultValue={grantable[0]?.id}>
+                        <select name="rank" className="input" defaultValue={(grantable.find((r) => r.name === hintOf(m)) ?? grantable[0])?.id}>
                           {grantable.map((r) => <option key={r.id} value={r.id}>{r.name}</option>)}
                         </select>
                       </label>

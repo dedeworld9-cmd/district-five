@@ -13,7 +13,8 @@ export async function signInWithDiscord(form: FormData) {
     provider: 'discord',
     options: {
       redirectTo: `${origin}/auth/callback?next=${encodeURIComponent(next.startsWith('/hub') ? next : '/hub')}`,
-      scopes: 'identify',
+      // guilds.members.read lets the callback read the member's HCSO roles (a hint for command staff).
+      scopes: 'identify guilds.members.read',
     },
   });
   if (error || !data.url) redirect(`/login?error=${encodeURIComponent('Discord sign-in is not available right now.')}`);
