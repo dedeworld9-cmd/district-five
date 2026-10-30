@@ -45,7 +45,7 @@ export async function LoggingOverview({ s, sp = {} }: { s: Session; sp?: Record<
         <Kpi label="Training hours" value={hours(sum(training))} sub="Approved training logs" />
       </div>
 
-      <Panel title="Recent activity" action={<Link href="/hub/shifts" className="text-[13px] text-gold">All shift logs</Link>}>
+      <Panel title="Recent activity" action={<Link href="/hub/shifts" className="text-[13px] link">All shift logs</Link>}>
         <form method="get" className="mb-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
           <label className="field"><span className="sr-only">Search activity</span>
             <input type="search" name="q" defaultValue={sp.q ?? ''} placeholder="Search by reference, activity or summary" className="input" /></label>
@@ -55,7 +55,7 @@ export async function LoggingOverview({ s, sp = {} }: { s: Session; sp?: Record<
             <button className="btn">Filter</button>
           </div>
         </form>
-        <RecentTable logs={shown} tz={tzOf(s, SITE.department)} empty={<>No activity matches. <Link href="/hub/shifts/new" className="text-gold">Log activity</Link></>} />
+        <RecentTable logs={shown} tz={tzOf(s, SITE.department)} empty={<>No activity matches. <Link href="/hub/shifts/new" className="link">Log activity</Link></>} />
       </Panel>
 
       <section className="mt-8">

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
-import { AccessDenied, DiscordLink, Panel, ResourceGrid, WorkspaceHeader, type ResourceItem } from '@/components/ops/kit';
+import { AccessDenied, DiscordLink, ListGroup, Panel, ResourceGrid, WorkspaceHeader, type ResourceItem } from '@/components/ops/kit';
 import { channelName } from '@/lib/discord';
 import { requireSession } from '@/lib/session';
 import { MASS_SHIFT_REWARDS } from '@/lib/site';
@@ -64,13 +64,10 @@ export default async function Gateway({ params }: { params: Promise<P> }) {
           )}
         </Panel>
         <Panel title="Related" className="lg:col-span-5">
-          <ul className="grid gap-2 text-[14px]">
-            {(p.also ?? []).filter((a) => can(s, a.gate ?? 'member')).map((a) => (
-              <li key={a.label}>{a.channel ? <DiscordLink channel={a.channel} className="flex min-h-11 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong" label={a.label} />
-                : <Link href={a.href!} className="flex min-h-11 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong">{a.label}<span aria-hidden="true">→</span></Link>}</li>
-            ))}
-            <li><Link href={`/hub/${w.slug === 'department' ? 'department' : w.slug}`} className="flex min-h-11 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong">Back to {w.label}<span aria-hidden="true">→</span></Link></li>
-          </ul>
+          <ListGroup label="Related" rows={[
+            ...(p.also ?? []).filter((a) => can(s, a.gate ?? 'member')).map((a) => ({ label: a.label, channel: a.channel, href: a.href })),
+            { label: `Back to ${w.label}`, href: `/hub/${w.slug}` },
+          ]} />
         </Panel>
       </div>
     </>

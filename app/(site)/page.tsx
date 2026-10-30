@@ -69,7 +69,7 @@ export default async function Home() {
       <section aria-labelledby="hero-title" className="relative -mt-[68px] overflow-hidden sm:-mt-[72px]">
         <Photo name="explorer" w={1359} h={621} priority sizes="100vw" alt={`A white and green ${SITE.shortName} Ford Explorer patrol vehicle`}
           className="absolute inset-x-0 top-0 h-[400px] w-full object-cover object-[62%_center] md:inset-0 md:h-full md:object-[80%_center]" />
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(7_9_14/0.96)_0%,rgb(7_9_14/0.85)_38%,rgb(7_9_14/0.25)_75%,rgb(7_9_14/0.1)_100%)] max-md:bg-[linear-gradient(180deg,rgb(7_9_14/0.15)_0%,rgb(7_9_14/0.1)_120px,rgb(7_9_14/0.85)_340px,var(--color-bg)_400px)]" aria-hidden="true" />
+        <div className="absolute inset-0 bg-[linear-gradient(90deg,rgb(9_11_16/0.96)_0%,rgb(9_11_16/0.85)_38%,rgb(9_11_16/0.25)_75%,rgb(9_11_16/0.1)_100%)] max-md:bg-[linear-gradient(180deg,rgb(9_11_16/0.15)_0%,rgb(9_11_16/0.1)_120px,rgb(9_11_16/0.85)_340px,var(--color-bg)_400px)]" aria-hidden="true" />
         <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-bg to-transparent" aria-hidden="true" />
         <div className="container-page relative flex flex-col justify-end pt-[260px] pb-28 md:min-h-[680px] md:justify-center md:pt-36 md:pb-32 lg:min-h-[760px]">
           <p className="inline-flex w-fit items-center gap-2 rounded-full border border-white/15 bg-black/40 py-1 pr-3.5 pl-1 text-[13px] text-ink backdrop-blur">
@@ -78,7 +78,7 @@ export default async function Home() {
             {SITE.community.name} · {SITE.community.game}
           </p>
           <h1 id="hero-title" className="mt-6 max-w-3xl text-[clamp(2.6rem,1.6rem+4.4vw,5rem)] leading-[1.02] font-bold tracking-[-0.03em]">
-            Hillsborough County <span className="bg-gradient-to-r from-[#4fd18a] via-[#9fd36a] to-[#e3c15a] bg-clip-text text-transparent">Sheriff&apos;s Office</span>
+            Hillsborough County <span className="text-gold">Sheriff&apos;s Office</span>
           </h1>
           <p className="mt-6 max-w-xl text-[17px] leading-relaxed text-[#dfe4ec]">
             {SITE.welcome} {SITE.shortName} is a law enforcement department on {SITE.community.name}.
@@ -92,11 +92,11 @@ export default async function Home() {
 
       {/* Stats ride up over the bottom of the hero. */}
       <section aria-label="At a glance" className="container-page relative z-10 -mt-20">
-        <dl className="grid grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-[linear-gradient(135deg,#0f2a1d,#0d1118_55%,#2a2410)] shadow-[0_30px_80px_rgb(0_0_0/0.5)] md:grid-cols-4">
+        <dl className="grid grid-cols-2 overflow-hidden rounded-2xl border border-white/10 bg-surface md:grid-cols-4">
           {stats.map((st, i) => (
             <div key={st.label} className={`px-5 py-5 sm:px-8 sm:py-8 ${i % 2 ? 'border-l border-white/10' : ''} ${i > 1 ? 'border-t border-white/10 md:border-t-0' : ''} ${i === 2 ? 'md:border-l' : ''}`}>
               <dt className="text-[13px] text-muted">{st.label}</dt>
-              <dd className="mt-1 text-[36px] leading-none font-bold tracking-tight text-gold sm:text-[44px]">{st.value}</dd>
+              <dd className="mt-1 text-[34px] leading-none font-semibold tracking-tight sm:text-[40px]">{st.value}</dd>
             </div>
           ))}
         </dl>
@@ -106,8 +106,7 @@ export default async function Home() {
         <SectionHeading id="start" title="Get started" intro="Three direct ways in, whether you are new to the department or already on the roster." />
         <ul className="grid gap-4 md:grid-cols-3">
           {actions.map((a, i) => (
-            <li key={a.title} className={`card relative grid grid-cols-[auto_1fr] gap-x-4 overflow-hidden p-5 md:flex md:flex-col md:p-7 ${i === 0 ? 'border-brand/40 bg-[linear-gradient(160deg,rgb(47_143_91/0.22),var(--color-surface)_60%)]' : ''}`}>
-              <span className={`absolute inset-x-0 top-0 h-1 ${['bg-brand-strong', 'bg-gold', 'bg-[#5b8def]'][i]}`} aria-hidden="true" />
+            <li key={a.title} className={`card relative grid grid-cols-[auto_1fr] gap-x-4 overflow-hidden p-5 md:flex md:flex-col md:p-7 `}>
               {'discord' in a && a.discord
                 ? <span className="grid h-12 w-12 place-items-center rounded-2xl border border-[#5865f2]/30 bg-[#5865f2]/10 text-[#8b95f7]"><DiscordIcon size={20} /></span>
                 : <Glyph d={a.icon} />}
@@ -168,7 +167,7 @@ export default async function Home() {
             <ul className="mt-6 grid grid-cols-2 gap-2 sm:gap-2.5">
               {SOP_TITLES.map((t, i) => (
                 <li key={t} className="flex items-center gap-2.5 rounded-xl border border-line bg-surface px-3 py-2.5 text-[13px] font-medium sm:gap-3 sm:px-4 sm:py-3 sm:text-[14px]">
-                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-gold/15 font-mono text-[12px] text-gold">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-white/[0.06] font-mono text-[12px] text-muted">{String(i + 1).padStart(2, '0')}</span>
                   {t}
                 </li>
               ))}
@@ -178,7 +177,7 @@ export default async function Home() {
       </section>
 
       {/* Chain of command as a ladder from the top of the office down. */}
-      <section aria-labelledby="org" className="relative overflow-hidden border-y border-line bg-[linear-gradient(180deg,#0b1510,#07090e)]">
+      <section aria-labelledby="org" className="relative overflow-hidden border-y border-line bg-bg-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={SITE.logo} alt="" width={256} height={256} aria-hidden="true" className="pointer-events-none absolute -right-24 -top-16 w-[420px] opacity-[0.06]" />
         <div className="container-page section relative">
@@ -188,7 +187,7 @@ export default async function Home() {
           <ol className="grid grid-cols-2 gap-3 lg:grid-cols-5">
             {CHAIN_OF_COMMAND.map((g, i) => (
               <li key={g.group} className={`card relative overflow-hidden p-4 sm:p-5 ${i === 0 ? 'col-span-2 lg:col-span-1' : ''}`}>
-                <span className="absolute inset-x-0 top-0 h-1" style={{ background: ['#e3c15a', '#c9b45a', '#8fc46a', '#4fd18a', '#3a8f63'][i] }} aria-hidden="true" />
+                <span className="absolute inset-x-0 top-0 h-1" style={{ background: ['#c9a96a', '#7d8794', '#7d8794', '#7d8794', '#5a626d'][i] }} aria-hidden="true" />
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-[30px] leading-none font-bold text-white/15">{i + 1}</span>
                   {g.callsign && <span className="tag tag-gold font-mono">{g.callsign}</span>}
@@ -222,7 +221,7 @@ export default async function Home() {
           </div>
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {MASS_SHIFT_REWARDS.map((r) => (
-              <li key={r} className="flex items-center gap-3 rounded-2xl border border-brand/25 bg-[linear-gradient(160deg,rgb(47_143_91/0.16),transparent)] p-3 text-[13px] font-medium sm:flex-col sm:items-start sm:p-4 sm:text-[14px]">
+              <li key={r} className="flex items-center gap-3 rounded-2xl border border-line bg-surface p-3 text-[13px] font-medium sm:flex-col sm:items-start sm:p-4 sm:text-[14px]">
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-strong/20 text-brand-strong"><Check /></span>
                 {r}
               </li>

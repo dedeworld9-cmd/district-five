@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { Empty, StatusTag } from '@/components/ui';
-import { DiscordLink, Panel, ResourceGrid, WorkspaceHeader, type ResourceItem } from '@/components/ops/kit';
+import { DiscordLink, ListGroup, Panel, ResourceGrid, WorkspaceHeader, type ResourceItem } from '@/components/ops/kit';
 import { ACTIVITY_LABEL, relative } from '@/lib/format';
 import { canDecide } from '@/lib/queue';
 import type { Session } from '@/lib/session';
@@ -36,7 +36,7 @@ export async function HighRankingOverview({ s }: { s: Session }) {
   return (
     <>
       <WorkspaceHeader title="High Ranking" description="Authorized leadership resources and operations." restricted="Restricted access" />
-      <section className="mb-5 rounded-[14px] border border-line-strong p-5 md:min-h-[140px]" style={{ background: 'linear-gradient(120deg, #101f35 0%, #173d32 100%)' }}>
+      <section className="mb-5 rounded-[14px] border border-line bg-raised p-5">
         <div className="grid gap-4 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
           <div>
             <h2 className="text-[18px] font-semibold">Leadership overview</h2>
@@ -49,12 +49,12 @@ export async function HighRankingOverview({ s }: { s: Session }) {
 
       <div className="grid gap-5 lg:grid-cols-12">
         <div className="order-2 min-w-0 lg:order-1 lg:col-span-7">
-          <Panel title="Review queue" action={<Link href="/hub/approvals" className="text-[13px] text-gold">All approvals</Link>}>
+          <Panel title="Review queue" action={<Link href="/hub/approvals" className="text-[13px] link">All approvals</Link>}>
             {queue.length ? (
               <ul className="divide-y divide-line">
                 {queue.slice(0, 8).map((q) => (
                   <li key={q.id}>
-                    <Link href={q.href} className="flex min-h-14 items-center justify-between gap-3 py-3 hover:text-gold">
+                    <Link href={q.href} className="flex min-h-14 items-center justify-between gap-3 py-3 hover:link">
                       <span className="min-w-0"><span className="block truncate text-[14px] font-medium">{q.label}</span>
                         <span className="text-[12px] text-faint">{q.kind} · {q.ref} · waiting {relative(q.created_at).replace(/ ago$/, '')}</span></span>
                       <StatusTag status={q.status} />
@@ -67,11 +67,11 @@ export async function HighRankingOverview({ s }: { s: Session }) {
         </div>
         <div className="order-1 grid min-w-0 content-start gap-4 lg:order-2 lg:col-span-5">
           <Panel title="Announcements and information">
-            <ul className="grid gap-2 text-[14px]">
-              {command && <li><DiscordLink channel="command-announcements" className="flex min-h-10 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong" label="Command Announcements" /></li>}
-              <li><DiscordLink channel="sv-announcements" className="flex min-h-10 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong" label="Supervisor Announcements" /></li>
-              <li><DiscordLink channel="sv-info" className="flex min-h-10 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong" label="Supervisor Information" /></li>
-            </ul>
+            <ListGroup label="Announcements and information" rows={[
+              ...(command ? [{ label: 'Command Announcements', channel: 'command-announcements' as const }] : []),
+              { label: 'Supervisor Announcements', channel: 'sv-announcements' },
+              { label: 'Supervisor Information', channel: 'sv-info' },
+            ]} />
           </Panel>
         </div>
       </div>

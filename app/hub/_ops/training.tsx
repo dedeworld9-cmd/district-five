@@ -26,7 +26,7 @@ export async function TrainingOverview({ s }: { s: Session }) {
         <Link href="/hub/shifts/new" className="btn">Log training time</Link>
       </WorkspaceHeader>
 
-      <section className="mb-5 rounded-[14px] border border-line-strong p-5 md:min-h-[160px] md:p-7" style={{ background: 'linear-gradient(120deg, #101f35 0%, #173d32 100%)' }}>
+      <section className="mb-5 rounded-[14px] border border-line bg-raised p-5 md:p-6">
         <div className="max-w-3xl">
           <h2 className="text-[20px] font-semibold md:text-[22px]">Start with the BLS examination</h2>
           <p className="mt-2 text-[14px] leading-relaxed text-ink/80">Examinations and qualification trainings are run in the HCSO Discord. Results and certifications are recorded by trainers, never by this page. Post your availability so a trainer can schedule you.</p>

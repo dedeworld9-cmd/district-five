@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { ConfirmButton } from '@/components/ops/Confirm';
-import { DiscordLink, Panel, WorkspaceHeader } from '@/components/ops/kit';
+import { DiscordLink, ListGroup, Panel, WorkspaceHeader } from '@/components/ops/kit';
 import { DraftRecovery } from '@/components/ops/PatrolControls';
 import { ShiftClock } from '@/components/ShiftClock';
 import { Flash } from '@/components/ui';
@@ -83,32 +83,24 @@ export default async function Patrol({ searchParams }: { searchParams: Promise<R
       </section>
 
       <div className="grid gap-5 lg:grid-cols-[3fr_2fr]">
-        <Panel title="Patrol information" action={<DiscordLink channel="patrol-information" className="text-[13px] text-gold" label="#patrol-information" />}>
+        <Panel title="Patrol information" action={<DiscordLink channel="patrol-information" className="text-[13px] link" label="#patrol-information" />}>
           <p className="mb-3 text-[13px] text-muted">Approved standard operating procedures.</p>
           {sops?.length ? (
-            <ul className="divide-y divide-line">
-              {sops.map((p) => (
-                <li key={p.id}>
-                  {p.source_url
-                    ? <a href={p.source_url} target="_blank" rel="noopener noreferrer" className="flex min-h-11 items-center justify-between gap-3 py-2 text-[14px] hover:text-gold">{p.title}<span className="text-gold" aria-hidden="true">↗</span><span className="sr-only">Opens in a new tab</span></a>
-                    : <span className="flex min-h-11 items-center py-2 text-[14px] text-muted">{p.title}</span>}
-                </li>
-              ))}
-            </ul>
+            <ListGroup label="Standard operating procedures" rows={sops.map((p) => ({ label: p.title, href: p.source_url ?? undefined }))} />
           ) : <p className="body-sm">No procedures are published in the hub yet.</p>}
-          <Link href="/hub/resources" className="mt-3 inline-block text-[13px] text-gold">All resources →</Link>
+          <Link href="/hub/resources" className="mt-3 inline-block text-[13px] link">All resources →</Link>
         </Panel>
         <Panel title="Communications">
-          <ul className="grid gap-2 text-[14px]">
-            {([['patrol-announcements', 'Patrol Announcements'], ['patrol-chat', 'Patrol Chat'], ['patrol-suggestions', 'Suggestions']] as const).map(([c, l]) => (
-              <li key={c}><DiscordLink channel={c} label={l} className="flex min-h-11 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong" /></li>
-            ))}
-            <li><Link href="/hub/board" className="flex min-h-11 items-center justify-between rounded-lg border border-line px-3 hover:border-line-strong">Units on duty<span aria-hidden="true">→</span></Link></li>
-          </ul>
+          <ListGroup label="Patrol communications" rows={[
+            { label: 'Patrol Announcements', channel: 'patrol-announcements' },
+            { label: 'Patrol Chat', channel: 'patrol-chat' },
+            { label: 'Suggestions', channel: 'patrol-suggestions' },
+            { label: 'Units on duty', href: '/hub/board' },
+          ]} />
         </Panel>
       </div>
 
-      <Panel title="Recent patrol activity" className="mt-5" action={<Link href="/hub/shifts" className="text-[13px] text-gold">All logs</Link>}>
+      <Panel title="Recent patrol activity" className="mt-5" action={<Link href="/hub/shifts" className="text-[13px] link">All logs</Link>}>
         <RecentTable logs={logs ?? []} tz={tz} empty={<>No patrols logged yet.</>} />
       </Panel>
     </>

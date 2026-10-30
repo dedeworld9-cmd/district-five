@@ -1,8 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { Palette } from './Palette';
 import { ROUTE_ALIAS, type NavWorkspace } from '@/lib/workspaces';
 
 const ICON: Record<string, ReactNode> = {
@@ -15,7 +16,9 @@ const ICON: Record<string, ReactNode> = {
   profile: <><circle cx="12" cy="8" r="4" /><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6" /></>,
 };
 const Icon = ({ k }: { k: string }) => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" className="shrink-0">{ICON[k]}</svg>
+  <span className="grid h-[26px] w-[26px] shrink-0 place-items-center rounded-[7px] bg-white/[0.07] transition-colors duration-150 group-aria-[current=page]:bg-brand-button group-aria-[current=page]:text-white">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{ICON[k]}</svg>
+  </span>
 );
 
 const match = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
@@ -34,19 +37,20 @@ export function locate(path: string, nav: NavWorkspace[]) {
 function Tree({ nav, path, collapsed, onNavigate }: { nav: NavWorkspace[]; path: string; collapsed: boolean; onNavigate?: () => void }) {
   const here = locate(path, nav);
   const [open, setOpen] = useState<Record<string, boolean>>({});
-  const row = 'flex min-h-[42px] items-center gap-3 rounded-[10px] px-3 text-[14px] transition-colors';
-  const on = 'bg-brand-soft font-medium text-ink shadow-[inset_2px_0_0_var(--color-gold)]';
+  const row = 'group flex min-h-[40px] items-center gap-3 rounded-[10px] px-3 text-[14px] transition-[background-color,color] duration-150';
+  const on = 'bg-white/[0.09] font-medium text-ink';
   const off = 'text-muted hover:bg-white/[0.04] hover:text-ink';
   return (
-    <nav aria-label="Workspaces" className="grid gap-1 px-3 py-3">
+    <nav aria-label="Workspaces" className="grid gap-0.5 px-3 py-3">
       <Link href="/hub" onClick={onNavigate} title="Overview" aria-current={path === '/hub' ? 'page' : undefined} className={`${row} ${path === '/hub' ? on : off} ${collapsed ? 'justify-center px-0' : ''}`}>
         <Icon k="overview" />{!collapsed && 'Overview'}
       </Link>
+      {!collapsed && !!nav.length && <div className="mt-4 mb-1 px-3 text-[12px] font-medium text-faint">Workspaces</div>}
       {nav.map((w) => {
         const current = here?.ws.slug === w.slug;
         const expanded = !collapsed && (open[w.slug] ?? current);
         return (
-          <div key={w.slug} className="mt-1">
+          <div key={w.slug}>
             <div className="flex items-center">
               <Link href={w.href} onClick={onNavigate} title={w.label} aria-current={path === w.href ? 'page' : undefined}
                 className={`${row} min-w-0 flex-1 ${current ? 'text-ink' : off} ${path === w.href ? on : ''} ${collapsed ? 'justify-center px-0' : ''}`}>
@@ -66,7 +70,7 @@ function Tree({ nav, path, collapsed, onNavigate }: { nav: NavWorkspace[]; path:
                   return (
                     <li key={p.href}>
                       <Link href={p.href} onClick={onNavigate} aria-current={active ? 'page' : undefined}
-                        className={`flex min-h-9 items-center rounded-lg px-3 text-[13px] ${active ? 'bg-brand-soft font-medium text-ink' : 'text-muted hover:bg-white/[0.04] hover:text-ink'}`}>
+                        className={`flex min-h-9 items-center rounded-lg px-3 text-[13px] ${active ? 'bg-white/[0.07] font-medium text-ink' : 'text-muted hover:bg-white/[0.04] hover:text-ink'}`}>
                         <span className="truncate">{p.label}</span>
                       </Link>
                     </li>
@@ -78,7 +82,7 @@ function Tree({ nav, path, collapsed, onNavigate }: { nav: NavWorkspace[]; path:
         );
       })}
       <Link href="/hub/profile" onClick={onNavigate} title="Profile" aria-current={path.startsWith('/hub/profile') ? 'page' : undefined}
-        className={`${row} mt-2 ${path.startsWith('/hub/profile') ? on : off} ${collapsed ? 'justify-center px-0' : ''}`}>
+        className={`${row} mt-4 ${path.startsWith('/hub/profile') ? on : off} ${collapsed ? 'justify-center px-0' : ''}`}>
         <Icon k="profile" />{!collapsed && 'Profile'}
       </Link>
     </nav>
@@ -113,21 +117,39 @@ export function Breadcrumbs({ nav }: { nav: NavWorkspace[] }) {
   );
 }
 
-// Section tabs for the workspace the current page belongs to. Scrolls inside its own strip.
+// Segmented control for the workspace the current page belongs to. The highlight slides to the
+// selected segment; the strip scrolls inside itself when the segments do not fit.
 export function SectionNav({ nav }: { nav: NavWorkspace[] }) {
   const path = usePathname();
   const here = locate(path, nav);
+  const strip = useRef<HTMLUListElement>(null);
+  const [bar, setBar] = useState<{ left: number; width: number } | null>(null);
+  const activeLabel = here?.label;
+  useLayoutEffect(() => {
+    const measure = () => {
+      const el = strip.current?.querySelector<HTMLElement>('[aria-current="page"]');
+      const li = el?.parentElement; // the positioned segment
+      setBar(li ? { left: li.offsetLeft, width: li.offsetWidth } : null);
+      el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    };
+    measure();
+    // Font loading and container resizes change segment widths, so measure again.
+    document.fonts?.ready.then(measure);
+    const ro = new ResizeObserver(measure);
+    if (strip.current) ro.observe(strip.current);
+    return () => ro.disconnect();
+  }, [activeLabel, here?.ws.slug]);
   if (!here) return null;
-  const items = here.ws.pages;
   return (
-    <nav aria-label={`${here.ws.label} sections`} className="no-print -mx-1 mb-6 overflow-x-auto px-1 [scrollbar-width:none]">
-      <ul className="flex w-max min-w-full gap-1 border-b border-line">
-        {items.map((p) => {
-          const active = here.label === p.label || (here.label === 'Overview' && p.label === 'Overview');
+    <nav aria-label={`${here.ws.label} sections`} className="no-print mb-5 max-w-full overflow-x-auto [scrollbar-width:none] md:mb-6">
+      <ul ref={strip} className="relative flex w-max gap-0.5 rounded-[11px] bg-bg-2 p-1 ring-1 ring-line">
+        {bar && <li aria-hidden="true" className="absolute top-1 bottom-1 rounded-lg bg-raised shadow-[0_1px_2px_rgb(0_0_0/0.5)] ring-1 ring-white/[0.06] transition-[left,width] duration-200 ease-[var(--ease)]" style={{ left: bar.left, width: bar.width }} />}
+        {here.ws.pages.map((p) => {
+          const active = here.label === p.label;
           return (
-            <li key={p.href}>
+            <li key={p.href} className="relative">
               <Link href={p.href} aria-current={active ? 'page' : undefined}
-                className={`-mb-px flex h-11 items-center whitespace-nowrap border-b-2 px-3 text-[13px] ${active ? 'border-gold font-medium text-ink' : 'border-transparent text-muted hover:text-ink'}`}>
+                className={`flex h-9 items-center whitespace-nowrap rounded-lg px-3.5 text-[13px] transition-colors duration-150 ${active ? `font-medium text-ink ${bar ? '' : 'bg-raised'}` : 'text-muted hover:text-ink'}`}>
                 {p.label}
               </Link>
             </li>
@@ -143,6 +165,11 @@ export function Frame({ nav, brand, headerRight, children }: { nav: NavWorkspace
   const [collapsed, setCollapsed] = useState(false);
   const [drawer, setDrawer] = useState(false);
   const closeBtn = useRef<HTMLButtonElement>(null);
+  const router = useRouter();
+  const [palette, setPalette] = useState(false);
+  const quick = [
+    ...(nav.length ? [{ label: 'Start patrol', hint: 'Action', href: '/hub/patrol' }, { label: 'New activity log', hint: 'Action', href: '/hub/shifts/new' }] : []),
+  ];
 
   useEffect(() => {
     try { setCollapsed(localStorage.getItem('hcso:sidebar') === 'collapsed'); } catch { /* storage unavailable */ }
@@ -157,6 +184,26 @@ export function Frame({ nav, brand, headerRight, children }: { nav: NavWorkspace
     return () => { document.removeEventListener('keydown', key); document.body.style.overflow = ''; };
   }, [drawer]);
 
+  // Keyboard: ⌘K or Ctrl+K opens search, "/" too; "g" then a letter jumps to a workspace; "[" folds the sidebar.
+  useEffect(() => {
+    let g = 0;
+    const jump: Record<string, string> = { o: '/hub', d: '/hub/department', p: '/hub/patrol', l: '/hub/logging', t: '/hub/training', h: '/hub/high-ranking' };
+    const allowed = new Set(['/hub', ...nav.map((w) => w.href)]);
+    const key = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement;
+      const typing = el.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName);
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); setPalette((o) => !o); return; }
+      if (typing || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === '/') { e.preventDefault(); setPalette(true); return; }
+      if (e.key === '[') { toggleRef.current(); return; }
+      if (Date.now() - g < 1200 && jump[e.key] && allowed.has(jump[e.key])) { g = 0; router.push(jump[e.key]); return; }
+      g = e.key === 'g' ? Date.now() : 0;
+    };
+    document.addEventListener('keydown', key);
+    return () => document.removeEventListener('keydown', key);
+  }, [nav, router]);
+
+  const toggleRef = useRef(() => {});
   const toggle = () => {
     setCollapsed((c) => {
       try { localStorage.setItem('hcso:sidebar', c ? 'expanded' : 'collapsed'); } catch { /* ignore */ }
@@ -164,9 +211,11 @@ export function Frame({ nav, brand, headerRight, children }: { nav: NavWorkspace
     });
   };
 
+  toggleRef.current = toggle;
+
   return (
     <div className="ops min-h-screen" data-collapsed={collapsed}>
-      <aside aria-label="Sidebar" className="fixed inset-y-0 left-0 z-30 hidden flex-col border-r border-line bg-surface transition-[width] duration-200 lg:flex"
+      <aside aria-label="Sidebar" className="fixed inset-y-0 left-0 z-30 hidden flex-col glass border-r transition-[width] duration-200 ease-[var(--ease)] lg:flex"
         style={{ width: collapsed ? 72 : 252 }}>
         <div className={`flex h-[72px] shrink-0 items-center border-b border-line ${collapsed ? 'justify-center' : 'px-5'}`}>{collapsed ? <span className="[&_span]:sr-only">{brand}</span> : brand}</div>
         <div className="min-h-0 flex-1 overflow-y-auto"><Tree nav={nav} path={path} collapsed={collapsed} /></div>
@@ -179,7 +228,7 @@ export function Frame({ nav, brand, headerRight, children }: { nav: NavWorkspace
       {drawer && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <button type="button" aria-label="Close menu" className="absolute inset-0 bg-black/60" onClick={() => setDrawer(false)} tabIndex={-1} />
-          <div role="dialog" aria-modal="true" aria-label="Navigation" className="absolute inset-y-0 left-0 flex w-[min(86vw,300px)] flex-col border-r border-line bg-surface">
+          <div role="dialog" aria-modal="true" aria-label="Navigation" className="glass pop absolute inset-y-0 left-0 flex w-[min(86vw,300px)] flex-col border-r">
             <div className="flex h-[60px] shrink-0 items-center justify-between border-b border-line px-4">
               {brand}
               <button ref={closeBtn} type="button" onClick={() => setDrawer(false)} className="grid h-11 w-11 place-items-center rounded-lg text-muted hover:text-ink">
@@ -193,17 +242,29 @@ export function Frame({ nav, brand, headerRight, children }: { nav: NavWorkspace
       )}
 
       <div className="min-w-0 transition-[padding] duration-200 lg:pl-[var(--side)]" style={{ '--side': collapsed ? '72px' : '252px' } as React.CSSProperties}>
-        <header className="sticky top-0 z-20 flex h-[60px] items-center gap-3 border-b border-line bg-bg/90 px-4 backdrop-blur-md sm:px-5 md:h-[68px] lg:px-6 min-[1440px]:px-8">
+        <header className="sticky top-0 z-20 flex h-[60px] items-center gap-3 glass border-b px-4 sm:px-5 md:h-[68px] lg:px-6 min-[1440px]:px-8">
           <button type="button" onClick={() => setDrawer(true)} aria-expanded={drawer} className="-ml-2 grid h-11 w-11 shrink-0 place-items-center rounded-lg text-ink hover:bg-white/[0.06] lg:hidden">
             <span className="sr-only">Open menu</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
           </button>
+          <div className="hidden shrink-0 items-center rounded-full border border-white/10 bg-white/[0.04] lg:flex">
+            <button type="button" onClick={() => router.back()} aria-label="Back" className="grid h-9 w-10 place-items-center rounded-l-full text-muted transition-colors duration-150 hover:bg-white/[0.08] hover:text-ink"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="m15 6-6 6 6 6" /></svg></button>
+            <span className="h-4 w-px bg-white/10" aria-hidden="true" />
+            <button type="button" onClick={() => router.forward()} aria-label="Forward" className="grid h-9 w-10 place-items-center rounded-r-full text-muted transition-colors duration-150 hover:bg-white/[0.08] hover:text-ink"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" aria-hidden="true"><path d="m9 6 6 6-6 6" /></svg></button>
+          </div>
           <div className="min-w-0 flex-1"><Breadcrumbs nav={nav} /></div>
+          <button type="button" onClick={() => setPalette(true)} aria-label="Search and commands"
+            className="flex h-10 items-center gap-2 rounded-full border border-white/10 bg-white/[0.04] px-3.5 text-[13px] text-muted transition-colors duration-150 hover:bg-white/[0.08] hover:text-ink">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg>
+            <span className="hidden md:inline">Search</span>
+            <kbd className="hidden rounded border border-white/10 px-1 text-[11px] text-faint md:inline">⌘K</kbd>
+          </button>
           {headerRight}
         </header>
+        <Palette nav={nav} open={palette} onClose={() => setPalette(false)} quick={quick} />
         <main id="main" className="mx-auto w-full max-w-[1504px] px-4 pt-6 pb-12 sm:px-5 md:pt-7 md:pb-12 lg:px-6 min-[1440px]:px-8">
           <SectionNav nav={nav} />
-          {children}
+          <div key={path} className="ops-enter">{children}</div>
         </main>
       </div>
     </div>

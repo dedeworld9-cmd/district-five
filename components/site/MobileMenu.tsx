@@ -50,7 +50,7 @@ export function MobileMenu({ items, footer, className = '' }: { items: MenuItem[
         </svg>
       </button>
       <div ref={panel} id={id} hidden={!open}
-        className="absolute inset-x-3 top-full mt-2 rounded-2xl border border-line-strong bg-surface p-2 shadow-[0_24px_60px_-20px_rgb(0_0_0/0.8)]">
+        className="absolute inset-x-3 top-full mt-2 rounded-2xl border border-white/10 bg-surface/80 p-2 backdrop-blur-xl shadow-[0_24px_60px_-20px_rgb(0_0_0/0.8)]">
         <nav aria-label="Menu">
           <ul className="grid gap-0.5">
             {items.map((i) => {

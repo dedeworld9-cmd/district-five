@@ -23,7 +23,7 @@ export function DraftRecovery() {
   if (!draft) return null;
   return (
     <div className="rounded-xl border border-gold/30 bg-gold/[0.06] p-4 text-[13px]">
-      <div className="font-medium text-gold">Unsent draft found in this browser</div>
+      <div className="font-medium link">Unsent draft found in this browser</div>
       <p className="mt-1 truncate text-muted">{draft.summary}</p>
       <Link href={draft.href} className="btn btn-sm mt-3">Recover draft</Link>
     </div>

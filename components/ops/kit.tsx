@@ -11,9 +11,9 @@ export function WorkspaceHeader({ title, description, children, restricted }: { 
   return (
     <div className="mb-[18px] flex flex-wrap items-end justify-between gap-x-4 gap-y-3 md:mb-6 md:min-h-[68px]">
       <div className="min-w-0">
-        <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[24px] leading-tight font-semibold tracking-tight md:text-[28px]">
+        <h1 className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[22px] leading-tight font-semibold tracking-tight md:text-[26px]">
           {title}
-          {restricted && <span className="tag tag-gold"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>{restricted}</span>}
+          {restricted && <span className="tag"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V8a4 4 0 0 1 8 0v3" /></svg>{restricted}</span>}
         </h1>
         {description && <p className="mt-1.5 max-w-2xl text-[13px] text-muted md:text-[14px]">{description}</p>}
       </div>
@@ -98,7 +98,7 @@ export function ResourceCard({ item }: { item: ResourceItem }) {
       </div>
       <div className="mt-4 flex items-center justify-between gap-2 text-[12px]">
         <span className="text-faint">{item.tag ?? (item.channel ? 'Discord' : external ? 'Document' : 'In the hub')}</span>
-        <span className="text-gold">{url ? (external ? 'Open ↗' : 'Open →') : 'Unavailable'}</span>
+        <span className="link">{url ? (external ? 'Open ↗' : 'Open →') : 'Unavailable'}</span>
       </div>
     </>
   );
@@ -163,4 +163,32 @@ export function AccessDenied({ gate }: { gate: Gate }) {
 
 export function Skeleton({ className = '' }: { className?: string }) {
   return <div className={`skeleton ${className}`} aria-hidden="true" />;
+}
+
+// Settings-style grouped list: one solid rounded container, hairline rows, a chevron on the right.
+export type ListRow = { label: string; sub?: string; href?: string; channel?: ChannelKey; right?: ReactNode };
+export function ListGroup({ rows, label }: { rows: ListRow[]; label?: string }) {
+  return (
+    <ul aria-label={label} className="divide-y divide-line overflow-hidden rounded-xl border border-line bg-bg-2">
+      {rows.map((r) => {
+        const url = r.channel ? channelLink(r.channel).url : r.href;
+        const external = !!url && /^https?:/.test(url);
+        const inner = (
+          <>
+            <span className="min-w-0"><span className="block truncate text-[14px]">{r.label}</span>{r.sub && <span className="block truncate text-[12px] text-faint">{r.sub}</span>}</span>
+            <span className="flex shrink-0 items-center gap-2 text-faint">{r.right}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true">{external ? <path d="M7 17 17 7M8 7h9v9" /> : <path d="m9 6 6 6-6 6" />}</svg></span>
+          </>
+        );
+        const cls = 'flex min-h-12 items-center justify-between gap-3 px-4 py-2.5 transition-colors duration-150 hover:bg-white/[0.04]';
+        return (
+          <li key={r.label}>
+            {!url ? <div className={cls}>{inner}</div>
+              : external ? <a href={url} target="_blank" rel="noopener noreferrer" className={cls}>{inner}<span className="sr-only">Opens in a new tab</span></a>
+              : <Link href={url} className={cls}>{inner}</Link>}
+          </li>
+        );
+      })}
+    </ul>
+  );
 }

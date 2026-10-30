@@ -5,7 +5,7 @@ import { CHAIN_OF_COMMAND, LEADERSHIP, SITE } from '@/lib/site';
 export const metadata = { title: 'Team' };
 
 // Top bar colour per level, from badge gold at the top to HCSO green at the bottom.
-const LEVEL_COLORS = ['#e3c15a', '#c9b45a', '#8fc46a', '#4fd18a', '#3a8f63'];
+const LEVEL_COLORS = ['#c9a96a', '#7d8794', '#7d8794', '#7d8794', '#5a626d'];
 
 export default async function Team() {
   const session = await getSession();

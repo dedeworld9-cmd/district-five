@@ -34,3 +34,12 @@ Zero changed lines in `supabase/`, `app/hub/actions.ts`, `lib/supabase/`, `lib/s
 - Whether each Discord channel is visible to a given member is decided by Discord.
 - Inter/Geist are named in the font stack but not bundled (no new dependency); systems without them use the system font.
 - The dashboard at `/hub` keeps its earlier layout inside the new shell.
+
+## Apple-inspired redesign pass (2026-10-30, local, not deployed)
+- Tokens: near-black `#090b10` background, `#0e1117` secondary, `#141820` surfaces, `#1a2029` raised, `#232932` dividers. Scoped to `.ops`; the public site uses the same base colors.
+- Materials: `.glass` (blur 20px, 72% surface) only on the sidebar, toolbar, drawer, account menu, mobile menu and command palette. Cards, forms, tables and the patrol panel are solid.
+- Accents: green for primary actions, active patrol and selected icon tiles; gold for callsigns, rank text and the hero's second line. Links are neutral.
+- Shell: pill back/forward and search, command palette (Ctrl or Cmd+K, `/`), `g` then `d/p/l/t/h/o` jumps, `[` folds the sidebar. Palette and shortcuts list only pages the member may open; each page still checks its own gate.
+- Components: Settings-style grouped lists, sliding segmented section control, 150–200ms transitions, dialog and popover pop animation, all disabled under reduced motion.
+- Public site: removed rainbow gradients, colored card tops and green tints; hero line and stats are calmer.
+- Not built: side-panel detail views (the backend has no detail endpoints beyond the existing detail pages).

@@ -1,9 +1,10 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-bg: #07090e;
-  --color-surface: #0d1118;
-  --color-raised: #131823;
+  --color-bg: #090b10;
+  --color-bg-2: #0e1117;
+  --color-surface: #141820;
+  --color-raised: #1a2029;
   --color-line: rgb(255 255 255 / 0.07);
   --color-line-strong: rgb(255 255 255 / 0.13);
   --color-ink: #eef1f6;
@@ -185,8 +186,8 @@
 @layer components {
   .site-bg { position: absolute; inset: 0 0 auto 0; height: 820px; z-index: -1; pointer-events: none;
     background:
-      radial-gradient(60% 55% at 85% 10%, color-mix(in srgb, var(--theme-b, #c9a227) 10%, transparent), transparent 70%),
-      radial-gradient(70% 60% at 10% 0%, color-mix(in srgb, var(--theme-a, #2f8f5b) 20%, transparent), transparent 70%); }
+      radial-gradient(60% 55% at 85% 10%, color-mix(in srgb, var(--theme-b, #c9a227) 4%, transparent), transparent 70%),
+      radial-gradient(70% 60% at 10% 0%, color-mix(in srgb, var(--theme-a, #2f8f5b) 9%, transparent), transparent 70%); }
 }
 
 /* Signed-in app: the same night backdrop, quieter. */
@@ -241,40 +242,64 @@
 }
 
 
-/* Operations Center: the member hub's palette. Scoped to .ops so the public site is unchanged. */
+/* Operations Center. Near-black workspace, solid content surfaces, glass only on navigation and
+   floating layers. Tokens are scoped to .ops so the public site keeps its own palette. */
 .ops {
-  --color-bg: #091526;
-  --color-surface: #101f35;
-  --color-raised: #15294a;
-  --color-line: rgb(246 244 239 / 0.09);
-  --color-line-strong: rgb(246 244 239 / 0.18);
-  --color-ink: #f6f4ef;
-  --color-muted: #8a96a6;
-  --color-faint: #7f8b9c;
-  --color-gold: #c4a46a;
-  --color-brand: #3f9a77;
-  --color-brand-strong: #5cb894;
-  --color-brand-soft: rgb(23 61 50 / 0.7);
-  --color-brand-button: #1f6a50;
-  --color-ok: #5cc49a;
-  --theme-a: #c4a46a;
-  --theme-b: #173d32;
-  --accent: #c4a46a;
+  --color-bg: #090b10;
+  --color-bg-2: #0e1117;
+  --color-surface: #141820;
+  --color-raised: #1a2029;
+  --color-line: #232932;
+  --color-line-strong: #2f3641;
+  --color-ink: #f2f4f7;
+  --color-muted: #9aa3b0;
+  --color-faint: #848d9a;
+  --color-gold: #c9a96a;
+  --color-brand: #34a56f;
+  --color-brand-strong: #4cc38a;
+  --color-brand-soft: rgb(52 165 111 / 0.14);
+  --color-brand-button: #1e7a52;
+  --color-ok: #4cc38a;
+  --theme-a: #4cc38a;
+  --theme-b: #c9a96a;
+  --accent: #4cc38a;
+  --glass: rgb(20 24 32 / 0.72);
+  --glass-line: rgb(255 255 255 / 0.08);
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
   background: var(--color-bg);
   color: var(--color-ink);
-  font-family: Inter, Geist, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: Inter, Geist, ui-sans-serif, system-ui, -apple-system, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.006em;
 }
-.ops .card { border-radius: 14px; }
-.ops .btn, .ops .btn-primary, .ops .btn-danger, .ops .btn-brand { border-radius: 10px; height: 42px; }
+.ops .card { border-radius: 14px; border-color: var(--color-line); }
+.ops .btn, .ops .btn-primary, .ops .btn-danger, .ops .btn-brand { border-radius: 10px; height: 40px; transition: background-color 150ms var(--ease), border-color 150ms var(--ease), transform 120ms var(--ease); }
 .ops .btn-sm { height: 32px; }
-.ops .btn-primary { background: var(--color-gold); color: #091526; }
-.ops .btn-primary:hover { background: #d3b57c; }
-.ops .input, .ops select.input { min-height: 42px; border-radius: 10px; }
+.ops .btn { background: var(--color-raised); border-color: var(--color-line-strong); }
+.ops .btn:hover { background: #222a35; }
+.ops .btn-primary { background: var(--color-brand-button); color: #fff; }
+.ops .btn-primary:hover { background: #24905f; }
+.ops .btn-brand { background: var(--color-brand-button); }
+.ops .btn-brand:hover { background: #24905f; }
+.ops .input, .ops select.input { min-height: 40px; border-radius: 10px; background: var(--color-bg-2); border-color: var(--color-line-strong); }
+.ops .input:focus { border-color: var(--color-brand); box-shadow: 0 0 0 3px rgb(76 195 138 / 0.18); }
+:where(.ops) :focus-visible { outline-color: var(--color-brand-strong); }
 @media (max-width: 767px) {
   .ops .btn, .ops .btn-primary, .ops .btn-danger, .ops .btn-brand { height: 46px; }
   .ops .input, .ops select.input { min-height: 46px; }
 }
 .ops .tnum { font-variant-numeric: tabular-nums; }
+.ops .glass { background: var(--glass); -webkit-backdrop-filter: saturate(180%) blur(20px); backdrop-filter: saturate(180%) blur(20px); border-color: var(--glass-line); }
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) { .ops .glass { background: rgb(20 24 32 / 0.97); } }
+.ops .link { color: var(--color-muted); transition: color 150ms var(--ease); }
+.ops .link:hover { color: var(--color-ink); }
 @keyframes ops-pulse { 0%,100% { opacity: .55 } 50% { opacity: 1 } }
-.ops .skeleton { background: rgb(246 244 239 / 0.07); border-radius: 8px; animation: ops-pulse 1.6s ease-in-out infinite; }
-@media (prefers-reduced-motion: reduce) { .ops .skeleton { animation: none; } }
+@keyframes ops-pop { from { opacity: 0; transform: translateY(6px) scale(0.985); } to { opacity: 1; transform: none; } }
+@keyframes ops-fade { from { opacity: 0; } to { opacity: 1; } }
+.ops .skeleton { background: var(--color-raised); border-radius: 8px; animation: ops-pulse 1.6s ease-in-out infinite; }
+.ops .ops-enter { animation: ops-fade 160ms ease-out; }
+.ops .pop { animation: ops-pop 180ms var(--ease); }
+.ops dialog[open] { animation: ops-pop 200ms var(--ease); }
+.ops dialog::backdrop { background: rgb(0 0 0 / 0.55); -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px); }
+@media (prefers-reduced-motion: reduce) {
+  .ops *, .ops *::before, .ops *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

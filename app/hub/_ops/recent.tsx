@@ -18,7 +18,7 @@ export function RecentTable({ logs, tz, empty }: { logs: ShiftLog[]; tz: string;
           <span key="t" className="tnum whitespace-nowrap text-muted">{timeOnly(l.started_at, tz)} – {timeOnly(l.ended_at, tz)}</span>,
           <span key="q" className="tnum">{duration(l.duration_minutes)}</span>,
           <StatusTag key="s" status={l.status} />,
-          <Link key="o" href={`/hub/shifts/${l.id}`} className="text-gold" aria-label={`Open ${l.ref}`}>Open</Link>,
+          <Link key="o" href={`/hub/shifts/${l.id}`} className="link" aria-label={`Open ${l.ref}`}>Open</Link>,
         ],
       }))}
     />
