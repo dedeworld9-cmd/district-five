@@ -4,6 +4,7 @@ import { Empty, Flash, PageHead } from '@/components/ui';
 import { requireSession } from '@/lib/session';
 import { createClient } from '@/lib/supabase/server';
 import type { Membership, Policy, Rank } from '@/lib/types';
+import { atLeast } from '@/lib/tiers';
 import { acknowledgePolicy, savePolicy } from '../actions';
 import { EQUIPMENT, EQUIPMENT_LABEL, equipmentKinds } from '@/lib/equipment';
 
@@ -43,7 +44,7 @@ export default async function Resources({ searchParams }: { searchParams: Promis
   const pending = (policies ?? []).filter((p) => p.requires_acknowledgment && !acked.has(`${p.id}:${p.version}`));
 
   // Where the caller can add material: departments they head or oversee, and district-wide for division command.
-  const manageable = s.departments.filter((d) => d.kind === 'department' && (s.tierIn(d.key) === 'department_head' || s.tierIn(d.key) === 'dps' || s.oversees(d.key)));
+  const manageable = s.departments.filter((d) => d.kind === 'department' && (atLeast(s.tierIn(d.key), d.key === 'hcso' ? 'high_command' : 'department_head') || s.oversees(d.key) || (d.key === 'hcso' && s.isAdmin)));
   const canDistrict = s.isDps;
   const standards = s.departments.filter((d) => equipmentKinds(d.key).length && (s.active.some((m) => m.department_key === d.key) || s.oversees(d.key)));
 
@@ -113,6 +114,36 @@ export default async function Resources({ searchParams }: { searchParams: Promis
                               <button className="btn btn-sm">I have read this</button>
                             </form>
                           ) : <span className="tag">Acknowledged</span>)}
+                          {(p.department_key ? manageable.some((d) => d.key === p.department_key) : canDistrict) && (
+                            <details className="basis-full">
+                              <summary className="cursor-pointer text-[13px] text-muted hover:text-ink">Edit</summary>
+                              <form action={savePolicy} className="mt-3 grid gap-3 sm:grid-cols-2">
+                                <input type="hidden" name="id" value={p.id} />
+                                <input type="hidden" name="department" value={p.department_key ?? 'district'} />
+                                <label className="field sm:col-span-2"><span>Title</span>
+                                  <input name="title" className="input" required maxLength={200} defaultValue={p.title} />
+                                </label>
+                                <label className="field"><span>Category</span>
+                                  <select name="category" className="input" defaultValue={p.category}>
+                                    {Object.entries(CATEGORIES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                                  </select>
+                                </label>
+                                <label className="field"><span>Version</span>
+                                  <input name="version" className="input" maxLength={20} defaultValue={p.version} />
+                                </label>
+                                <label className="field sm:col-span-2"><span>Link</span>
+                                  <input name="source_url" type="url" className="input" required defaultValue={p.source_url ?? ''} />
+                                </label>
+                                <label className="field sm:col-span-2"><span>Short description (optional)</span>
+                                  <input name="summary" className="input" maxLength={200} defaultValue={p.summary ?? ''} />
+                                </label>
+                                <label className="flex items-center gap-2 text-[14px] sm:col-span-2">
+                                  <input type="checkbox" name="requires_ack" defaultChecked={p.requires_acknowledgment} /> Members must confirm they have read it
+                                </label>
+                                <div className="sm:col-span-2"><button className="btn-primary btn-sm">Save changes</button></div>
+                              </form>
+                            </details>
+                          )}
                         </div>
                       );
                     })}

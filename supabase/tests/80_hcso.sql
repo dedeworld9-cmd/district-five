@@ -64,3 +64,34 @@ set role authenticated;
 select tst.fails($$update public.profiles set is_admin = true where id = auth.uid()$$, '42501', 'profile: cannot grant yourself admin');
 select tst.fails($$update public.profiles set discord_rank = 'Sheriff' where id = auth.uid()$$, '42501', 'profile: cannot write the rank hint directly');
 reset role;
+
+-- Resources: HCSO high command edits the library; deputies and other departments cannot.
+do $$
+declare
+  c uuid; d uuid;
+begin
+  insert into auth.users (email, raw_user_meta_data) values ('hcso_captain@example.test', jsonb_build_object('full_name', '[TEST] hcso_captain', 'provider_id', 'disc-hc')) returning id into c;
+  insert into tst.people values ('hcso_captain', c);
+  insert into auth.users (email, raw_user_meta_data) values ('hcso_deputy@example.test', jsonb_build_object('full_name', '[TEST] hcso_deputy', 'provider_id', 'disc-hd')) returning id into d;
+  insert into tst.people values ('hcso_deputy', d);
+  insert into public.memberships (profile_id, display_name, department_key, rank_id, rank_name, tier, status)
+  select c, '[TEST] hcso_captain', 'hcso', r.id, r.name, r.tier, 'active' from public.ranks r where r.department_key = 'hcso' and r.name = 'Captain';
+  insert into public.memberships (profile_id, display_name, department_key, rank_id, rank_name, tier, status)
+  select d, '[TEST] hcso_deputy', 'hcso', r.id, r.name, r.tier, 'active' from public.ranks r where r.department_key = 'hcso' and r.name = 'Deputy First Class';
+end $$;
+
+select tst.become('hcso_captain');
+set role authenticated;
+select tst.ok((public.save_policy(null, '[TEST] Added by captain', 'sop', 'hcso', '1.0', null, null, 'https://example.test/a', false, null, true)).title = '[TEST] Added by captain', 'resources: hcso captain adds a policy');
+select tst.ok((public.save_policy((select id from public.policies where title = '[TEST] Added by captain'), '[TEST] Edited by captain', 'sop', 'hcso', '1.1', null, null, 'https://example.test/a', false, null, true)).title = '[TEST] Edited by captain', 'resources: hcso captain edits a policy');
+reset role;
+
+select tst.become('hcso_deputy');
+set role authenticated;
+select tst.fails($$select public.save_policy(null, '[TEST] nope', 'sop', 'hcso', '1.0', null, null, 'https://example.test/b', false, null, true)$$, 'D5403', 'resources: hcso deputy cannot add a policy');
+reset role;
+
+select tst.become('bcso_hc');
+set role authenticated;
+select tst.fails($$select public.save_policy(null, '[TEST] nope', 'sop', 'hcso', '1.0', null, null, 'https://example.test/c', false, null, true)$$, 'D5403', 'resources: another department''s captain cannot edit hcso resources');
+reset role;
