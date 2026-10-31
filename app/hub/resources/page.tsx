@@ -6,10 +6,6 @@ import { createClient } from '@/lib/supabase/server';
 import type { Membership, Policy, Rank } from '@/lib/types';
 import { acknowledgePolicy, savePolicy } from '../actions';
 import { EQUIPMENT, EQUIPMENT_LABEL, equipmentKinds } from '@/lib/equipment';
-import bcsoCommand from '@/content/bcso/command.json';
-
-// Command staff as posted by each department, shown alongside the live roster.
-const COMMAND: Record<string, typeof bcsoCommand> = { bcso: bcsoCommand };
 
 export const metadata = { title: 'Resources' };
 
@@ -140,37 +136,6 @@ export default async function Resources({ searchParams }: { searchParams: Promis
                 </div>
               )}
             </div>
-            {COMMAND[dept.key] && (
-              <div className="mb-4 grid gap-4">
-                {COMMAND[dept.key].groups.map((g) => (
-                  <div key={g.title} className="card divide-y divide-line">
-                    <div className="px-4 py-2.5 text-[12px] font-medium text-faint">{g.title}</div>
-                    {g.tiers.map((t, i) => (
-                      <div key={g.title + i} className="grid gap-2 px-4 py-3 sm:grid-cols-[220px_1fr] sm:gap-4">
-                        <div>
-                          <div className="text-[14px] font-medium text-[var(--theme-a)]">{t.rank}</div>
-                          <div className="text-[12px] text-faint">{t.role}{'duty' in t && t.duty ? ` · ${t.duty}` : ''}</div>
-                        </div>
-                        <div className="grid gap-1.5">
-                          {t.people.map((m, j) => (
-                            <div key={j} className="text-[14px]">
-                              {m.callsign && <span className="mr-1.5 font-mono text-[13px] text-gold">{m.callsign}</span>}
-                              <span className={m.name === 'Vacant' ? 'text-faint italic' : ''}>{m.name}</span>
-                              {'duty' in m && m.duty && <div className="text-[12px] text-muted">{m.duty}</div>}
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ))}
-                <p className="text-[12px] text-faint">
-                  From the {dept.short_name} chain-of-command post. Full chain on the{' '}
-                  <a href={COMMAND[dept.key].roster} target="_blank" rel="noreferrer noopener" className="text-muted underline hover:text-ink">main roster ↗</a>.
-                  Members signed in to the hub are listed below.
-                </p>
-              </div>
-            )}
             {chain.length || unranked.length ? (
               <div className="card divide-y divide-line">
                 {chain.map(({ r, list }) => (
