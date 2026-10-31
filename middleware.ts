@@ -16,11 +16,15 @@ export async function middleware(request: NextRequest) {
       },
     },
   });
-  const { data: { user } } = await supabase.auth.getUser();
+  const { data: { user }, error } = await supabase.auth.getUser();
   if (!user && request.nextUrl.pathname.startsWith('/hub')) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-    url.search = `?next=${encodeURIComponent(request.nextUrl.pathname)}`;
+    // An unreachable backend is not the same as being signed out; say so instead of asking for a sign-in.
+    const down = error?.name === 'AuthRetryableFetchError' || error?.status === 0 || (error?.status ?? 0) >= 500;
+    url.search = down
+      ? `?error=${encodeURIComponent('The member hub cannot reach its database right now. Try again in a minute.')}`
+      : `?next=${encodeURIComponent(request.nextUrl.pathname)}`;
     return NextResponse.redirect(url);
   }
   return response;

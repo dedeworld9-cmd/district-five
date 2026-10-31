@@ -68,7 +68,7 @@ export default async function Roster({ searchParams }: { searchParams: Promise<R
               {shown.map((m, i) => (
                 <Fragment key={m.id}>
                 {(i === 0 || shown[i - 1].rank_name !== m.rank_name) && !q && (
-                  <tr><td colSpan={5} className="!pt-5 !pb-2 text-[11px] font-semibold tracking-[0.12em] text-faint uppercase">{m.rank_name ?? 'No rank'}</td></tr>
+                  <tr><td colSpan={5} className="!pt-5 !pb-2 text-[12px] font-medium text-faint">{m.rank_name ?? 'No rank'}</td></tr>
                 )}
                 <tr className="hover:bg-white/[0.02]">
                   <td className="font-mono text-[13px] text-gold">{m.callsign ?? '—'}</td>

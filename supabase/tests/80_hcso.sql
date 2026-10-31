@@ -57,3 +57,10 @@ select tst.fails(format('select public.update_membership(%L, %L, null, null, nul
   (select id from public.memberships where profile_id = tst.id('hcso_sheriff') and department_key = 'hcso'),
   (select id from public.ranks where department_key = 'hcso' and name = 'Captain'), '[TEST] demote'), 'D5403', 'hcso undersheriff: cannot change the sheriff');
 reset role;
+
+-- Profiles are written only through functions: nobody edits their own admin flag or rank hint directly.
+select tst.become('bcso_sup');
+set role authenticated;
+select tst.fails($$update public.profiles set is_admin = true where id = auth.uid()$$, '42501', 'profile: cannot grant yourself admin');
+select tst.fails($$update public.profiles set discord_rank = 'Sheriff' where id = auth.uid()$$, '42501', 'profile: cannot write the rank hint directly');
+reset role;

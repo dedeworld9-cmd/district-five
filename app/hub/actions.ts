@@ -59,11 +59,25 @@ export async function setActiveDepartment(form: FormData) {
 export async function setDuty(form: FormData) {
   const dept = str(form, 'department');
   const status = str(form, 'status');
-  const since = str(form, 'since');
   const back = safePath(str(form, 'back'), '/hub');
-  const { error } = await rpc('set_duty_status', { p_department: dept, p_status: status });
-  revalidatePath('/hub', 'layout');
-  if (error) flash(back, 'error', friendly(error));
+  if (!dept || (status !== 'on_duty' && status !== 'off_duty')) flash(back, 'error', 'That patrol request was not valid.');
+
+  // The database stamps the clock each time this runs, so a repeat (double click, second tab, replayed
+  // request) must not reach it: starting twice would restart the timer. The stored status and start
+  // time are the only source of truth; the browser's copy is never trusted.
+  const supabase = await createClient();
+  const { data: cur } = await supabase.from('memberships').select('duty_status,duty_changed_at')
+    .eq('profile_id', (await requireSession()).userId).eq('department_key', dept).eq('status', 'active')
+    .maybeSingle<{ duty_status: string; duty_changed_at: string | null }>();
+  const since = cur?.duty_status === 'on_duty' ? cur.duty_changed_at : null;
+  if (cur && cur.duty_status !== status) {
+    const { error } = await rpc('set_duty_status', { p_department: dept, p_status: status });
+    revalidatePath('/hub', 'layout');
+    if (error) flash(back, 'error', friendly(error));
+  } else if (!cur) {
+    const { error } = await rpc('set_duty_status', { p_department: dept, p_status: status });
+    if (error) flash(back, 'error', friendly(error));
+  }
   // Clocking out opens a prefilled shift log; nothing is submitted until the member confirms.
   if (status === 'off_duty' && since) {
     const q = new URLSearchParams({ dept: dept ?? '', start: since, end: new Date().toISOString(), ended: '1' });

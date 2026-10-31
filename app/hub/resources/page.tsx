@@ -144,7 +144,7 @@ export default async function Resources({ searchParams }: { searchParams: Promis
               <div className="mb-4 grid gap-4">
                 {COMMAND[dept.key].groups.map((g) => (
                   <div key={g.title} className="card divide-y divide-line">
-                    <div className="px-4 py-2.5 text-[12px] font-medium uppercase tracking-wider text-faint">{g.title}</div>
+                    <div className="px-4 py-2.5 text-[12px] font-medium text-faint">{g.title}</div>
                     {g.tiers.map((t, i) => (
                       <div key={g.title + i} className="grid gap-2 px-4 py-3 sm:grid-cols-[220px_1fr] sm:gap-4">
                         <div>
